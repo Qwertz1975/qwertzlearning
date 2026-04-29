@@ -3,161 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kuis Seni Budaya - Ujian Praktik</title>
+    <title>Kuis Master Seni Budaya</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --background: #f8f9fa;
-            --text: #333;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--background);
-            color: var(--text);
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
-        h1 {
-            text-align: center;
-            color: var(--primary);
-            border-bottom: 2px solid var(--secondary);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-
-        .music-player {
-            background: #eef2f5;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 30px;
-            border: 1px dashed #bdc3c7;
-        }
-
-        .music-player h3 {
-            margin-top: 0;
-            color: var(--primary);
-        }
-
-        .music-player input[type="file"] {
-            margin-bottom: 15px;
-            font-size: 14px;
-        }
-
-        audio {
-            width: 100%;
-            outline: none;
-        }
-
-        .question-card {
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            transition: transform 0.2s;
-        }
-
-        .question-card:hover {
-            border-color: var(--secondary);
-        }
-
-        .question-text {
-            font-size: 1.1em;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: var(--primary);
-        }
-
-        .options label {
-            display: block;
-            padding: 10px 15px;
-            margin-bottom: 8px;
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .options label:hover {
-            background: #e9ecef;
-        }
-
-        input[type="radio"] {
-            margin-right: 12px;
-            transform: scale(1.2);
-        }
-
-        .submit-btn {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            background-color: var(--secondary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.2em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s;
-            margin-top: 30px;
-        }
-
-        .submit-btn:hover {
-            background-color: #2980b9;
-        }
-
-        #result {
-            text-align: center;
-            font-size: 1.8em;
-            font-weight: bold;
-            margin-top: 30px;
-            padding: 20px;
-            border-radius: 8px;
+        /* Custom Audio Input Hide */
+        input[type="file"] {
             display: none;
         }
 
-        .score-high { background-color: #d4edda; color: #155724; }
-        .score-med { background-color: #fff3cd; color: #856404; }
-        .score-low { background-color: #f8d7da; color: #721c24; }
+        /* Option Styling & Animations */
+        .option-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .option-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .correct {
+            background: rgba(16, 185, 129, 0.2) !important;
+            border-color: #10b981 !important;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+            color: #34d399;
+        }
+
+        .wrong {
+            background: rgba(239, 68, 68, 0.2) !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            transition: width 0.4s ease;
+        }
     </style>
 </head>
-<body>
+<body class="p-4 sm:p-8">
 
-    <div class="container">
-        <h1>Ujian Praktik: Seni Budaya</h1>
-        
-        <div class="music-player">
-            <h3>🎵 Putar Lagu Pengiring</h3>
-            <p style="font-size: 0.9em; color: #7f8c8d; margin-top: -10px;">Tambahkan file audio dari perangkatmu untuk menemani belajar</p>
-            <input type="file" id="audioUpload" accept="audio/*">
-            <audio id="audioPlayer" controls style="display: none;"></audio>
+    <!-- Header & Audio Player -->
+    <div class="max-w-3xl mx-auto w-full mb-8 flex flex-col sm:flex-row justify-between items-center gap-4 fade-in">
+        <div>
+            <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+                Ujian Praktik Master
+            </h1>
+            <p class="text-gray-400 text-sm mt-1">Seni Budaya - Tingkat Analisis Lanjut</p>
         </div>
 
-        <form id="quizForm">
-            <div id="quizContainer"></div>
-            <button type="submit" class="submit-btn">Kumpulkan Jawaban</button>
-        </form>
+        <div class="glass-panel p-3 rounded-xl flex items-center gap-4">
+            <label class="cursor-pointer flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 transition px-4 py-2 rounded-lg text-sm font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                </svg>
+                Pilih Lagu
+                <input type="file" id="audioUpload" accept="audio/*">
+            </label>
+            <audio id="audioPlayer" controls class="h-8 w-48 hidden rounded-lg"></audio>
+        </div>
+    </div>
 
-        <div id="result"></div>
+    <!-- Main Quiz Area -->
+    <div class="max-w-3xl mx-auto w-full glass-panel rounded-2xl p-6 sm:p-10 fade-in" id="quizContainer">
+        
+        <!-- Progress -->
+        <div class="mb-8">
+            <div class="flex justify-between text-sm text-gray-400 mb-2">
+                <span id="questionCount">Soal 1 dari 8</span>
+                <span id="scoreText">Skor: 0</span>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-2">
+                <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full progress-bar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Question -->
+        <h2 id="questionText" class="text-xl sm:text-2xl font-semibold mb-8 leading-relaxed">
+            <!-- Teks soal akan dimuat di sini -->
+        </h2>
+
+        <!-- Options -->
+        <div id="optionsContainer" class="flex flex-col gap-4">
+            <!-- Tombol pilihan akan dimuat di sini -->
+        </div>
+
+        <!-- Next Button (Hidden by default) -->
+        <div class="mt-8 flex justify-end">
+            <button id="nextBtn" class="hidden bg-white text-gray-900 px-8 py-3 rounded-xl font-bold hover:bg-gray-200 transition transform hover:scale-105">
+                Lanjut ke Soal Berikutnya ➔
+            </button>
+        </div>
+    </div>
+
+    <!-- Result Screen (Hidden by default) -->
+    <div id="resultScreen" class="max-w-3xl mx-auto w-full glass-panel rounded-2xl p-10 text-center hidden fade-in">
+        <h2 class="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500">Kuis Selesai!</h2>
+        <div class="text-6xl font-black mb-6" id="finalScore">100</div>
+        <p id="feedbackText" class="text-xl text-gray-300 mb-8">Luar Biasa! Pemahaman analisismu sangat tajam.</p>
+        <button onclick="location.reload()" class="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-700 transition">
+            ↻ Ulangi Kuis
+        </button>
     </div>
 
     <script>
-        // Fitur Pemutar Musik Kustom
+        // --- FITUR AUDIO ---
         const audioUpload = document.getElementById('audioUpload');
         const audioPlayer = document.getElementById('audioPlayer');
 
@@ -166,139 +156,213 @@
             if (file) {
                 const objectUrl = URL.createObjectURL(file);
                 audioPlayer.src = objectUrl;
-                audioPlayer.style.display = 'block';
+                audioPlayer.classList.remove('hidden');
                 audioPlayer.play();
             }
         });
 
-        // Data Soal (Berdasarkan Kisi-kisi, Tingkat Susah)
-        const allQuestions = [
+        // --- DATA SOAL SANGAT SUSAH (Analisis Kisi-kisi) ---
+        const rawQuestions = [
             {
-                q: "Seorang penyanyi pria memiliki jangkauan suara yang berada di antara nada tertinggi dan terendah khusus pria. Jika ia tidak mampu mencapai nada Tenor namun suaranya terlalu tinggi untuk Bass, maka wilayah suaranya diklasifikasikan sebagai...",
-                options: ["Alto", "Mezzo Sopran", "Bariton", "Sopran"],
-                a: "Bariton"
+                question: "Berdasarkan bagan kriteria penjurian, manakah elemen di bawah ini yang BUKAN merupakan sub-kategori/turunan dari 'Teknik Vokal', melainkan kriteria utama yang berdiri sendiri setara dengan penampilan?",
+                options: [
+                    { text: "Interpretasi", correct: true },
+                    { text: "Artikulasi (Pelafalan)", correct: false },
+                    { text: "Phrasering", correct: false },
+                    { text: "Birama", correct: false }
+                ]
             },
             {
-                q: "Tangga nada minor memiliki interval 1 - ½ - 1 - 1 - ½ - 1 - 1. Secara spesifik, tangga nada ini dimulai dari nada ke-...",
-                options: ["1 (Do)", "3 (Mi)", "5 (Sol)", "6 (La)"],
-                a: "6 (La)"
+                question: "Sebuah ansambel memainkan melodi yang sedih dengan interval susunan nada: 1 - 1½ - 1 - 1 - 1½ - 1 - 1. Merujuk pada catatan tangga nada, susunan tersebut mutlak diawali dari titik nada...",
+                options: [
+                    { text: "6 (La)", correct: true },
+                    { text: "1 (Do)", correct: false },
+                    { text: "3 (Mi)", correct: false },
+                    { text: "5 (Sol)", correct: false }
+                ]
             },
             {
-                q: "Instrumen musik Gambang Kromong merupakan ansambel perpaduan budaya. Kesenian ini sering digunakan untuk mengiringi pertunjukan drama khas Betawi yang disebut dengan...",
-                options: ["Karawitan", "Lenong", "Rindik", "Hitada"],
-                a: "Lenong"
+                question: "Instrumen 'Gambang Kromong' asal Betawi diidentikkan dengan seni pertunjukan 'Lenong'. Jika ditinjau dari cara menghasilkan bunyi (berdasarkan sumber bunyi), instrumen ini secara spesifik termasuk dalam klasifikasi...",
+                options: [
+                    { text: "Kordofon (karena memiliki senar dan digesek)", correct: true },
+                    { text: "Idiofon (karena bunyinya dari alat itu sendiri)", correct: false },
+                    { text: "Membranofon (karena ditepuk pada membran)", correct: false },
+                    { text: "Airofon (karena dihembuskan udara)", correct: false }
+                ]
             },
             {
-                q: "Berdasarkan klasifikasi sumber bunyi, alat musik yang suaranya dihasilkan murni dari getaran badan alat musik itu sendiri (tanpa bantuan membran atau senar) dikategorikan sebagai...",
-                options: ["Membranofon", "Airofon", "Idiofon", "Elektrofon"],
-                a: "Idiofon"
+                question: "Jika kamu membandingkan sistem tangga nada alat musik daerah, berapakah selisih matematis jumlah nada antara sistem 'Kromatik' secara utuh dibandingkan dengan sistem 'Pentatonik'?",
+                options: [
+                    { text: "7 Nada", correct: true }, // 12 - 5 = 7
+                    { text: "5 Nada", correct: false },
+                    { text: "12 Nada", correct: false },
+                    { text: "2 Nada", correct: false }
+                ]
             },
             {
-                q: "Sebuah alat musik tradisional dari Myanmar dimainkan dengan cara dipetik dan memiliki bentuk visual yang sangat menyerupai harpa. Alat musik mancanegara tersebut dinamakan...",
-                options: ["Rondala", "Gulintangan", "Saung Gauk", "Sasando"],
-                a: "Saung Gauk"
+                question: "Dari daftar instrumen mancanegara, manakah dua alat musik yang memiliki kesamaan identik dalam teknik memainkannya secara fisik?",
+                options: [
+                    { text: "Saung Gauk (Myanmar) dan Rondala (Filipina)", correct: true }, // Keduanya dipetik
+                    { text: "Gulintangan (Brunei) dan Rondala (Filipina)", correct: false },
+                    { text: "Saung Gauk (Myanmar) dan Gulintangan (Brunei)", correct: false },
+                    { text: "Sasando (NTT) dan Gulintangan (Brunei)", correct: false }
+                ]
             },
             {
-                q: "Seorang dirigen atau konduktor seringkali membutuhkan referensi nada yang akurat. Untuk menentukan atau menyamakan tinggi nada standar sebelum ansambel dimulai, alat yang paling tepat digunakan adalah...",
-                options: ["Metronome", "Pipa Nada", "Tuts Garis Para Nada", "Birama"],
-                a: "Pipa Nada"
+                question: "Seorang dirigen paduan suara membutuhkan alat bantu untuk menentukan tempo lagu secara konstan, sekaligus referensi frekuensi untuk menyamakan nada dasar penyanyi. Dua alat yang secara akurat merepresentasikan fungsi tersebut berturut-turut adalah...",
+                options: [
+                    { text: "Metronome dan Pipa Nada", correct: true },
+                    { text: "Birama dan Tuts Piano", correct: false },
+                    { text: "Pipa Nada dan Metronome", correct: false },
+                    { text: "Tuts Garis Para Nada dan Metronome", correct: false }
+                ]
             },
             {
-                q: "Gamelan Jegog merupakan ansambel gamelan yang unik karena material utamanya tidak terbuat dari perunggu. Alat musik ini terbuat dari bambu dan merupakan kesenian khas dari daerah...",
-                options: ["Sunda", "Bali", "Nusa Tenggara Timur", "Halmahera"],
-                a: "Bali"
+                question: "Dalam pembagian wilayah suara, seorang penyanyi wanita menyadari suaranya tidak cukup tinggi untuk mencapai Sopran, namun terlalu tinggi jika dipaksa menyanyi di wilayah Alto. Maka wilayah suaranya disebut...",
+                options: [
+                    { text: "Mezzo Sopran", correct: true },
+                    { text: "Tenor", correct: false },
+                    { text: "Bariton", correct: false },
+                    { text: "Sopran Minor", correct: false }
+                ]
             },
             {
-                q: "Jika dibandingkan, instrumen Rondala dari Filipina dan Gulintangan dari Brunei Darussalam memiliki perbedaan mendasar dalam teknik memainkannya, yaitu berturut-turut dimainkan dengan cara...",
-                options: ["Dipetik (seperti gitar) dan Dipukul (seperti gamelan)", "Ditiup (seperti suling) dan Digesek (seperti biola)", "Dipukul (seperti gamelan) dan Dipetik (seperti harpa)", "Digesek (seperti biola) dan Ditiup (seperti suling)"],
-                a: "Dipetik (seperti gitar) dan Dipukul (seperti gamelan)"
-            },
-            {
-                q: "Dalam musik tradisional, sistem tangga nada sangat bervariasi. Alat musik daerah yang menggunakan sistem tangga nada pentatonik hanya memiliki jumlah nada pokok sebanyak...",
-                options: ["5 nada", "7 nada", "10 nada", "12 nada"],
-                a: "5 nada"
-            },
-            {
-                q: "Dalam kriteria penjurian ansambel dan unisono, aspek pelafalan kata-kata dari lirik lagu agar terdengar jelas oleh penonton dinilai pada kategori...",
-                options: ["Phrasering", "Interpretasi", "Artikulasi", "Teknik Pernapasan"],
-                a: "Artikulasi"
+                question: "Gamelan Jegog dari Bali memiliki keunikan material yang membedakannya dengan gamelan karawitan pada umumnya. Alat musik ini terbuat dari bahan...",
+                options: [
+                    { text: "Bambu", correct: true },
+                    { text: "Kayu ukir", correct: false },
+                    { text: "Perunggu campuran", correct: false },
+                    { text: "Kuningan padat", correct: false }
+                ]
             }
         ];
 
-        // Fungsi Pengacak Array (Fisher-Yates Shuffle)
+        // --- LOGIKA KUIS ---
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false;
+
+        // Fungsi Acak (Fisher-Yates)
         function shuffleArray(array) {
-            let currentIndex = array.length, randomIndex;
-            while (currentIndex != 0) {
-                randomIndex = Math.floor(Math.random() * currentIndex);
-                currentIndex--;
-                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
             }
             return array;
         }
 
-        // Render Soal ke HTML
-        const quizContainer = document.getElementById('quizContainer');
-        
-        // Acak urutan soal
-        const shuffledQuestions = shuffleArray([...allQuestions]);
+        // Inisialisasi Kuis
+        function initQuiz() {
+            // Acak urutan soal
+            currentQuestions = shuffleArray([...rawQuestions]);
+            // Acak pilihan ganda di dalam setiap soal
+            currentQuestions.forEach(q => {
+                q.options = shuffleArray([...q.options]);
+            });
+            loadQuestion();
+        }
 
-        shuffledQuestions.forEach((questionObj, index) => {
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'question-card';
+        // Muat Soal ke Layar
+        function loadQuestion() {
+            answered = false;
+            document.getElementById('nextBtn').classList.add('hidden');
             
-            // Acak urutan opsi jawaban
-            const shuffledOptions = shuffleArray([...questionObj.options]);
+            const q = currentQuestions[currentQuestionIndex];
+            document.getElementById('questionText').innerText = q.question;
             
-            let optionsHTML = '';
-            shuffledOptions.forEach((option) => {
-                optionsHTML += `
-                    <label>
-                        <input type="radio" name="q${index}" value="${option}" required>
-                        ${option}
-                    </label>
-                `;
+            // Update Progress
+            const progressPercent = ((currentQuestionIndex) / currentQuestions.length) * 100;
+            document.getElementById('progressBar').style.width = progressPercent + '%';
+            document.getElementById('questionCount').innerText = `Soal ${currentQuestionIndex + 1} dari ${currentQuestions.length}`;
+
+            // Render Tombol
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn w-full text-left p-4 rounded-xl text-lg font-medium bg-white/5 cursor-pointer';
+                btn.innerHTML = `<span class="inline-block w-8 font-bold opacity-50">${String.fromCharCode(65 + index)}.</span> ${opt.text}`;
+                
+                // Event Listener Klik Jawaban
+                btn.onclick = () => selectAnswer(btn, opt.correct, q.options);
+                optionsContainer.appendChild(btn);
             });
 
-            questionDiv.innerHTML = `
-                <div class="question-text">${index + 1}. ${questionObj.q}</div>
-                <div class="options">
-                    ${optionsHTML}
-                </div>
-            `;
-            quizContainer.appendChild(questionDiv);
-        });
+            // Re-trigger animasi
+            const quizContainer = document.getElementById('quizContainer');
+            quizContainer.classList.remove('fade-in');
+            void quizContainer.offsetWidth; 
+            quizContainer.classList.add('fade-in');
+        }
 
-        // Logika Submit dan Hitung Nilai
-        document.getElementById('quizForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        // Handle Pilihan User
+        function selectAnswer(selectedBtn, isCorrect, options) {
+            if (answered) return; // Mencegah klik dua kali
+            answered = true;
+
+            const allBtns = document.querySelectorAll('.option-btn');
             
-            let score = 0;
-            const formData = new FormData(this);
-            
-            shuffledQuestions.forEach((questionObj, index) => {
-                const userAnswer = formData.get(`q${index}`);
-                if (userAnswer === questionObj.a) {
-                    score += 10; // Setiap soal benar bernilai 10
-                }
-            });
+            // Matikan semua tombol
+            allBtns.forEach(btn => btn.disabled = true);
 
-            const resultDiv = document.getElementById('result');
-            resultDiv.style.display = 'block';
-            resultDiv.innerHTML = `Nilai Akhir: ${score} / 100`;
-
-            // Styling warna berdasarkan nilai
-            resultDiv.className = ''; 
-            if (score >= 80) {
-                resultDiv.classList.add('score-high');
-            } else if (score >= 50) {
-                resultDiv.classList.add('score-med');
+            if (isCorrect) {
+                selectedBtn.classList.add('correct');
+                score += 12.5; // Maks 100 (8 soal x 12.5)
+                document.getElementById('scoreText').innerText = `Skor: ${score}`;
             } else {
-                resultDiv.classList.add('score-low');
+                selectedBtn.classList.add('wrong');
+                // Cari dan tandai jawaban yang benar
+                options.forEach((opt, idx) => {
+                    if (opt.correct) {
+                        allBtns[idx].classList.add('correct');
+                    }
+                });
             }
-            
-            // Scroll ke hasil
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+
+            // Tampilkan tombol lanjut
+            document.getElementById('nextBtn').classList.remove('hidden');
+        }
+
+        // Navigasi Soal Berikutnya
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentQuestions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
         });
+
+        // Tampilkan Layar Hasil
+        function showResult() {
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('resultScreen').classList.remove('hidden');
+            
+            const finalScoreElement = document.getElementById('finalScore');
+            const feedbackText = document.getElementById('feedbackText');
+            
+            finalScoreElement.innerText = score;
+
+            if (score === 100) {
+                feedbackText.innerText = "Sempurna! Kamu pantas dapat nilai A+ di Ujian Praktik.";
+                finalScoreElement.className = "text-6xl font-black mb-6 text-green-400";
+            } else if (score >= 75) {
+                feedbackText.innerText = "Hebat! Analisismu sudah sangat bagus.";
+                finalScoreElement.className = "text-6xl font-black mb-6 text-blue-400";
+            } else if (score >= 50) {
+                feedbackText.innerText = "Cukup baik, tapi pastikan membaca kisi-kisi lebih teliti lagi.";
+                finalScoreElement.className = "text-6xl font-black mb-6 text-yellow-400";
+            } else {
+                feedbackText.innerText = "Waduh, sepertinya kamu harus membaca catatan dengan lebih detail lagi!";
+                finalScoreElement.className = "text-6xl font-black mb-6 text-red-400";
+            }
+        }
+
+        // Mulai aplikasi
+        initQuiz();
+
     </script>
 </body>
 </html>
