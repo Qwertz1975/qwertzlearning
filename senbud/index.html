@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Seni Budaya - Ujian Praktik</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --background: #f8f9fa;
+            --text: #333;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .music-player {
+            background: #eef2f5;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 30px;
+            border: 1px dashed #bdc3c7;
+        }
+
+        .music-player h3 {
+            margin-top: 0;
+            color: var(--primary);
+        }
+
+        .music-player input[type="file"] {
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        audio {
+            width: 100%;
+            outline: none;
+        }
+
+        .question-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+        }
+
+        .question-card:hover {
+            border-color: var(--secondary);
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .options label {
+            display: block;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .options label:hover {
+            background: #e9ecef;
+        }
+
+        input[type="radio"] {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 30px;
+        }
+
+        .submit-btn:hover {
+            background-color: #2980b9;
+        }
+
+        #result {
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .score-high { background-color: #d4edda; color: #155724; }
+        .score-med { background-color: #fff3cd; color: #856404; }
+        .score-low { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Ujian Praktik: Seni Budaya</h1>
+        
+        <div class="music-player">
+            <h3>🎵 Putar Lagu Pengiring</h3>
+            <p style="font-size: 0.9em; color: #7f8c8d; margin-top: -10px;">Tambahkan file audio dari perangkatmu untuk menemani belajar</p>
+            <input type="file" id="audioUpload" accept="audio/*">
+            <audio id="audioPlayer" controls style="display: none;"></audio>
+        </div>
+
+        <form id="quizForm">
+            <div id="quizContainer"></div>
+            <button type="submit" class="submit-btn">Kumpulkan Jawaban</button>
+        </form>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // Fitur Pemutar Musik Kustom
+        const audioUpload = document.getElementById('audioUpload');
+        const audioPlayer = document.getElementById('audioPlayer');
+
+        audioUpload.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const objectUrl = URL.createObjectURL(file);
+                audioPlayer.src = objectUrl;
+                audioPlayer.style.display = 'block';
+                audioPlayer.play();
+            }
+        });
+
+        // Data Soal (Berdasarkan Kisi-kisi, Tingkat Susah)
+        const allQuestions = [
+            {
+                q: "Seorang penyanyi pria memiliki jangkauan suara yang berada di antara nada tertinggi dan terendah khusus pria. Jika ia tidak mampu mencapai nada Tenor namun suaranya terlalu tinggi untuk Bass, maka wilayah suaranya diklasifikasikan sebagai...",
+                options: ["Alto", "Mezzo Sopran", "Bariton", "Sopran"],
+                a: "Bariton"
+            },
+            {
+                q: "Tangga nada minor memiliki interval 1 - ½ - 1 - 1 - ½ - 1 - 1. Secara spesifik, tangga nada ini dimulai dari nada ke-...",
+                options: ["1 (Do)", "3 (Mi)", "5 (Sol)", "6 (La)"],
+                a: "6 (La)"
+            },
+            {
+                q: "Instrumen musik Gambang Kromong merupakan ansambel perpaduan budaya. Kesenian ini sering digunakan untuk mengiringi pertunjukan drama khas Betawi yang disebut dengan...",
+                options: ["Karawitan", "Lenong", "Rindik", "Hitada"],
+                a: "Lenong"
+            },
+            {
+                q: "Berdasarkan klasifikasi sumber bunyi, alat musik yang suaranya dihasilkan murni dari getaran badan alat musik itu sendiri (tanpa bantuan membran atau senar) dikategorikan sebagai...",
+                options: ["Membranofon", "Airofon", "Idiofon", "Elektrofon"],
+                a: "Idiofon"
+            },
+            {
+                q: "Sebuah alat musik tradisional dari Myanmar dimainkan dengan cara dipetik dan memiliki bentuk visual yang sangat menyerupai harpa. Alat musik mancanegara tersebut dinamakan...",
+                options: ["Rondala", "Gulintangan", "Saung Gauk", "Sasando"],
+                a: "Saung Gauk"
+            },
+            {
+                q: "Seorang dirigen atau konduktor seringkali membutuhkan referensi nada yang akurat. Untuk menentukan atau menyamakan tinggi nada standar sebelum ansambel dimulai, alat yang paling tepat digunakan adalah...",
+                options: ["Metronome", "Pipa Nada", "Tuts Garis Para Nada", "Birama"],
+                a: "Pipa Nada"
+            },
+            {
+                q: "Gamelan Jegog merupakan ansambel gamelan yang unik karena material utamanya tidak terbuat dari perunggu. Alat musik ini terbuat dari bambu dan merupakan kesenian khas dari daerah...",
+                options: ["Sunda", "Bali", "Nusa Tenggara Timur", "Halmahera"],
+                a: "Bali"
+            },
+            {
+                q: "Jika dibandingkan, instrumen Rondala dari Filipina dan Gulintangan dari Brunei Darussalam memiliki perbedaan mendasar dalam teknik memainkannya, yaitu berturut-turut dimainkan dengan cara...",
+                options: ["Dipetik (seperti gitar) dan Dipukul (seperti gamelan)", "Ditiup (seperti suling) dan Digesek (seperti biola)", "Dipukul (seperti gamelan) dan Dipetik (seperti harpa)", "Digesek (seperti biola) dan Ditiup (seperti suling)"],
+                a: "Dipetik (seperti gitar) dan Dipukul (seperti gamelan)"
+            },
+            {
+                q: "Dalam musik tradisional, sistem tangga nada sangat bervariasi. Alat musik daerah yang menggunakan sistem tangga nada pentatonik hanya memiliki jumlah nada pokok sebanyak...",
+                options: ["5 nada", "7 nada", "10 nada", "12 nada"],
+                a: "5 nada"
+            },
+            {
+                q: "Dalam kriteria penjurian ansambel dan unisono, aspek pelafalan kata-kata dari lirik lagu agar terdengar jelas oleh penonton dinilai pada kategori...",
+                options: ["Phrasering", "Interpretasi", "Artikulasi", "Teknik Pernapasan"],
+                a: "Artikulasi"
+            }
+        ];
+
+        // Fungsi Pengacak Array (Fisher-Yates Shuffle)
+        function shuffleArray(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        // Render Soal ke HTML
+        const quizContainer = document.getElementById('quizContainer');
+        
+        // Acak urutan soal
+        const shuffledQuestions = shuffleArray([...allQuestions]);
+
+        shuffledQuestions.forEach((questionObj, index) => {
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question-card';
+            
+            // Acak urutan opsi jawaban
+            const shuffledOptions = shuffleArray([...questionObj.options]);
+            
+            let optionsHTML = '';
+            shuffledOptions.forEach((option) => {
+                optionsHTML += `
+                    <label>
+                        <input type="radio" name="q${index}" value="${option}" required>
+                        ${option}
+                    </label>
+                `;
+            });
+
+            questionDiv.innerHTML = `
+                <div class="question-text">${index + 1}. ${questionObj.q}</div>
+                <div class="options">
+                    ${optionsHTML}
+                </div>
+            `;
+            quizContainer.appendChild(questionDiv);
+        });
+
+        // Logika Submit dan Hitung Nilai
+        document.getElementById('quizForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            let score = 0;
+            const formData = new FormData(this);
+            
+            shuffledQuestions.forEach((questionObj, index) => {
+                const userAnswer = formData.get(`q${index}`);
+                if (userAnswer === questionObj.a) {
+                    score += 10; // Setiap soal benar bernilai 10
+                }
+            });
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `Nilai Akhir: ${score} / 100`;
+
+            // Styling warna berdasarkan nilai
+            resultDiv.className = ''; 
+            if (score >= 80) {
+                resultDiv.classList.add('score-high');
+            } else if (score >= 50) {
+                resultDiv.classList.add('score-med');
+            } else {
+                resultDiv.classList.add('score-low');
+            }
+            
+            // Scroll ke hasil
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>
