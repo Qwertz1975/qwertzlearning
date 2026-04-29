@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz PAK Premium - SMP Kristen Bethel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6C63FF;
+            --primary-hover: #5750d1;
+            --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --text-light: #ffffff;
+            --text-muted: #b0bec5;
+            --correct: #00e676;
+            --wrong: #ff1744;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 800px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .audio-upload-container {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .audio-upload-container label {
+            font-size: 0.85em;
+            color: var(--text-muted);
+        }
+
+        input[type="file"] {
+            font-size: 0.9em;
+            color: var(--text-light);
+        }
+
+        input[type="file"]::file-selector-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-right: 15px;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: var(--primary);
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(108, 99, 255, 0.3);
+        }
+
+        .btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Quiz UI */
+        #quiz-screen, #result-screen {
+            display: none;
+        }
+
+        .progress-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: var(--text-muted);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .question-text {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            padding: 15px 20px;
+            border-radius: 12px;
+            color: var(--text-light);
+            text-align: left;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.2s;
+            line-height: 1.4;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--text-muted);
+        }
+
+        .option-btn.correct {
+            background: rgba(0, 230, 118, 0.2);
+            border-color: var(--correct);
+            color: #b9f6ca;
+        }
+
+        .option-btn.wrong {
+            background: rgba(255, 23, 68, 0.2);
+            border-color: var(--wrong);
+            color: #ff8a80;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .score-display {
+            font-size: 3em;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+            margin: 20px 0;
+            text-shadow: 0 0 10px rgba(108, 99, 255, 0.4);
+        }
+
+        #music-player {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop></audio>
+
+    <div class="container" id="main-container">
+        <div id="start-screen">
+            <h1>Quiz Terpadu PAK</h1>
+            <p class="subtitle">Selamat datang, Jovan! Uji wawasan teologimu dengan standar tinggi.</p>
+            
+            <div class="audio-upload-container">
+                <label for="audio-file">🎵 Unggah Lagu Latar Sendiri (Opsional):</label>
+                <input type="file" id="audio-file" accept="audio/*">
+            </div>
+
+            <button class="btn" onclick="startQuiz()">Mulai Kuis</button>
+        </div>
+
+        <div id="quiz-screen">
+            <div class="progress-container">
+                <span id="question-counter">Soal 1 / 50</span>
+                <span id="score-counter">Skor: 0</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+
+            <div class="question-text" id="question-text">Memuat pertanyaan...</div>
+            
+            <div class="options-grid" id="options-grid">
+                </div>
+
+            <button class="btn" id="next-btn" style="display: none;" onclick="nextQuestion()">Selanjutnya</button>
+        </div>
+
+        <div id="result-screen">
+            <h1>Kuis Selesai!</h1>
+            <p class="subtitle" id="result-message">Evaluasi akhir dari jawabanmu.</p>
+            <div class="score-display" id="final-score">0 / 50</div>
+            <button class="btn" onclick="location.reload()">Mainkan Ulang (Acak Baru)</button>
+        </div>
+    </div>
+
+    <script>
+        // Database Soal (50 Soal dengan distraktor yang sangat mengecoh)
+        const rawQuestions = [
+            {
+                q: "Apa yang dimaksud dengan perubahan alamiah?",
+                c: "Perubahan yang terjadi secara wajar atau otomatis seiring berjalannya waktu (seperti pertumbuhan fisik).",
+                w: [
+                    "Perubahan pola pikir dan kedewasaan spiritual yang dipicu oleh intervensi lingkungan sekitar.",
+                    "Transformasi karakter secara terstruktur yang merupakan hasil dari pembelajaran etika sosial.",
+                    "Proses adaptasi psikologis manusia terhadap tuntutan hukum moral dan norma masyarakat."
+                ]
+            },
+            {
+                q: "Manakah yang termasuk contoh perubahan alamiah?",
+                c: "Bertambah tinggi badan, perubahan suara pada remaja, atau pergantian musim.",
+                w: [
+                    "Meningkatnya kemampuan berlogika dan berteologi seiring dengan bertambahnya wawasan Alkitab.",
+                    "Perubahan kebiasaan sosial dari budaya komunal menjadi budaya individualis pada remaja perkotaan.",
+                    "Pemulihan trauma emosional melalui konseling pastoral dan pendampingan rohani yang intensif."
+                ]
+            },
+            {
+                q: "Apa pengaruh hedonisme terhadap gaya hidup remaja?",
+                c: "Mendorong remaja menjadi konsumtif, egois, dan hanya mementingkan kesenangan duniawi semata.",
+                w: [
+                    "Menciptakan pandangan apatis terhadap kemajuan teknologi dan menolak inovasi di era digital.",
+                    "Mengubah orientasi keagamaan remaja menjadi lebih rasionalistik dan menolak hal-hal yang bersifat supranatural.",
+                    "Memotivasi remaja untuk berkompetisi secara ekstrem demi pencapaian akademis yang diakui secara sosial."
+                ]
+            },
+            {
+                q: "Pembaruan budi dimaksudkan untuk...",
+                c: "Perubahan pola pikir yang selaras dengan kehendak Allah melalui pertolongan Roh Kudus.",
+                w: [
+                    "Meningkatkan kapasitas intelektual manusia agar mampu merasionalisasikan semua mukjizat di Alkitab.",
+                    "Proses penyesuaian doktrin gereja terhadap perkembangan zaman dan tuntutan hak asasi manusia modern.",
+                    "Transformasi kebiasaan beribadah secara lahiriah tanpa mengubah esensi karakter individu."
+                ]
+            },
+            {
+                q: "Persembahan yang sejati kepada Allah adalah...",
+                c: "Mempersembahkan seluruh hidup sebagai persembahan yang hidup, kudus, dan yang berkenan kepada Allah (Roma 12:1).",
+                w: [
+                    "Memberikan persepuluhan dan kolekte secara konsisten sebagai syarat utama penebusan dosa.",
+                    "Mengorbankan waktu sepenuhnya untuk pelayanan di dalam gedung gereja dan meninggalkan pekerjaan sekuler.",
+                    "Melakukan perbuatan amal kepada fakir miskin tanpa perlu memiliki hubungan pribadi dengan Kristus."
+                ]
+            },
+            {
+                q: "Apa makna dari 'Janganlah menjadi serupa dengan dunia ini' dalam Roma 12:2?",
+                c: "Tidak mengikuti nilai-nilai atau gaya hidup dunia yang berdosa, melainkan hidup sesuai firman Tuhan.",
+                w: [
+                    "Mengasingkan diri sepenuhnya dari interaksi sosial dengan orang-orang yang tidak seiman.",
+                    "Menolak segala bentuk teknologi dan budaya modern karena dianggap berasal dari si jahat.",
+                    "Membangun komunitas eksklusif yang mempraktikkan hukum Taurat secara harafiah di zaman modern."
+                ]
+            },
+            {
+                q: "Tujuan utama dari pembaruan budi adalah...",
+                c: "Agar kita dapat membedakan mana kehendak Allah: apa yang baik, yang berkenan, dan yang sempurna.",
+                w: [
+                    "Agar manusia terbebas dari segala penderitaan jasmani dan mencapai kesejahteraan materi secara penuh.",
+                    "Supaya orang percaya mendapatkan karunia bernubuat dan mampu melihat masa depan secara detail.",
+                    "Untuk menyamakan persepsi teologis seluruh denominasi gereja agar tidak terjadi perpecahan doktrin."
+                ]
+            },
+            {
+                q: "Apa yang membuat Yusuf sangat dihormati di Mesir?",
+                c: "Karena hikmatnya dalam menafsirkan mimpi Firaun dan keberhasilannya mengatasi krisis kelaparan.",
+                w: [
+                    "Karena kekuatan militernya yang berhasil menaklukkan bangsa-bangsa di sekitar Sungai Nil.",
+                    "Karena ia mengkhianati keluarganya di Kanaan demi mendapatkan posisi politik tertinggi di istana Firaun.",
+                    "Karena kemampuannya menciptakan sistem irigasi canggih yang belum pernah ada pada zaman kuno."
+                ]
+            },
+            {
+                q: "Mengapa Yusuf menangis ketika bertemu dengan Benyamin?",
+                c: "Karena rasa rindu, haru, dan kasih sayang yang mendalam saat melihat adik kandungnya setelah sekian lama berpisah.",
+                w: [
+                    "Karena ia teringat akan kejahatan saudara-saudaranya dan merasa menyesal telah memaafkan mereka.",
+                    "Karena Benyamin membawa kabar buruk tentang kematian Yakub di tanah Kanaan.",
+                    "Karena ia merasa takut posisinya sebagai penguasa Mesir akan terancam oleh kehadiran keluarganya."
+                ]
+            },
+            {
+                q: "Nama yang diberikan untuk Yesus dalam Matius 1:23 adalah...",
+                c: "Immanuel (artinya: Allah menyertai kita).",
+                w: [
+                    "Mesias (artinya: Yang Diurapi untuk menghakimi bumi).",
+                    "Yehova Jireh (artinya: Allah yang menyediakan keselamatan).",
+                    "El Shaddai (artinya: Allah yang Maha Kuasa atas segala bangsa)."
+                ]
+            },
+            {
+                q: "Apa yang dimaksud dengan peran gereja dalam perubahan sosial?",
+                c: "Gereja menjadi agen perubahan yang membawa nilai kasih, keadilan, dan kebenaran di masyarakat.",
+                w: [
+                    "Gereja harus mengambil alih sistem pemerintahan untuk mendirikan negara teokrasi.",
+                    "Gereja fokus semata-mata pada keselamatan jiwa (eskatologis) dan mengabaikan realitas penderitaan fisik di dunia.",
+                    "Gereja bertugas merumuskan undang-undang perdata yang didasarkan secara ketat pada hukum Perjanjian Lama."
+                ]
+            },
+            {
+                q: "Perumpamaan dalam Matius 25:40 mengajarkan kita tentang?",
+                c: "Mengajarkan bahwa melayani sesama yang paling hina berarti sedang melayani Tuhan sendiri.",
+                w: [
+                    "Bahwa keselamatan hanya dapat diraih melalui akumulasi perbuatan baik dan amal ibadah.",
+                    "Gereja tidak perlu memberitakan Injil, melainkan cukup berfokus pada pekerjaan kemanusiaan global.",
+                    "Penghakiman terakhir didasarkan pada seberapa banyak harta yang kita donasikan ke perbendaharaan bait suci."
+                ]
+            },
+            {
+                q: "Menurut 1 Petrus 2:9, siapa yang dipanggil untuk memberitakan perbuatan besar dari Allah?",
+                c: "Umat kepunyaan Allah sendiri (bangsa yang terpilih, imamat yang rajani).",
+                w: [
+                    "Hanya para rasul dan nabi yang telah menerima pewahyuan khusus secara langsung.",
+                    "Hanya pemimpin struktural gereja seperti pendeta, penatua, dan diaken yang ditahbiskan.",
+                    "Para malaikat yang ditugaskan khusus untuk menyampaikan pesan ilahi pada akhir zaman."
+                ]
+            },
+            {
+                q: "Gereja harus memperjuangkan keadilan sosial dengan?",
+                c: "Melalui aksi nyata membela yang tertindas dan menyuarakan kebenaran.",
+                w: [
+                    "Melakukan kompromi teologis agar gereja dapat diterima oleh seluruh lapisan politik sekuler.",
+                    "Menutup diri dari urusan dunia dan berfokus mendoakan dari kejauhan tanpa tindakan konkrit.",
+                    "Menggunakan kekerasan atau pemberontakan jika diperlukan untuk meruntuhkan rezim yang korup."
+                ]
+            },
+            {
+                q: "Salah satu bentuk pelayanan sosial yang dilakukan oleh gereja adalah?",
+                c: "Diakonia (pembagian sembako, pengobatan gratis, atau bantuan bencana).",
+                w: [
+                    "Koinonia (bersekutu secara eksklusif hanya untuk anggota gereja lokal tersebut).",
+                    "Marturia (mengadakan perdebatan apologetika secara terbuka melawan agama lain).",
+                    "Liturgia (menyusun tata ibadah yang megah dan paduan suara profesional)."
+                ]
+            },
+            {
+                q: "Menurut Filipi 4:19, bagaimana Allah memenuhi kebutuhan umat-Nya?",
+                c: "Allah memenuhi segala keperluan kita menurut kekayaan dan kemuliaan-Nya dalam Kristus Yesus.",
+                w: [
+                    "Allah memenuhi segala keinginan material manusia asalkan kita memiliki iman yang sempurna tanpa keraguan.",
+                    "Allah memberikan kekayaan duniawi sebagai tanda perkenanan mutlak atas ketaatan umat-Nya.",
+                    "Allah hanya memenuhi kebutuhan spiritual kita, sedangkan kebutuhan jasmani adalah murni tanggung jawab manusia."
+                ]
+            },
+            {
+                q: "Pemeliharaan Allah dalam aspek sosial membantu terciptanya?",
+                c: "Terciptanya kerukunan, solidaritas, dan kepedulian antar sesama.",
+                w: [
+                    "Sistem stratifikasi sosial di mana umat pilihan menempati kasta tertinggi dalam masyarakat.",
+                    "Hilangnya seluruh perbedaan budaya dan bahasa agar dunia menjadi satu bangsa yang seragam.",
+                    "Dominasi institusi gereja atas lembaga-lembaga pemerintahan sipil dan ekonomi."
+                ]
+            },
+            {
+                q: "Kisah Yusuf dalam Kejadian 39 mengajarkan kita tentang?",
+                c: "Integritas, kesetiaan, dan penyertaan Allah bahkan di saat sulit/difitnah.",
+                w: [
+                    "Cara memanipulasi situasi politik dari posisi budak hingga menjadi penguasa absolut.",
+                    "Bahwa orang yang diberkati Tuhan tidak akan pernah mengalami penderitaan atau ketidakadilan hukum.",
+                    "Pentingnya membangun aliansi strategis dengan istri pejabat demi mengamankan karir."
+                ]
+            },
+            {
+                q: "Pemeliharaan Allah dalam aspek moral terlihat dalam?",
+                c: "Allah memberikan hati nurani dan firman-Nya agar kita hidup dalam kebenaran.",
+                w: [
+                    "Penghapusan seluruh kehendak bebas manusia agar tidak ada lagi kemungkinan untuk berbuat dosa.",
+                    "Hukuman langsung dan seketika (azab) yang dijatuhkan setiap kali manusia melakukan kesalahan kecil.",
+                    "Pemberian rasionalitas murni yang memampukan manusia merumuskan etika tanpa perlu wahyu ilahi."
+                ]
+            },
+            {
+                q: "Apakah respon yang tepat terhadap pemeliharaan Allah menurut pengajaran Alkitab?",
+                c: "Bersyukur, bersukacita, dan semakin setia mengandalkan Tuhan dalam segala situasi.",
+                w: [
+                    "Bersikap pasif dan fatalistik karena percaya segala sesuatu sudah ditakdirkan tanpa perlu usaha manusia.",
+                    "Menuntut Tuhan untuk selalu memberikan bukti nyata melalui mukjizat agar iman tetap bertahan.",
+                    "Merasa superior dibandingkan orang yang menderita karena menganggap penderitaan adalah tanda kutukan."
+                ]
+            },
+            {
+                q: "Dalam menghadapi konflik dengan sahabat, sikap yang benar adalah...",
+                c: "Dengan mengampuni, rendah hati, dan mencari solusi damai tanpa kekerasan.",
+                w: [
+                    "Menghindari konfrontasi sepenuhnya dan mendiamkan masalah agar waktu yang menyembuhkan dengan sendirinya.",
+                    "Mencari dukungan dari pihak ketiga untuk membuktikan bahwa kita berada di posisi yang paling benar.",
+                    "Menggunakan ayat-ayat Alkitab sebagai senjata untuk menghakimi kesalahan sahabat secara terbuka."
+                ]
+            },
+            {
+                q: "Dasar utama persahabatan yang diajarkan Yesus adalah...",
+                c: "Kasih tanpa pamrih (Kasih Agape).",
+                w: [
+                    "Kesamaan visi dan misi dalam membangun kekuatan finansial dan pelayanan (Kasih Pragma).",
+                    "Ketertarikan emosional dan afeksi timbal balik yang setara (Kasih Eros).",
+                    "Hubungan persaudaraan yang mengikat berdasarkan garis keturunan biologis (Kasih Storge)."
+                ]
+            },
+            {
+                q: "Yesus berkata bahwa sahabat yang sejati adalah yang...",
+                c: "Seseorang yang ada di setiap waktu dan memberikan pengaruh positif demi kebaikan temannya.",
+                w: [
+                    "Seseorang yang selalu membenarkan segala tindakan temannya agar tidak melukai perasaannya.",
+                    "Seseorang yang bersedia menanggung semua konsekuensi hukuman dosa atas nama kita di pengadilan duniawi.",
+                    "Seseorang yang memiliki tingkat kerohanian yang lebih tinggi untuk bertindak sebagai perantara kita kepada Allah."
+                ]
+            },
+            {
+                q: "Dalam Alkitab, Yesus berkata, 'Tidak ada kasih yang lebih besar dari pada kasih seorang yang...'",
+                c: "Memberikan nyawanya demi sahabat-sahabatnya.",
+                w: [
+                    "Memberikan seluruh hartanya untuk orang miskin demi sahabatnya.",
+                    "Menyerahkan posisi dan jabatan keduniawiannya demi mengangkat martabat sahabatnya.",
+                    "Menyembuhkan segala penyakit sahabatnya melalui puasa dan doa syafaat yang tidak berkesudahan."
+                ]
+            },
+            {
+                q: "Sikap Yesus kepada murid-murid-Nya menunjukkan bahwa persahabatan dibangun atas...",
+                c: "Kasih, pengabdian, dan ketulusan.",
+                w: [
+                    "Hierarki kepemimpinan, kepatuhan mutlak, dan rasa takut akan penghakiman.",
+                    "Kontrak sosial, keuntungan timbal balik, dan perlindungan dari ancaman otoritas Roma.",
+                    "Pengetahuan teologis yang eksklusif, rahasia spiritual, dan tradisi rabi-rabi Yahudi."
+                ]
+            },
+            {
+                q: "Ketika sahabat berbuat salah, sikap yang diajarkan Yesus adalah...",
+                c: "Menegur dengan kasih dan membimbingnya kembali ke jalan yang benar.",
+                w: [
+                    "Mengkucilkannya dari komunitas hingga ia benar-benar menyadari kesalahannya sendiri.",
+                    "Menutupi kesalahannya dari orang lain demi menjaga nama baik pelayanan bersamanya.",
+                    "Melaporkan kesalahannya kepada otoritas gereja agar dijatuhi sanksi pendisiplinan yang berat."
+                ]
+            },
+            {
+                q: "Yesus mengajarkan bahwa kita harus mengasihi...",
+                c: "Sesama manusia seperti diri sendiri, bahkan termasuk musuh kita.",
+                w: [
+                    "Hanya saudara seiman yang memiliki pemahaman doktrin yang persis sama dengan kita.",
+                    "Orang-orang yang secara nyata telah memberikan kontribusi positif bagi kehidupan kita.",
+                    "Hanya keluarga inti dan orang tua kita sebagaimana diperintahkan dalam hukum Taurat."
+                ]
+            },
+            {
+                q: "Salah satu contoh Yesus peduli kepada sahabat-Nya adalah saat Ia...",
+                c: "Saat Ia membasuh kaki murid-murid-Nya atau menghibur keluarga Lazarus.",
+                w: [
+                    "Saat Ia mengusir para pedagang dari Bait Allah untuk membela hak ibadah sahabat-Nya.",
+                    "Saat Ia mengubah air menjadi anggur agar murid-murid-Nya tidak dipermalukan di pesta pernikahan.",
+                    "Saat Ia menolak membayar pajak Bait Allah demi membela kesejahteraan finansial Petrus."
+                ]
+            },
+            {
+                q: "Persahabatan menurut Yesus harus dilandasi oleh...",
+                c: "Ketaatan pada perintah Allah dan keterbukaan hati.",
+                w: [
+                    "Sumpah darah dan janji kesetiaan yang mengikat seumur hidup tanpa pengecualian.",
+                    "Kemampuan intelektual yang setara agar dapat mendiskusikan kitab suci secara mendalam.",
+                    "Pemisahan diri secara total dari lingkungan sosial yang dianggap belum diselamatkan."
+                ]
+            },
+            {
+                q: "Yesus memanggil murid-murid-Nya bukan lagi hamba, tetapi...",
+                c: "Sahabat.",
+                w: [
+                    "Anak-anak Allah yang mahatinggi.",
+                    "Rekan sekerja Allah dalam pelayanan bumi.",
+                    "Rasul-rasul yang diurapi untuk menghakimi."
+                ]
+            },
+            {
+                q: "Dalam Alkitab, pergaulan yang baik adalah pergaulan yang...",
+                c: "Pergaulan yang membangun iman, karakter, dan menjauhkan diri dari dosa.",
+                w: [
+                    "Pergaulan yang memberikan jaringan koneksi luas untuk menunjang karir profesional di masa depan.",
+                    "Pergaulan yang sangat eksklusif dan tertutup agar terhindar dari pengaruh budaya asing.",
+                    "Pergaulan yang berlandaskan pada pencarian ilmu pengetahuan sekuler secara objektif."
+                ]
+            },
+            {
+                q: "Ayat 'Pergaulan yang buruk merusakkan kebiasaan yang baik' mengajarkan bahwa remaja harus...",
+                c: "Waspada dalam memilih lingkungan pertemanan.",
+                w: [
+                    "Memutuskan segala bentuk komunikasi dengan orang yang memiliki latar belakang kriminal.",
+                    "Menghakimi teman yang hidup dalam dosa agar ia segera bertobat secara publik.",
+                    "Memisahkan diri ke dalam komunitas biara atau asrama khusus Kristen sejak usia muda."
+                ]
+            },
+            {
+                q: "Dalam pergaulan, remaja Kristen dipanggil untuk menjadi...",
+                c: "Teladan atau garam dan terang bagi teman-temannya.",
+                w: [
+                    "Hakim yang tegas dalam meluruskan segala penyimpangan moral di sekolahnya.",
+                    "Pengkhotbah mimbar yang wajib menginjili teman-temannya di setiap kesempatan diskusi akademis.",
+                    "Pengamat pasif yang cukup mendoakan tanpa harus terlibat langsung dalam dinamika sosial temannya."
+                ]
+            },
+            {
+                q: "Sikap yang sesuai dengan ajaran Yesus dalam bergaul adalah...",
+                c: "Sabar, ramah, jujur, dan suka menolong.",
+                w: [
+                    "Sikap kritis, skeptis, dan selalu memperdebatkan kebenaran untuk menguji iman orang lain.",
+                    "Menjaga jarak emosional agar tidak mudah dikhianati atau dimanfaatkan oleh orang dunia.",
+                    "Bersikap toleran terhadap dosa agar dapat diterima dan disukai oleh lingkungan pergaulan mayoritas."
+                ]
+            },
+            {
+                q: "Remaja yang hidup dalam pergaulan yang benar akan menunjukkan buah...",
+                c: "Akan menghasilkan buah Roh (kasih, sukacita, damai sejahtera, dll).",
+                w: [
+                    "Buah pertobatan berupa penderitaan fisik sebagai tanda penyucian jiwa dari hawa nafsu.",
+                    "Keberhasilan akademis dan finansial yang luar biasa dibandingkan dengan teman sebayanya.",
+                    "Kemampuan supranatural seperti berbahasa roh dan bernubuat di tengah-tengah kumpulan remaja."
+                ]
+            },
+            {
+                q: "Jika teman mengajak melakukan hal yang tidak baik, sikap yang benar menurut Alkitab adalah...",
+                c: "Menolak dengan tegas dan tetap memegang teguh prinsip firman Tuhan.",
+                w: [
+                    "Mengikuti setengah dari ajakannya agar persahabatan tidak hancur, namun sambil terus berdoa syafaat.",
+                    "Mempermalukan teman tersebut di depan umum agar ia jera dan menjadi pelajaran bagi yang lain.",
+                    "Melaporkan langsung kepada pihak berwajib tanpa memberikan kesempatan teguran secara personal terlebih dahulu."
+                ]
+            },
+            {
+                q: "Dalam suratnya kepada Timotius, Paulus menasihatkan agar orang muda...",
+                c: "Jangan membiarkan orang menganggap rendah karena muda, tetapi jadilah teladan dalam perkataan dan perbuatan.",
+                w: [
+                    "Harus selalu tunduk mutlak dan dilarang mengutarakan pendapat di hadapan penatua gereja yang lebih tua.",
+                    "Segera menempuh pendidikan teologi tinggi agar argumennya diakui oleh komunitas cendekiawan.",
+                    "Menghindari posisi kepemimpinan hingga mencapai usia kedewasaan rohani yang disepakati sinode."
+                ]
+            },
+            {
+                q: "Pergaulan yang sehat menurut Alkitab ditandai dengan...",
+                c: "Adanya rasa saling menghargai, jujur, dan saling memotivasi untuk maju.",
+                w: [
+                    "Kemampuan saling mengkritik secara tajam untuk menghancurkan kesombongan ego manusia.",
+                    "Ketergantungan psikologis yang kuat di mana satu pihak bertindak sebagai figur penyelamat bagi pihak lain.",
+                    "Seringnya berdebat tentang hukum Taurat untuk menajamkan intelektualitas teologis."
+                ]
+            },
+            {
+                q: "Remaja Kristen harus menjaga hati dan pikirannya agar...",
+                c: "Tidak dicemari oleh pengaruh buruk dunia/internet.",
+                w: [
+                    "Mampu memprediksi serangan si jahat secara mistis sebelum hal itu terjadi.",
+                    "Bisa mengisolasi diri dari segala bentuk media massa dan informasi modern.",
+                    "Tidak pernah merasakan emosi negatif seperti marah, sedih, atau kecewa yang dianggap sebagai kelemahan iman."
+                ]
+            },
+            {
+                q: "Tujuan utama pergaulan remaja Kristen adalah...",
+                c: "Memuliakan nama Tuhan dan bertumbuh bersama dalam kebaikan.",
+                w: [
+                    "Menemukan pasangan hidup sedini mungkin untuk menghindari perzinaan secara komprehensif.",
+                    "Mencari validasi sosial dan pengakuan ekstrakurikuler di kalangan komunitas antar sekolah.",
+                    "Membangun koneksi bisnis gerejawi untuk mempersiapkan kemandirian finansial masa depan."
+                ]
+            },
+            {
+                q: "Salah satu dampak baik perkembangan teknologi bagi remaja Kristen adalah...",
+                c: "Mempermudah belajar Alkitab secara digital dan memperluas jangkauan pelayanan.",
+                w: [
+                    "Menggantikan fungsi ibadah tatap muka sepenuhnya dengan kebaktian virtual yang lebih praktis.",
+                    "Menghilangkan kebutuhan akan figur gembala sidang karena semua jawaban teologis tersedia di internet.",
+                    "Mendapatkan legalitas untuk berpartisipasi dalam komunitas siber anonim demi menjaga kerahasiaan identitas dosa."
+                ]
+            },
+            {
+                q: "Dampak buruk penggunaan media sosial tanpa kontrol adalah...",
+                c: "Penyebaran hoax, kecanduan, hingga konten pornografi/kekerasan.",
+                w: [
+                    "Penurunan drastis terhadap kapasitas daya ingat jangka panjang manusia secara genetik.",
+                    "Hilangnya sistem kekebalan tubuh akibat paparan radiasi gawai yang berlebihan saat membaca renungan.",
+                    "Terciptanya bahasa komunikasi baru yang merusak tatanan doktrin Alkitab ortodoks."
+                ]
+            },
+            {
+                q: "Berdasarkan Alkitab, remaja dipanggil untuk menjadi terang dunia. Artinya...",
+                c: "Remaja harus membawa dampak positif dan menjadi penunjuk jalan kebenaran bagi sekitarnya.",
+                w: [
+                    "Remaja harus menonjolkan prestasinya secara publik agar dunia kagum pada kekayaan gereja.",
+                    "Remaja bertugas mengungkap semua rahasia aib orang berdosa agar keadilan dunia dapat ditegakkan.",
+                    "Remaja diharapkan menjadi martir fisik demi mempertahankan keutuhan denominasi gerejanya."
+                ]
+            },
+            {
+                q: "Pergaulan bebas dapat berdampak buruk karena...",
+                c: "Merusak masa depan, kesehatan fisik, dan menjauhkan diri dari Tuhan.",
+                w: [
+                    "Memaksa manusia untuk segera mengambil sumpah monastik (hidup selibat) demi menebus dosanya.",
+                    "Menurunkan kecerdasan kognitif secara permanen yang tidak dapat dipulihkan bahkan dengan pertobatan.",
+                    "Membuat gereja kehilangan sumber pendapatan finansial dari generasi muda yang terhilang."
+                ]
+            },
+            {
+                q: "Remaja yang aktif dalam pelayanan gereja menunjukkan dampak baik berupa...",
+                c: "Menumbuhkan kedewasaan iman dan melatih sikap melayani sesama.",
+                w: [
+                    "Mendapatkan privilese khusus berupa pengecualian dari disiplin gereja jika melakukan pelanggaran.",
+                    "Menjamin kelulusan akademis karena Tuhan memberkati mereka yang lebih mengutamakan pelayanan dari sekolah.",
+                    "Kemampuan memanipulasi opini jemaat karena telah menguasai retorika mimbar sejak dini."
+                ]
+            },
+            {
+                q: "Kebiasaan berkata kasar dan membully bertentangan dengan nilai Kristen karena...",
+                c: "Melanggar hukum kasih dan merendahkan martabat manusia sebagai citra Allah.",
+                w: [
+                    "Hal itu dapat menurunkan reputasi sekolah Kristen di mata dinas pendidikan setempat.",
+                    "Kata-kata kasar dapat memanggil roh-roh jahat untuk mendiami tubuh fisik pendengarnya.",
+                    "Tindakan tersebut merupakan dosa yang sama sekali tidak dapat diampuni (hujat terhadap Roh Kudus)."
+                ]
+            },
+            {
+                q: "Remaja yang mampu mengendalikan diri saat menghadapi tekanan teman sebaya menunjukkan...",
+                c: "Kedewasaan rohani dan kekuatan karakter.",
+                w: [
+                    "Sikap apatis dan ketidakmampuan beradaptasi dengan hukum sosiologi modern.",
+                    "Penolakan terhadap kodrat manusia sebagai makhluk sosial yang saling bergantung.",
+                    "Gejala awal dari kecenderungan isolasi psikologis yang membutuhkan penanganan medis."
+                ]
+            },
+            {
+                q: "Dampak buruk dari kecanduan game berlebihan adalah...",
+                c: "Lupa waktu belajar, mengabaikan tanggung jawab, dan kesehatan fisik menurun.",
+                w: [
+                    "Penurunan drastis terhadap kreativitas spasial dan memburuknya kapasitas paru-paru secara genetik.",
+                    "Kehilangan empati sosial secara permanen yang bermuara pada sindrom psikopat klinis.",
+                    "Mengurangi kemampuan rasional otak untuk merespon stimulus suara pada dunia nyata."
+                ]
+            },
+            {
+                q: "Salah satu dampak baik komunitas remaja Kristen adalah...",
+                c: "Adanya tempat untuk saling mendoakan, belajar firman, dan mendapat dukungan positif.",
+                w: [
+                    "Membentuk eksklusivitas kelompok yang kuat untuk memutus rantai toleransi dengan agama lain.",
+                    "Mendapatkan keuntungan jejaring hierarkis demi mempermudah akses ke pos pelayanan elit di gereja pusat.",
+                    "Menciptakan wadah katarsis emosional yang menggantikan peran bimbingan konseling profesional sepenuhnya."
+                ]
+            },
+            {
+                q: "Menurut ajaran Kristen, tujuan remaja menjalani masa muda adalah...",
+                c: "Untuk mempersiapkan diri menjadi alat Tuhan yang berguna bagi sesama dan memuliakan Pencipta.",
+                w: [
+                    "Mengeksplorasi segala bentuk kebebasan moral sebagai fase eksperimen sebelum berkomitmen pada iman di masa dewasa.",
+                    "Mengumpulkan aset teologis dan doktrinal sebanyak mungkin untuk membantah kaum ateis secara akademis.",
+                    "Mencari pembebasan dari otoritas orang tua melalui doktrin otonomi individu yang diajarkan rasul-rasul."
+                ]
+            }
+        ];
+
+        // System Variables
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        const audioElement = document.getElementById('bg-music');
+        const fileInput = document.getElementById('audio-file');
+
+        // File reader for background music
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const objectUrl = URL.createObjectURL(file);
+                audioElement.src = objectUrl;
+            }
+        });
+
+        // Fisher-Yates Shuffle Function
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Initialize and Start Quiz
+        function startQuiz() {
+            // Play music if selected
+            if(audioElement.src) {
+                audioElement.play().catch(e => console.log("Audio play failed:", e));
+            }
+
+            // Shuffle questions and map to structure
+            questions = shuffleArray([...rawQuestions]).map(q => {
+                let options = [
+                    { text: q.c, isCorrect: true },
+                    { text: q.w[0], isCorrect: false },
+                    { text: q.w[1], isCorrect: false },
+                    { text: q.w[2], isCorrect: false }
+                ];
+                return {
+                    questionText: q.q,
+                    options: shuffleArray(options)
+                };
+            });
+
+            currentQuestionIndex = 0;
+            score = 0;
+
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'block';
+
+            loadQuestion();
+        }
+
+        // Load specific question
+        function loadQuestion() {
+            const q = questions[currentQuestionIndex];
+            document.getElementById('question-counter').innerText = `Soal ${currentQuestionIndex + 1} / ${questions.length}`;
+            document.getElementById('score-counter').innerText = `Skor: ${score}`;
+            
+            // Progress bar
+            const progress = ((currentQuestionIndex) / questions.length) * 100;
+            document.getElementById('progress-fill').style.width = `${progress}%`;
+
+            document.getElementById('question-text').innerText = q.questionText;
+            
+            const optionsGrid = document.getElementById('options-grid');
+            optionsGrid.innerHTML = ''; // Clear previous
+
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                // Add letter prefix A, B, C, D
+                const letter = String.fromCharCode(65 + index); 
+                btn.innerText = `${letter}. ${opt.text}`;
+                btn.onclick = () => selectAnswer(btn, opt.isCorrect, q.options);
+                optionsGrid.appendChild(btn);
+            });
+
+            document.getElementById('next-btn').style.display = 'none';
+        }
+
+        // Handle answer selection
+        function selectAnswer(selectedBtn, isCorrect, optionsData) {
+            const buttons = document.querySelectorAll('.option-btn');
+            
+            // Disable all buttons after click
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                // Highlight the correct one regardless of what user picked
+                const btnText = btn.innerText.substring(3); // Remove "A. " part for comparison
+                const matchedOption = optionsData.find(o => o.text === btnText);
+                if (matchedOption && matchedOption.isCorrect) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            if (isCorrect) {
+                selectedBtn.classList.add('correct');
+                score++;
+                document.getElementById('score-counter').innerText = `Skor: ${score}`;
+            } else {
+                selectedBtn.classList.add('wrong');
+            }
+
+            // Show next button
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.style.display = 'block';
+            
+            // Change next button text if it's the last question
+            if (currentQuestionIndex === questions.length - 1) {
+                nextBtn.innerText = "Lihat Hasil";
+            }
+        }
+
+        // Move to next question or finish
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        // Show Final Result
+        function showResult() {
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            
+            const finalScoreElem = document.getElementById('final-score');
+            finalScoreElem.innerText = `${score} / ${questions.length}`;
+
+            const messageElem = document.getElementById('result-message');
+            const percentage = (score / questions.length) * 100;
+            
+            if (percentage === 100) {
+                messageElem.innerText = "Luar biasa! Pemahaman teologimu sangat sempurna.";
+            } else if (percentage >= 80) {
+                messageElem.innerText = "Sangat baik! Kamu menguasai materi ini dengan mantap.";
+            } else if (percentage >= 50) {
+                messageElem.innerText = "Cukup baik, tapi masih perlu mengulang kembali beberapa bagian.";
+            } else {
+                messageElem.innerText = "Jangan menyerah, mari pelajari lagi firman Tuhan dan materi PAK-nya.";
+            }
+
+            // Set progress to 100%
+            document.getElementById('progress-fill').style.width = '100%';
+        }
+    </script>
+</body>
+</html>
