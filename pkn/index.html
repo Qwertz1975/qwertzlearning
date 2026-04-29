@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -256,7 +257,7 @@
 
         <div id="start-screen" class="header fade-in">
             <h1>Quiz Premium PPKN</h1>
-            <p style="color: #94a3b8; margin-bottom: 20px;">50 Pertanyaan Tingkat Lanjut • Ujian Analisis</p>
+            <p style="color: #94a3b8; margin-bottom: 20px;">50 Pertanyaan Tingkat Lanjut • Ujian Analisis (Diacak)</p>
             <button id="start-btn" class="btn">Mulai Ujian</button>
         </div>
 
@@ -270,7 +271,8 @@
             <div class="question-number" id="question-number">Pertanyaan 1 / 50</div>
             <div class="question-text" id="question-text">Teks Pertanyaan</div>
             <div class="options-grid" id="options-grid">
-                </div>
+                <!-- Pilihan akan di-render di sini -->
+            </div>
             <div class="nav-buttons">
                 <button id="next-btn" class="btn" disabled>Selanjutnya</button>
             </div>
@@ -292,7 +294,7 @@
 
     <script>
         // Data Soal (50 Soal dengan distraktor tingkat tinggi)
-        const quizData = [
+        let quizData = [
             { q: "Apa latar belakang utama pembentukan BPUPK oleh pemerintah pendudukan Jepang?", options: ["Janji kemerdekaan dari Jepang (Janji Koiso) untuk menarik simpati rakyat Indonesia karena posisi Jepang terdesak dalam Perang Pasifik.", "Implementasi dari Perjanjian Kalijati untuk mempersiapkan transisi kekuasaan ke tangan Sekutu.", "Desakan dari golongan muda yang mengancam akan melakukan pemberontakan bersenjata di seluruh Jawa.", "Resolusi Liga Bangsa-Bangsa yang memaksa Jepang memberikan hak otonomi penuh kepada wilayah jajahannya."], answer: 0 },
             { q: "Siapa yang memimpin sidang PPKI pertama pada tanggal 18 Agustus 1945?", options: ["Drs. Mohammad Hatta", "Ir. Soekarno", "Dr. Radjiman Wedyodiningrat", "Mr. Mohammad Yamin"], answer: 1 },
             { q: "Apa tujuan esensial dari dibentuknya BPUPK?", options: ["Menyusun teks proklamasi dan memilih presiden serta wakil presiden.", "Mempelajari dan menyelidiki hal-hal penting terkait pembentukan negara Indonesia merdeka.", "Membentuk kabinet pemerintahan pertama dan menyusun alat kelengkapan negara.", "Melucuti senjata tentara Jepang dan mengambil alih aset-aset militer."], answer: 1 },
@@ -345,6 +347,14 @@
             { q: "Bagaimana seharusnya paradigma dan sikap yang tepat dari seorang warga negara terhadap gempuran budaya asing di era globalisasi abad ke-21?", options: ["Bersikap tertutup (apriori), curiga, dan memboikot semua produk kebudayaan asing.", "Mengadopsi sepenuhnya karena budaya asing dianggap sebagai standar emas kemajuan.", "Bersikap terbuka namun tetap sangat kritis, menyaringnya secara selektif, dan selalu berpegang teguh pada nilai-nilai luhur Pancasila.", "Menerima budaya asing secara perlahan asalkan dibayar dengan royalti yang tinggi kepada negara."], answer: 2 }
         ];
 
+        // Fungsi untuk mengacak array (Fisher-Yates Shuffle)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
         let currentQuestion = 0;
         let score = 0;
         let answered = false;
@@ -381,7 +391,12 @@
             startScreen.style.display = 'none';
             quizContainer.style.display = 'block';
             quizContainer.classList.add('fade-in');
+            
             if (bgAudio.src) bgAudio.play();
+            
+            // Acak urutan soal sebelum mulai
+            shuffleArray(quizData);
+            
             loadQuestion();
         });
 
@@ -466,3 +481,5 @@
     </script>
 </body>
 </html>
+
+```
