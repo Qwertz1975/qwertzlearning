@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz PPKN Premium</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .glass-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            color: #e0f2fe;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .audio-section {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .audio-section label {
+            background: #38bdf8;
+            color: #0f172a;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .audio-section label:hover {
+            background: #7dd3fc;
+            transform: translateY(-2px);
+        }
+
+        .audio-section input[type="file"] {
+            display: none;
+        }
+
+        #music-status {
+            font-size: 0.9em;
+            color: #bae6fd;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #38bdf8;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .quiz-content {
+            display: none;
+        }
+
+        .question-number {
+            font-size: 1.1em;
+            color: #7dd3fc;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .question-text {
+            font-size: 1.3em;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: #fff;
+            text-align: left;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+            border-color: #38bdf8;
+        }
+
+        .option-btn.correct {
+            background: rgba(34, 197, 94, 0.3);
+            border-color: #22c55e;
+        }
+
+        .option-btn.wrong {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: #ef4444;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #0ea5e9, #2563eb);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #38bdf8, #3b82f6);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
+        }
+
+        .btn:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result-section {
+            display: none;
+            text-align: center;
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(#38bdf8 0%, rgba(255,255,255,0.1) 0%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            width: 130px;
+            height: 130px;
+            background: #1e293b;
+            border-radius: 50%;
+        }
+
+        .score-text {
+            position: relative;
+            font-size: 2.5em;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .result-details {
+            margin-bottom: 30px;
+            font-size: 1.2em;
+            color: #bae6fd;
+        }
+
+        #start-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-container">
+        <div class="audio-section">
+            <div>
+                <label for="audio-upload">🎵 Pilih Lagu Latar</label>
+                <input type="file" id="audio-upload" accept="audio/*">
+            </div>
+            <div id="music-status">Musik belum dipilih</div>
+            <audio id="bg-audio" loop></audio>
+        </div>
+
+        <div id="start-screen" class="header fade-in">
+            <h1>Quiz Premium PPKN</h1>
+            <p style="color: #94a3b8; margin-bottom: 20px;">50 Pertanyaan Tingkat Lanjut • Ujian Analisis</p>
+            <button id="start-btn" class="btn">Mulai Ujian</button>
+        </div>
+
+        <div id="quiz-container" class="quiz-content">
+            <div class="header">
+                <h1>Ujian PPKN</h1>
+            </div>
+            <div class="progress-bar-container">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+            <div class="question-number" id="question-number">Pertanyaan 1 / 50</div>
+            <div class="question-text" id="question-text">Teks Pertanyaan</div>
+            <div class="options-grid" id="options-grid">
+                </div>
+            <div class="nav-buttons">
+                <button id="next-btn" class="btn" disabled>Selanjutnya</button>
+            </div>
+        </div>
+
+        <div id="result-screen" class="result-section">
+            <div class="header">
+                <h1>Hasil Ujian</h1>
+            </div>
+            <div class="score-circle" id="score-circle">
+                <div class="score-text" id="score-text">0%</div>
+            </div>
+            <div class="result-details" id="result-details">
+                Menjawab benar 0 dari 50 pertanyaan.
+            </div>
+            <button class="btn" onclick="location.reload()">Ulangi Ujian</button>
+        </div>
+    </div>
+
+    <script>
+        // Data Soal (50 Soal dengan distraktor tingkat tinggi)
+        const quizData = [
+            { q: "Apa latar belakang utama pembentukan BPUPK oleh pemerintah pendudukan Jepang?", options: ["Janji kemerdekaan dari Jepang (Janji Koiso) untuk menarik simpati rakyat Indonesia karena posisi Jepang terdesak dalam Perang Pasifik.", "Implementasi dari Perjanjian Kalijati untuk mempersiapkan transisi kekuasaan ke tangan Sekutu.", "Desakan dari golongan muda yang mengancam akan melakukan pemberontakan bersenjata di seluruh Jawa.", "Resolusi Liga Bangsa-Bangsa yang memaksa Jepang memberikan hak otonomi penuh kepada wilayah jajahannya."], answer: 0 },
+            { q: "Siapa yang memimpin sidang PPKI pertama pada tanggal 18 Agustus 1945?", options: ["Drs. Mohammad Hatta", "Ir. Soekarno", "Dr. Radjiman Wedyodiningrat", "Mr. Mohammad Yamin"], answer: 1 },
+            { q: "Apa tujuan esensial dari dibentuknya BPUPK?", options: ["Menyusun teks proklamasi dan memilih presiden serta wakil presiden.", "Mempelajari dan menyelidiki hal-hal penting terkait pembentukan negara Indonesia merdeka.", "Membentuk kabinet pemerintahan pertama dan menyusun alat kelengkapan negara.", "Melucuti senjata tentara Jepang dan mengambil alih aset-aset militer."], answer: 1 },
+            { q: "Apa inti dari ungkapan Radjiman Wedyodiningrat saat pelantikan anggota BPUPK?", options: ["Beliau mengusulkan bentuk negara kesatuan atau serikat untuk Indonesia.", "Beliau menanyakan apa dasar negara Indonesia jika kelak merdeka.", "Beliau menuntut Jepang segera menetapkan tanggal pasti kemerdekaan.", "Beliau menegaskan bahwa bahasa Indonesia harus menjadi bahasa pengantar di sidang."], answer: 1 },
+            { q: "Apa yang dimaksud dengan 'Vacuum of Power' dalam konteks proklamasi kemerdekaan Indonesia?", options: ["Penyerahan kekuasaan dari pemerintah sipil ke tangan militer Jepang (Gunseikan).", "Kondisi di mana pemerintahan Belanda belum siap menerima kembali kekuasaan dari Sekutu.", "Kekosongan kekuasaan di Indonesia setelah Jepang menyerah tanpa syarat kepada Sekutu, sementara Sekutu belum tiba.", "Masa transisi di mana PPKI mengambil alih seluruh fungsi pemerintahan dari BPUPK."], answer: 2 },
+            { q: "Siapakah tokoh yang secara eksplisit merumuskan dan menamai 'Pancasila' dalam sidang BPUPK pada 1 Juni 1945?", options: ["Prof. Dr. Mr. Soepomo", "Mr. Mohammad Yamin", "Ir. Soekarno", "K.H. Wachid Hasyim"], answer: 2 },
+            { q: "Apa isi sila pertama Piagam Jakarta yang dirumuskan pada 22 Juni 1945 yang kemudian memicu perdebatan?", options: ["Ketuhanan Yang Maha Esa.", "Ketuhanan dengan kewajiban menjalankan syariat Islam bagi pemeluk-pemeluknya.", "Ke-Tuhanan, dengan kewajiban menjalankan hukum agama bagi seluruh rakyat.", "Ketuhanan yang berkebudayaan dan berkeadilan sosial."], answer: 1 },
+            { q: "Mengapa rumusan sila pertama pada Piagam Jakarta akhirnya diubah pada sidang PPKI tanggal 18 Agustus 1945?", options: ["Karena tekanan militer dari pihak Sekutu yang mengancam akan membatalkan kemerdekaan.", "Untuk menjaga persatuan bangsa dan menghargai aspirasi warga Indonesia Timur yang non-muslim.", "Karena usulan langsung dari pemerintah militer Jepang agar konstitusi bersifat sekuler.", "Adanya desakan dari golongan muda agar negara tidak memiliki dasar agama sama sekali."], answer: 1 },
+            { q: "Golongan manakah yang secara spesifik tidak termasuk dalam keanggotaan BPUPK?", options: ["Golongan Islam", "Golongan Kebangsaan", "Perwakilan militer Jepang (sebagai pengawas)", "Golongan penjajah/Belanda"], answer: 3 },
+            { q: "Apa yang dimaksud dengan istilah 'Gentlemen’s Agreement' dalam sejarah perumusan dasar negara Indonesia?", options: ["Perjanjian rahasia antara Soekarno dan Jenderal Terauchi di Dalat, Vietnam.", "Kesepakatan luhur antara golongan kebangsaan dan golongan Islam dalam merumuskan Piagam Jakarta.", "Nota kesepahaman antara golongan tua dan golongan muda usai peristiwa Rengasdengklok.", "Perjanjian penyerahan kekuasaan tanpa syarat dari Jepang kepada Sekutu di kapal Missouri."], answer: 1 },
+            { q: "Bagaimana definisi paling tepat dari 'Pancasila sebagai dasar negara Indonesia'?", options: ["Pedoman hidup warga negara dalam berinteraksi sosial di masyarakat internasional.", "Landasan, pondasi, dan sumber kekuatan dalam menyelenggarakan pemerintahan negara.", "Satu-satunya ideologi yang diakui oleh Perserikatan Bangsa-Bangsa untuk Indonesia.", "Kumpulan hukum pidana dan perdata yang mengatur sanksi bagi warga negara."], answer: 1 },
+            { q: "Sebutkan fungsi utama dari Pancasila bagi negara dan bangsa Indonesia secara komprehensif!", options: ["Sebagai alat diplomasi luar negeri dan strategi pertahanan militer.", "Sebagai dasar negara dan pandangan hidup bangsa.", "Sebagai konstitusi tertulis yang memuat pasal-pasal operasional pemerintahan.", "Sebagai doktrin politik eksklusif bagi penyelenggara negara."], answer: 1 },
+            { q: "Pancasila berfungsi sebagai 'sumber dari segala sumber hukum', apa makna filosofis dan yuridis dari pernyataan tersebut?", options: ["Semua peraturan perundang-undangan di Indonesia tidak boleh bertentangan dengan nilai-nilai Pancasila.", "Pancasila adalah satu-satunya hukum tertulis yang berlaku di pengadilan Indonesia.", "Setiap warga negara berhak menafsirkan hukum berdasarkan pandangan pribadinya terhadap Pancasila.", "Hukum internasional harus tunduk pada asas-asas yang terkandung dalam Pancasila."], answer: 0 },
+            { q: "Apa esensi dari makna 'Pancasila sebagai pandangan hidup bangsa'?", options: ["Dokumen historis yang wajib dihafalkan oleh seluruh aparatur sipil negara.", "Petunjuk atau pedoman dalam berperilaku sehari-hari bagi seluruh warga negara Indonesia.", "Sistem ketatanegaraan yang memisahkan kekuasaan eksekutif dan legislatif secara mutlak.", "Dasar untuk melakukan amandemen terhadap Undang-Undang Dasar 1945."], answer: 1 },
+            { q: "Manakah di bawah ini yang merupakan salah satu karakteristik utama Pancasila?", options: ["Bersifat dogmatis, tertutup, dan tidak menerima perubahan zaman.", "Nilai-nilainya bersifat universal, digali dari kepribadian bangsa sendiri, dan merupakan satu kesatuan utuh.", "Diadopsi sepenuhnya dari ideologi liberalisme Barat untuk modernisasi negara.", "Merupakan hasil konsensus sementara yang dapat diganti kapan saja melalui referendum."], answer: 1 },
+            { q: "Mengapa Pancasila sebagai cita hukum memiliki kedudukan fundamental dalam sistem tata negara?", options: ["Karena disahkan langsung oleh Perserikatan Bangsa-Bangsa pasca Proklamasi.", "Karena merupakan peraturan pelaksana dari ketetapan MPR.", "Karena Pancasila merupakan kaidah negara yang mendasar (Staatsfundamentalnorm).", "Karena kedudukannya sejajar dengan Peraturan Pemerintah (PP)."], answer: 2 },
+            { q: "Apa yang dimaksud dengan 'fungsi regulatif' dari Pancasila?", options: ["Memberikan sanksi pidana langsung kepada koruptor di Indonesia.", "Mengatur jalannya pemerintahan dan kehidupan bernegara agar selalu sesuai dengan cita-cita bangsa.", "Membatasi hak asasi manusia demi kepentingan keamanan nasional secara mutlak.", "Menentukan alokasi Anggaran Pendapatan dan Belanja Negara (APBN) setiap tahun."], answer: 1 },
+            { q: "Secara filosofis dan yuridis, bagaimana sifat yang melekat pada Pancasila?", options: ["Kaku, statis, dan hanya relevan untuk era kemerdekaan tahun 1945.", "Tetap, abadi, tidak dapat diubah (sebagai dasar), namun fleksibel dalam penerapannya (dinamis).", "Dapat diubah kapan saja asalkan disetujui oleh Presiden dan Mahkamah Konstitusi.", "Hanya berlaku bagi penyelenggara negara dan bukan untuk warga sipil biasa."], answer: 1 },
+            { q: "Di manakah Pancasila sebagai dasar negara Indonesia secara resmi dan sah dirumuskan?", options: ["Dalam teks Proklamasi Kemerdekaan RI 17 Agustus 1945.", "Di dalam Dekrit Presiden 5 Juli 1959.", "Dalam Pembukaan UUD NRI Tahun 1945 alinea ke-4.", "Di dalam Piagam PBB (Perserikatan Bangsa-Bangsa)."], answer: 2 },
+            { q: "Dalam sistem ketatanegaraan Indonesia, lembaga manakah yang memegang kekuasaan utama untuk membuat undang-undang?", options: ["Mahkamah Agung (Yudikatif) bersama Mahkamah Konstitusi.", "DPR (Legislatif) dengan persetujuan Presiden (Eksekutif).", "Majelis Permusyawaratan Rakyat (MPR) secara mutlak tunggal.", "Dewan Perwakilan Daerah (DPD) tanpa campur tangan Presiden."], answer: 1 },
+            { q: "Secara sosiologis, apa yang dimaksud dengan 'Tradisi'?", options: ["Aturan tertulis yang dibuat oleh pemerintah daerah untuk masyarakat adat.", "Kebiasaan atau adat istiadat yang dilakukan secara turun-temurun dalam suatu masyarakat.", "Teknologi modern yang diadaptasi oleh masyarakat pedesaan.", "Sistem ekonomi yang berfokus pada pertukaran barang secara barter."], answer: 1 },
+            { q: "Apa definisi yang paling komprehensif mengenai 'Kearifan Lokal'?", options: ["Pandangan hidup dan pengetahuan lokal yang tercipta dari adaptasi masyarakat terhadap lingkungannya dari generasi ke generasi.", "Kebijakan pemerintah pusat yang diterapkan secara serentak di seluruh wilayah nusantara.", "Mitos kuno yang tidak memiliki dasar logika atau manfaat praktis bagi kehidupan modern.", "Asimilasi budaya asing yang mendominasi budaya asli suatu daerah."], answer: 0 },
+            { q: "Apa tujuan strategis dari melestarikan budaya bangsa di tengah arus globalisasi?", options: ["Untuk mengisolasi diri dari pengaruh dunia internasional.", "Menjaga identitas bangsa agar tidak punah, terkikis, atau diklaim oleh negara lain.", "Menjadikan budaya Indonesia sebagai satu-satunya budaya yang diakui dunia.", "Untuk meningkatkan pajak dari sektor pariwisata secara eksponensial."], answer: 1 },
+            { q: "Sebagai salah satu contoh budaya nasional, keberadaan Candi Borobudur pada masa lampau menunjukkan...", options: ["Tingginya peradaban, nilai religius, dan kemajuan arsitektur bangsa Indonesia di masa lalu.", "Dominasi kebudayaan Hindu dari India yang mematikan kebudayaan lokal di Pulau Jawa.", "Sistem perbudakan yang dilegalkan pada masa kerajaan kuno nusantara.", "Bukti bahwa Indonesia pernah dijajah oleh arsitek-arsitek dari Eropa kuno."], answer: 0 },
+            { q: "Bagaimana sikap paling bijak dan tepat yang harus dimiliki terhadap masuknya budaya global?", options: ["Menolak secara absolut seluruh budaya luar demi menjaga kemurnian tradisi lokal.", "Menerima tanpa syarat semua budaya global agar Indonesia dianggap negara maju.", "Sikap selektif, yakni menyaring nilai positif yang sesuai Pancasila dan membuang yang negatif.", "Hanya menerima budaya dari negara-negara Asia dan menolak budaya dari negara Barat."], answer: 2 },
+            { q: "Manakah tindakan di bawah ini yang merupakan contoh konkret melestarikan kearifan lokal di lingkungan sekolah?", options: ["Mewajibkan siswa menggunakan bahasa asing dalam komunikasi sehari-hari.", "Memakai seragam batik, menggunakan bahasa daerah saat jam tertentu, atau ekstrakurikuler tari tradisional.", "Menghapus mata pelajaran muatan lokal karena dianggap tertinggal zaman.", "Memutar musik pop internasional selama jam istirahat sekolah setiap hari."], answer: 1 },
+            { q: "Oleh lembaga internasional manakah Batik Indonesia telah secara resmi diakui sebagai warisan budaya dunia?", options: ["UNICEF", "WHO", "UNESCO", "UNDP"], answer: 2 },
+            { q: "Di antara pilihan berikut, manakah yang merupakan dampak positif dari era globalisasi terhadap kebudayaan nasional?", options: ["Meningkatnya gaya hidup konsumtif dan hedonisme di kalangan remaja.", "Memudahkan promosi dan pengenalan budaya Indonesia ke luar negeri secara cepat dan masif.", "Terkikisnya nilai-nilai gotong royong digantikan oleh individualisme yang ekstrem.", "Lembaga adat kehilangan wibawa dan perannya dalam mengatur masyarakat lokal."], answer: 1 },
+            { q: "Sistem pengairan tradisional 'Subak' di Bali atau larangan menebang pohon di 'Hutan Larangan' merupakan contoh dari...", options: ["Hukum pidana positif.", "Kearifan lokal dalam menjaga pelestarian lingkungan alam.", "Modernisasi sektor pertanian nusantara.", "Asimilasi budaya luar di bidang ekologi."], answer: 1 },
+            { q: "Penggunaan bahasa daerah secara konsisten dalam prosesi acara adat masyarakat merupakan wujud nyata dari...", options: ["Bentuk pelestarian identitas budaya daerah agar tidak punah.", "Upaya eksklusif untuk menolak integrasi nasional.", "Pelanggaran terhadap penggunaan Bahasa Indonesia sebagai bahasa negara.", "Keterbelakangan literasi masyarakat adat tersebut."], answer: 0 },
+            { q: "Apa tantangan terbesar dan paling sistemik dalam upaya melestarikan budaya lokal di era global?", options: ["Kurangnya dana Anggaran Pendapatan dan Belanja Negara (APBN) untuk sektor budaya.", "Masuknya budaya asing yang tidak sesuai kepribadian bangsa dibarengi dengan kurangnya minat generasi muda.", "Adanya larangan dari hukum internasional terkait pelestarian tradisi primitif.", "Sikap pemerintah daerah yang selalu menolak inovasi teknologi dari luar."], answer: 1 },
+            { q: "Sikap bangga dan cinta terhadap budaya bangsa sendiri dalam kehidupan sehari-hari dapat ditunjukkan secara nyata dengan cara...", options: ["Mengklaim budaya negara tetangga sebagai budaya asli Indonesia.", "Menggunakan produk dalam negeri serta aktif mempelajari budaya sendiri.", "Selalu bepergian ke luar negeri untuk menunjukkan kekayaan Indonesia.", "Menutup diri dari interaksi dengan warga negara asing (xenophobia)."], answer: 1 },
+            { q: "Dari daerah manakah Upacara Ngaben, sebuah tradisi kremasi jenazah yang ikonik di Indonesia, berasal?", options: ["Toraja, Sulawesi Selatan", "Tengger, Jawa Timur", "Samosir, Sumatera Utara", "Bali"], answer: 3 },
+            { q: "Dalam konteks pelestarian budaya, kemajuan teknologi seperti media sosial sebaiknya dimanfaatkan secara optimal untuk...", options: ["Menyebarkan hoaks atau disinformasi tentang sejarah bangsa.", "Mempromosikan dan memperkenalkan keindahan budaya Indonesia ke seluruh pelosok dunia.", "Meninggalkan budaya lama dan menggantinya sepenuhnya dengan tren viral global.", "Membuat konten yang merendahkan tradisi lokal demi mendapatkan banyak penonton."], answer: 1 },
+            { q: "Tradisi 'Gotong Royong' yang mengakar kuat dalam masyarakat pedesaan maupun perkotaan di Indonesia pada dasarnya mencerminkan nilai...", options: ["Kompetisi bebas, efisiensi waktu, dan keunggulan individu.", "Nilai kebersamaan, kepedulian sosial, dan persatuan warga.", "Ketergantungan ekonomi pada bantuan pemerintah pusat.", "Paksaan dari otoritas desa agar rakyat mau bekerja tanpa upah."], answer: 1 },
+            { q: "Mengapa generasi muda (milenial dan Gen Z) memiliki peran yang sangat vital dan strategis dalam pelestarian budaya bangsa?", options: ["Karena mereka adalah satu-satunya kelompok yang memiliki akses internet cepat.", "Sebagai penerus tongkat estafet yang akan menjaga, mempraktikkan, dan mewariskan budaya kepada generasi berikutnya.", "Karena mereka memiliki kewajiban finansial untuk membiayai seluruh kegiatan adat.", "Karena kelompok tua sudah tidak lagi memahami budaya asing."], answer: 1 },
+            { q: "Manakah pendekatan yang paling efektif sebagai salah satu cara menjaga eksistensi budaya lokal?", options: ["Mempelajarinya dengan sungguh-sungguh, mempraktikkannya, dan tidak merasa malu menggunakannya di ruang publik.", "Menjual artefak budaya lokal ke museum luar negeri untuk mendapatkan dana pelestarian.", "Menjadikan seluruh tarian tradisional murni sebagai atraksi komersial dengan mengabaikan nilai sakralnya.", "Mewajibkan warga negara asing untuk mempraktikkan budaya lokal saat masuk ke Indonesia."], answer: 0 },
+            { q: "Bentuk arsitektur tradisional seperti 'Rumah Gadang' merupakan karya budaya fisik monumental yang berasal dari daerah...", options: ["Dayak (Kalimantan Tengah)", "Bugis (Sulawesi Selatan)", "Minangkabau (Sumatera Barat)", "Batak (Sumatera Utara)"], answer: 2 },
+            { q: "Di tengah pergaulan masyarakat global (borderless world), mengapa identitas budaya bangsa menjadi sangat krusial?", options: ["Untuk membedakan bangsa Indonesia dengan bangsa lain sekaligus menjaga harga diri di kancah internasional.", "Agar Indonesia dapat mendominasi organisasi internasional seperti PBB dan ASEAN.", "Untuk membuktikan bahwa budaya barat lebih inferior dibandingkan budaya timur.", "Sebagai syarat mutlak untuk mendapatkan pinjaman dari Bank Dunia (World Bank)."], answer: 0 },
+            { q: "Apa makna hakiki dari tindakan 'melestarikan budaya' secara berkelanjutan?", options: ["Hanya sekadar menyimpannya di museum agar tidak rusak dimakan usia.", "Melindungi, mengembangkan, dan memanfaatkan budaya tersebut agar tetap hidup dan relevan dengan zaman.", "Memaksa seluruh warga negara untuk hidup layaknya masyarakat di abad ke-18.", "Mengganti budaya lama dengan budaya baru yang lebih modern setiap 10 tahun sekali."], answer: 1 },
+            { q: "Berikut ini adalah contoh tradisi turun-temurun di Indonesia yang masih kuat dipertahankan hingga era globalisasi modern, KECUALI...", options: ["Pertunjukan Wayang Kulit", "Upacara adat seperti Grebeg atau Sekaten", "Tradisi Gotong Royong mendirikan fasilitas umum", "Sistem peradilan jalanan (main hakim sendiri) untuk pelanggar adat"], answer: 3 },
+            { q: "Upacara Ngaben merupakan salah satu daya tarik budaya pariwisata yang sangat terkenal di mancanegara. Tradisi ini berasal dari...", options: ["Papua", "Bali", "Nusa Tenggara Timur", "Maluku"], answer: 1 },
+            { q: "Kearifan lokal (local wisdom) suatu masyarakat dalam menjaga kelestarian ekosistem dan lingkungannya biasanya dapat dilihat dan dipelajari dari...", options: ["Peraturan daerah (Perda) yang disahkan oleh DPRD setempat.", "Tradisi lisan, upacara adat terkait panen, arsitektur rumah ekologis, dan tata cara bertani tradisional.", "Buku literatur asing yang mengkaji sosiologi masyarakat adat Indonesia.", "Jumlah pusat perbelanjaan (mall) yang dibangun di wilayah tersebut."], answer: 1 },
+            { q: "Desain dan struktur Rumah adat seperti Rumah Gadang tidak hanya indah, namun secara filosofis juga menunjukkan...", options: ["Sikap individualistis dan privasi tinggi masyarakat tradisional.", "Nilai kekeluargaan yang erat dan mengutamakan sistem musyawarah dalam masyarakat Minangkabau.", "Pertahanan militer untuk menghadapi serangan suku musuh.", "Sistem kasta yang membedakan kaum bangsawan dan rakyat jelata."], answer: 1 },
+            { q: "Pada tanggal 2 Oktober, Indonesia memperingati Hari Batik Nasional. Hal ini terkait pengakuan resmi UNESCO terhadap Batik sebagai...", options: ["Warisan Alam Dunia (World Natural Heritage) yang tak tergantikan.", "Seni lukis kontemporer terbaik di Asia Tenggara.", "Warisan Kemanusiaan untuk Budaya Lisan dan Nonbendawi (Masterpieces of the Oral and Intangible Heritage of Humanity).", "Karya arsitektur tekstil bernilai ekonomi paling tinggi di dunia."], answer: 2 },
+            { q: "Di era konvergensi digital saat ini, bagaimana cara paling relevan bagi generasi muda dalam upaya melestarikan budaya bangsa?", options: ["Mengabaikan budaya tradisional dan berfokus murni pada pengembangan kecerdasan buatan (AI).", "Membuat dan menyebarkan konten kreatif atau vlog edukatif tentang budaya lokal di berbagai platform media sosial.", "Menutup akun media sosial agar tidak terpengaruh oleh budaya dari negara luar.", "Mewajibkan sekolah menghapus pelajaran TIK dan menggantinya dengan pelajaran sejarah penuh."], answer: 1 },
+            { q: "Eksistensi monumen bersejarah Candi Borobudur yang diakui dunia membuktikan sebuah identitas nasional bahwa...", options: ["Bangsa Indonesia di masa lalu sangat terisolasi dari peradaban luar.", "Nusantara memiliki bangsa yang besar, memiliki peradaban maju, toleran, dan sangat religius.", "Kerajaan di Nusantara lebih mengutamakan pembangunan fisik daripada kesejahteraan ekonomi rakyatnya.", "Pembangunan pada masa lampau didanai penuh oleh investasi dari pedagang-pedagang asing."], answer: 1 },
+            { q: "Kearifan lokal tidak selalu berbentuk benda. Salah satu bentuk kearifan lokal yang tak kasat mata dalam tatanan kehidupan masyarakat adalah...", options: ["Keris pusaka peninggalan kerajaan Majapahit.", "Hukum adat, sanksi sosial yang mendidik bagi pelanggar norma, dan sistem gotong royong.", "Pakaian tradisional yang dikenakan saat acara pernikahan.", "Alat musik tradisional Sasando dari Rote."], answer: 1 },
+            { q: "Menggunakan pakaian adat resmi dari berbagai daerah pada saat upacara peringatan hari besar nasional (seperti HUT RI) merupakan wujud nyata dari...", options: ["Upaya pamer kekayaan budaya kepada duta besar negara asing semata.", "Bentuk penghormatan terhadap jasa pahlawan, kebhinekaan, dan penguatan identitas nasional.", "Kewajiban administratif yang dipaksakan oleh protokoler istana negara.", "Menunjukkan bahwa bangsa Indonesia belum bisa memproduksi pakaian formal modern."], answer: 1 },
+            { q: "Bagaimana seharusnya paradigma dan sikap yang tepat dari seorang warga negara terhadap gempuran budaya asing di era globalisasi abad ke-21?", options: ["Bersikap tertutup (apriori), curiga, dan memboikot semua produk kebudayaan asing.", "Mengadopsi sepenuhnya karena budaya asing dianggap sebagai standar emas kemajuan.", "Bersikap terbuka namun tetap sangat kritis, menyaringnya secara selektif, dan selalu berpegang teguh pada nilai-nilai luhur Pancasila.", "Menerima budaya asing secara perlahan asalkan dibayar dengan royalti yang tinggi kepada negara."], answer: 2 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+
+        const startScreen = document.getElementById('start-screen');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultScreen = document.getElementById('result-screen');
+        const startBtn = document.getElementById('start-btn');
+        const questionText = document.getElementById('question-text');
+        const optionsGrid = document.getElementById('options-grid');
+        const nextBtn = document.getElementById('next-btn');
+        const questionNumber = document.getElementById('question-number');
+        const progressBar = document.getElementById('progress-bar');
+
+        // Audio Upload Logic
+        const audioUpload = document.getElementById('audio-upload');
+        const bgAudio = document.getElementById('bg-audio');
+        const musicStatus = document.getElementById('music-status');
+
+        audioUpload.addEventListener('change', function(e) {
+            if(e.target.files.length > 0) {
+                const file = e.target.files[0];
+                const url = URL.createObjectURL(file);
+                bgAudio.src = url;
+                bgAudio.volume = 0.5;
+                musicStatus.textContent = "🎵 " + file.name;
+                bgAudio.play().catch(() => {
+                    musicStatus.textContent = "Klik Mulai untuk memutar musik.";
+                });
+            }
+        });
+
+        startBtn.addEventListener('click', () => {
+            startScreen.style.display = 'none';
+            quizContainer.style.display = 'block';
+            quizContainer.classList.add('fade-in');
+            if (bgAudio.src) bgAudio.play();
+            loadQuestion();
+        });
+
+        function loadQuestion() {
+            answered = false;
+            nextBtn.disabled = true;
+            const qData = quizData[currentQuestion];
+            
+            questionNumber.textContent = `Pertanyaan ${currentQuestion + 1} / ${quizData.length}`;
+            progressBar.style.width = `${((currentQuestion) / quizData.length) * 100}%`;
+            
+            questionText.textContent = qData.q;
+            optionsGrid.innerHTML = '';
+
+            // Render options
+            qData.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn fade-in';
+                btn.style.animationDelay = `${index * 0.1}s`;
+                // Add A, B, C, D prefix
+                const prefix = String.fromCharCode(65 + index);
+                btn.innerHTML = `<strong>${prefix}.</strong> ${opt}`;
+                btn.onclick = () => selectOption(btn, index, qData.answer);
+                optionsGrid.appendChild(btn);
+            });
+        }
+
+        function selectOption(selectedBtn, selectedIndex, correctIndex) {
+            if (answered) return;
+            answered = true;
+
+            const allBtns = optionsGrid.querySelectorAll('.option-btn');
+            allBtns.forEach(btn => btn.style.pointerEvents = 'none');
+
+            if (selectedIndex === correctIndex) {
+                selectedBtn.classList.add('correct');
+                score++;
+            } else {
+                selectedBtn.classList.add('wrong');
+                allBtns[correctIndex].classList.add('correct');
+            }
+
+            nextBtn.disabled = false;
+        }
+
+        nextBtn.addEventListener('click', () => {
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        });
+
+        function showResult() {
+            quizContainer.style.display = 'none';
+            resultScreen.style.display = 'block';
+            resultScreen.classList.add('fade-in');
+            progressBar.style.width = '100%';
+
+            const percentage = Math.round((score / quizData.length) * 100);
+            
+            // Animate score circle
+            const scoreCircle = document.getElementById('score-circle');
+            const scoreText = document.getElementById('score-text');
+            
+            let currentPercentage = 0;
+            const interval = setInterval(() => {
+                if(currentPercentage >= percentage) {
+                    clearInterval(interval);
+                } else {
+                    currentPercentage++;
+                    scoreText.textContent = `${currentPercentage}%`;
+                    scoreCircle.style.background = `conic-gradient(#38bdf8 ${currentPercentage}%, rgba(255,255,255,0.1) 0%)`;
+                }
+            }, 20);
+
+            if(percentage === 0) scoreText.textContent = '0%'; // fallback for 0 score
+
+            document.getElementById('result-details').textContent = `Anda menjawab benar ${score} dari ${quizData.length} pertanyaan.`;
+        }
+    </script>
+</body>
+</html>
