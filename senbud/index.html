@@ -28,7 +28,6 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
-        /* Custom Audio Input Hide */
         input[type="file"] {
             display: none;
         }
@@ -76,7 +75,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Progress Bar */
         .progress-bar {
             transition: width 0.4s ease;
         }
@@ -90,7 +88,7 @@
             <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
                 Ujian Praktik Master
             </h1>
-            <p class="text-gray-400 text-sm mt-1">Seni Budaya - Tingkat Analisis Lanjut</p>
+            <p class="text-gray-400 text-sm mt-1">Seni Budaya - 50 Soal Analisis Lanjut</p>
         </div>
 
         <div class="glass-panel p-3 rounded-xl flex items-center gap-4">
@@ -111,7 +109,7 @@
         <!-- Progress -->
         <div class="mb-8">
             <div class="flex justify-between text-sm text-gray-400 mb-2">
-                <span id="questionCount">Soal 1 dari 10</span>
+                <span id="questionCount">Soal 1 dari 50</span>
                 <span id="scoreText">Skor: 0</span>
             </div>
             <div class="w-full bg-gray-700 rounded-full h-2">
@@ -120,22 +118,21 @@
         </div>
 
         <!-- Question Text -->
-        <h2 id="questionText" class="text-xl sm:text-2xl font-semibold mb-6 leading-relaxed">
-            <!-- Teks soal akan dimuat di sini -->
-        </h2>
+        <h2 id="questionText" class="text-xl sm:text-2xl font-semibold mb-6 leading-relaxed"></h2>
 
-        <!-- Question Image (Hidden by default) -->
-        <div id="imageContainer" class="hidden mb-8 w-full flex justify-center">
-            <!-- Menambahkan min-height agar layout tidak lompat saat gambar sedang dimuat -->
-            <img id="questionImage" alt="" class="rounded-xl shadow-2xl border border-gray-600/50 max-h-72 min-h-[200px] object-contain bg-black/20 p-2">
+        <!-- Image System (Bulletproof Fallback) -->
+        <div id="imageContainer" class="hidden mb-8 w-full flex flex-col items-center gap-4">
+            <img id="questionImage" crossorigin="anonymous" class="rounded-xl shadow-2xl border border-gray-600/50 max-h-72 object-contain bg-black/20 p-2">
+            <!-- Tombol Darurat jika gambar diblokir Vercel -->
+            <a id="imageFallbackLink" target="_blank" class="hidden bg-gray-700/50 hover:bg-gray-600 text-blue-300 font-semibold py-2 px-4 rounded-lg text-sm border border-gray-500 transition cursor-pointer">
+                🖼️ Gambar Terblokir Vercel? Klik untuk Buka Gambar
+            </a>
         </div>
 
         <!-- Options -->
-        <div id="optionsContainer" class="flex flex-col gap-4">
-            <!-- Tombol pilihan akan dimuat di sini -->
-        </div>
+        <div id="optionsContainer" class="flex flex-col gap-4"></div>
 
-        <!-- Next Button (Hidden by default) -->
+        <!-- Next Button -->
         <div class="mt-8 flex justify-end">
             <button id="nextBtn" class="hidden bg-white text-gray-900 px-8 py-3 rounded-xl font-bold hover:bg-gray-200 transition transform hover:scale-105">
                 Lanjut ke Soal Berikutnya ➔
@@ -143,7 +140,7 @@
         </div>
     </div>
 
-    <!-- Result Screen (Hidden by default) -->
+    <!-- Result Screen -->
     <div id="resultScreen" class="max-w-3xl mx-auto w-full glass-panel rounded-2xl p-10 text-center hidden fade-in">
         <h2 class="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500">Kuis Selesai!</h2>
         <div class="text-6xl font-black mb-6" id="finalScore">100</div>
@@ -154,7 +151,7 @@
     </div>
 
     <script>
-        // --- FITUR AUDIO ---
+        // Audio Player
         const audioUpload = document.getElementById('audioUpload');
         const audioPlayer = document.getElementById('audioPlayer');
 
@@ -168,127 +165,93 @@
             }
         });
 
-        // --- DATA SOAL SANGAT SUSAH (7 Teks + 3 Gambar) ---
-        // Menggunakan 3 sistem link cadangan (Google AMP Cache, AllOrigins, dan Direct)
+        // DATA 50 SOAL (Sesuai Kisi-kisi 100%)
         const rawQuestions = [
-            {
-                question: "Berdasarkan bagan kriteria penjurian, manakah elemen di bawah ini yang BUKAN merupakan sub-kategori/turunan dari 'Teknik Vokal', melainkan kriteria utama yang berdiri sendiri setara dengan penampilan?",
-                options: [
-                    { text: "Interpretasi", correct: true },
-                    { text: "Artikulasi (Pelafalan)", correct: false },
-                    { text: "Phrasering", correct: false },
-                    { text: "Birama", correct: false }
-                ]
+            // Penjurian (1-4)
+            { question: "Dalam kriteria penjurian Ansambel & Unisono, komponen utama penilaian terbagi menjadi 3, di antaranya adalah...", options: [{text: "Teknik Vokal, Interpretasi, Penampilan", correct: true}, {text: "Artikulasi, Birama, Kunci", correct: false}, {text: "Phrasering, Pernapasan, Tuts Piano", correct: false}, {text: "Mayor, Minor, Kromatik", correct: false}] },
+            { question: "Berikut ini yang BUKAN merupakan kriteria utama penjurian Ansambel & Unisono (melainkan sub-bagian) adalah...", options: [{text: "Artikulasi", correct: true}, {text: "Teknik Vokal", correct: false}, {text: "Interpretasi", correct: false}, {text: "Penampilan", correct: false}] },
+            { question: "Keterkaitan antara ekspresi dan penjiwaan lagu dalam kriteria penjurian masuk ke dalam kategori...", options: [{text: "Interpretasi", correct: true}, {text: "Teknik Vokal", correct: false}, {text: "Penampilan", correct: false}, {text: "Phrasering", correct: false}] },
+            { question: "Dalam penjurian, aspek pelafalan kata yang jelas saat bernyanyi secara spesifik disebut dengan...", options: [{text: "Artikulasi", correct: true}, {text: "Phrasering", correct: false}, {text: "Pernapasan", correct: false}, {text: "Birama", correct: false}] },
+            
+            // Teknik Vokal Lanjutan (5-17)
+            { question: "Pengelompokan ketukan seperti 2/4, 3/4, 4/4, dan 6/8 termasuk dalam elemen penilaian...", options: [{text: "Birama", correct: true}, {text: "Kunci", correct: false}, {text: "Tangga Nada", correct: false}, {text: "Tuts Garis Para Nada", correct: false}] },
+            { question: "Tangga nada Mayor memiliki susunan interval nada yaitu...", options: [{text: "1 - 1 - ½ - 1 - 1 - 1 - ½", correct: true}, {text: "1 - ½ - 1 - 1 - ½ - 1 - 1", correct: false}, {text: "1 - 1 - 1 - ½ - 1 - 1 - ½", correct: false}, {text: "½ - 1 - 1 - ½ - 1 - 1 - 1", correct: false}] },
+            { question: "Tangga nada mayor (dengan interval 1 - 1 - ½ ...) pada umumnya diawali dari nada...", options: [{text: "1 (Do)", correct: true}, {text: "6 (La)", correct: false}, {text: "3 (Mi)", correct: false}, {text: "5 (Sol)", correct: false}] },
+            { question: "Susunan interval 1 - ½ - 1 - 1 - ½ - 1 - 1 merupakan ciri khas dari...", options: [{text: "Tangga Nada Minor", correct: true}, {text: "Tangga Nada Mayor", correct: false}, {text: "Tangga Nada Pentatonik", correct: false}, {text: "Tangga Nada Kromatik", correct: false}] },
+            { question: "Tangga nada minor secara natural diawali dari titik nada...", options: [{text: "6 (La)", correct: true}, {text: "1 (Do)", correct: false}, {text: "5 (Sol)", correct: false}, {text: "4 (Fa)", correct: false}] },
+            { question: "Tuts piano dan Tuts Garis Para Nada dalam kriteria penjurian dikelompokkan ke dalam kategori besar...", options: [{text: "Teknik Vokal", correct: true}, {text: "Penampilan", correct: false}, {text: "Interpretasi", correct: false}, {text: "Sumber Bunyi", correct: false}] },
+            { question: "Wilayah suara paling tinggi untuk penyanyi wanita adalah...", options: [{text: "Sopran", correct: true}, {text: "Mezzo Sopran", correct: false}, {text: "Alto", correct: false}, {text: "Tenor", correct: false}] },
+            { question: "Penyanyi wanita yang memiliki jangkauan suara di tengah-tengah (tidak terlalu tinggi dan tidak terlalu rendah) disebut...", options: [{text: "Mezzo Sopran", correct: true}, {text: "Alto", correct: false}, {text: "Sopran", correct: false}, {text: "Bariton", correct: false}] },
+            { question: "Alto merupakan klasifikasi wilayah suara untuk...", options: [{text: "Wanita bersuara rendah", correct: true}, {text: "Pria bersuara rendah", correct: false}, {text: "Wanita bersuara tinggi", correct: false}, {text: "Pria bersuara tinggi", correct: false}] },
+            { question: "Wilayah suara paling tinggi untuk penyanyi laki-laki dinamakan...", options: [{text: "Tenor", correct: true}, {text: "Bariton", correct: false}, {text: "Bass", correct: false}, {text: "Sopran", correct: false}] },
+            { question: "Bariton adalah klasifikasi wilayah suara untuk penyanyi...", options: [{text: "Laki-laki bersuara sedang", correct: true}, {text: "Laki-laki bersuara rendah", correct: false}, {text: "Wanita bersuara sedang", correct: false}, {text: "Laki-laki bersuara tinggi", correct: false}] },
+            { question: "Teknik pemenggalan kalimat lagu yang baik dan benar agar pesannya tersampaikan disebut...", options: [{text: "Phrasering", correct: true}, {text: "Artikulasi", correct: false}, {text: "Pernapasan", correct: false}, {text: "Interpretasi", correct: false}] },
+            { question: "Kunci utama untuk memproduksi nada yang stabil dan panjang dalam teknik vokal adalah penguasaan...", options: [{text: "Pernapasan dalam bernyanyi", correct: true}, {text: "Phrasering", correct: false}, {text: "Tuts Garis Para Nada", correct: false}, {text: "Interpretasi", correct: false}] },
+            
+            // Sumber Bunyi (18-22)
+            { question: "Jika alat musik menghasilkan bunyi melalui hembusan udara, alat tersebut masuk dalam klasifikasi...", options: [{text: "Airofon", correct: true}, {text: "Kordofon", correct: false}, {text: "Idiofon", correct: false}, {text: "Membranofon", correct: false}] },
+            { question: "Membranofon adalah alat musik yang sumber bunyinya berasal dari...", options: [{text: "Kulit (Membran)", correct: true}, {text: "Senar", correct: false}, {text: "Udara", correct: false}, {text: "Listrik", correct: false}] },
+            { question: "Alat musik yang menggunakan senar sebagai sumber getaran utama untuk menghasilkan bunyi disebut...", options: [{text: "Kordofon", correct: true}, {text: "Airofon", correct: false}, {text: "Idiofon", correct: false}, {text: "Elektrofon", correct: false}] },
+            { question: "Idiofon merupakan kelompok alat musik yang sumber bunyinya berasal dari...", options: [{text: "Badan alat musik itu sendiri", correct: true}, {text: "Tenaga listrik", correct: false}, {text: "Tepukan pada kulit", correct: false}, {text: "Gesekan senar", correct: false}] },
+            { question: "Instrumen modern yang sumber bunyinya bergantung murni pada tenaga listrik digolongkan sebagai...", options: [{text: "Elektrofon", correct: true}, {text: "Idiofon", correct: false}, {text: "Kordofon", correct: false}, {text: "Membranofon", correct: false}] },
+            
+            // Alat Musik Daerah & Tangga Nada (23-25)
+            { question: "Sistem tangga nada alat musik daerah yang memiliki jumlah 12 nada penuh disebut...", options: [{text: "Kromatik", correct: true}, {text: "Diatonik", correct: false}, {text: "Pentatonik", correct: false}, {text: "Mayor", correct: false}] },
+            { question: "Jumlah nada pokok pada sistem tangga nada Diatonik alat musik daerah adalah sebanyak...", options: [{text: "7 nada", correct: true}, {text: "5 nada", correct: false}, {text: "12 nada", correct: false}, {text: "8 nada", correct: false}] },
+            { question: "Sistem tangga nada yang paling sering dipakai dalam alat musik tradisional daerah yang hanya terdiri dari 5 nada adalah...", options: [{text: "Pentatonik", correct: true}, {text: "Diatonik", correct: false}, {text: "Kromatik", correct: false}, {text: "Minor", correct: false}] },
+            
+            // Nusantara (26-37)
+            { question: "Gamelan merupakan instrumen tradisional Nusantara yang identik dengan pertunjukan seni...", options: [{text: "Karawitan", correct: true}, {text: "Lenong", correct: false}, {text: "Hitada", correct: false}, {text: "Rondala", correct: false}] },
+            { question: "Alat musik Sasando yang terbuat dari bahan alami merupakan instrumen tradisional asal daerah...", options: [{text: "Nusa Tenggara Timur (NTT)", correct: true}, {text: "Bali", correct: false}, {text: "Betawi", correct: false}, {text: "Halmahera", correct: false}] },
+            { question: "Berdasarkan catatan, selain Sasando, daerah NTT juga dikaitkan dengan istilah kesenian...", options: [{text: "Rindik", correct: true}, {text: "Hitada", correct: false}, {text: "Lenong", correct: false}, {text: "Karawitan", correct: false}] },
+            { question: "Gamelan Jegog memiliki ciri khas yang berbeda dari gamelan Jawa. Alat musik asal Bali ini terbuat dari...", options: [{text: "Bambu", correct: true}, {text: "Perunggu", correct: false}, {text: "Besi", correct: false}, {text: "Kayu Ukir", correct: false}] },
+            { question: "Suling adalah alat musik tradisional dari Sunda. Berdasarkan cara memainkannya, sumber bunyi suling diklasifikasikan sebagai...", options: [{text: "Airofon", correct: true}, {text: "Idiofon", correct: false}, {text: "Kordofon", correct: false}, {text: "Membranofon", correct: false}] },
+            { question: "Gambang Kromong adalah kesenian musik tradisional yang berasal dari daerah...", options: [{text: "Betawi", correct: true}, {text: "Sunda", correct: false}, {text: "Bali", correct: false}, {text: "Halmahera", correct: false}] },
+            { question: "Menurut catatan, instrumen bersenar dalam Gambang Kromong dimainkan dengan cara...", options: [{text: "Digesek", correct: true}, {text: "Ditiup", correct: false}, {text: "Dipukul", correct: false}, {text: "Ditepuk", correct: false}] },
+            { question: "Gambang Kromong sangat lekat dan sering digunakan untuk mengiringi kesenian drama khas Betawi yang disebut...", options: [{text: "Lenong", correct: true}, {text: "Karawitan", correct: false}, {text: "Hitada", correct: false}, {text: "Rindik", correct: false}] },
+            { question: "Kesenian musik tradisional 'Hitada' merupakan kesenian yang berasal dari daerah...", options: [{text: "Halmahera", correct: true}, {text: "Nusa Tenggara Timur", correct: false}, {text: "Betawi", correct: false}, {text: "Sunda", correct: false}] },
+            { question: "Jika dihitung secara matematis berdasarkan catatan, selisih jumlah nada antara Diatonik dan Pentatonik adalah...", options: [{text: "2 nada", correct: true}, {text: "7 nada", correct: false}, {text: "5 nada", correct: false}, {text: "12 nada", correct: false}] },
+            { question: "Penyanyi laki-laki dengan wilayah suara terendah dinamakan...", options: [{text: "Bass", correct: true}, {text: "Tenor", correct: false}, {text: "Bariton", correct: false}, {text: "Alto", correct: false}] },
+            { question: "Klasifikasi alat musik dengan sumber bunyi dari kulit atau membran adalah ciri dari alat yang dimainkan dengan cara...", options: [{text: "Ditepuk/Dipukul", correct: true}, {text: "Ditiup", correct: false}, {text: "Digesek", correct: false}, {text: "Dipetik", correct: false}] },
+            
+            // Negara Lain (38-45)
+            { question: "Saung Gauk adalah instrumen tradisional mancanegara yang berasal dari negara...", options: [{text: "Myanmar", correct: true}, {text: "Filipina", correct: false}, {text: "Brunei Darussalam", correct: false}, {text: "Halmahera", correct: false}] },
+            { question: "Saung Gauk dimainkan dengan cara dipetik dan memiliki bentuk yang mirip dengan alat musik...", options: [{text: "Harpa", correct: true}, {text: "Gitar", correct: false}, {text: "Gamelan", correct: false}, {text: "Piano", correct: false}] },
+            { question: "Alat musik mancanegara dari Filipina yang cara bermainnya dipetik layaknya gitar adalah...", options: [{text: "Rondala", correct: true}, {text: "Gulintangan", correct: false}, {text: "Saung Gauk", correct: false}, {text: "Hitada", correct: false}] },
+            { question: "Rondala (Filipina) dimainkan dengan cara dipetik (menggunakan senar). Maka ia tergolong instrumen...", options: [{text: "Kordofon", correct: true}, {text: "Airofon", correct: false}, {text: "Idiofon", correct: false}, {text: "Membranofon", correct: false}] },
+            { question: "Gulintangan merupakan alat musik tradisional yang berasal dari negara...", options: [{text: "Brunei Darussalam", correct: true}, {text: "Filipina", correct: false}, {text: "Myanmar", correct: false}, {text: "Malaysia", correct: false}] },
+            { question: "Gulintangan dari Brunei Darussalam memiliki kesamaan cara dimainkan (dipukul) dengan alat musik Nusantara, yaitu...", options: [{text: "Gamelan", correct: true}, {text: "Sasando", correct: false}, {text: "Suling", correct: false}, {text: "Gambang (gesek)", correct: false}] },
+            { question: "Karena Gulintangan dipukul dan menghasilkan getaran dari badannya sendiri (seperti gamelan), ia termasuk klasifikasi...", options: [{text: "Idiofon", correct: true}, {text: "Membranofon", correct: false}, {text: "Elektrofon", correct: false}, {text: "Airofon", correct: false}] },
+            { question: "Dari ketiga alat musik mancanegara di catatan (Saung Gauk, Rondala, Gulintangan), berapa alat musik yang cara mainnya dipetik?", options: [{text: "2 Alat Musik", correct: true}, {text: "1 Alat Musik", correct: false}, {text: "3 Alat Musik", correct: false}, {text: "Tidak Ada", correct: false}] },
+            
+            // Alat Tambahan (46-47)
+            { question: "Alat bantu yang digunakan musisi untuk menentukan kecepatan atau tempo lagu secara konstan adalah...", options: [{text: "Metronome", correct: true}, {text: "Pipa Nada", correct: false}, {text: "Tuts Piano", correct: false}, {text: "Birama", correct: false}] },
+            { question: "Untuk menentukan dan menyamakan 'tinggi nada' dasar bagi kelompok paduan suara, dirigen umumnya menggunakan alat...", options: [{text: "Pipa Nada", correct: true}, {text: "Metronome", correct: false}, {text: "Tuts Garis Para Nada", correct: false}, {text: "Kromatik", correct: false}] },
+
+            // Gambar (48-50)
+            { 
+                question: "Gambar di bawah ini merupakan ansambel gamelan yang unik asal Bali karena material utamanya menggunakan bambu besar. Kesenian ini dinamakan...", 
+                image: "https://upload.wikimedia.org/wikipedia/commons/2/29/Gamelan_jegog_instruments.jpg", 
+                options: [{text: "Gamelan Jegog", correct: true}, {text: "Rindik", correct: false}, {text: "Gambang Kromong", correct: false}, {text: "Gulintangan", correct: false}] 
             },
-            {
-                question: "Sebuah ansambel memainkan melodi yang sedih dengan interval susunan nada: 1 - 1½ - 1 - 1 - 1½ - 1 - 1. Merujuk pada catatan tangga nada, susunan tersebut mutlak diawali dari titik nada...",
-                options: [
-                    { text: "6 (La)", correct: true },
-                    { text: "1 (Do)", correct: false },
-                    { text: "3 (Mi)", correct: false },
-                    { text: "5 (Sol)", correct: false }
-                ]
+            { 
+                question: "Perhatikan alat musik di bawah ini yang menggunakan daun lontar. Alat musik petik asal Nusa Tenggara Timur (NTT) ini bernama...", 
+                image: "https://upload.wikimedia.org/wikipedia/commons/1/15/Sasando.jpg", 
+                options: [{text: "Sasando", correct: true}, {text: "Rondala", correct: false}, {text: "Hitada", correct: false}, {text: "Saung Gauk", correct: false}] 
             },
-            {
-                question: "Instrumen 'Gambang Kromong' asal Betawi diidentikkan dengan seni pertunjukan 'Lenong'. Jika ditinjau dari cara menghasilkan bunyi (berdasarkan sumber bunyi), instrumen ini secara spesifik termasuk dalam klasifikasi...",
-                options: [
-                    { text: "Kordofon (karena memiliki senar dan digesek)", correct: true },
-                    { text: "Idiofon (karena bunyinya dari alat itu sendiri)", correct: false },
-                    { text: "Membranofon (karena ditepuk pada membran)", correct: false },
-                    { text: "Airofon (karena dihembuskan udara)", correct: false }
-                ]
-            },
-            {
-                question: "Jika kamu membandingkan sistem tangga nada alat musik daerah, berapakah selisih matematis jumlah nada antara sistem 'Kromatik' secara utuh dibandingkan dengan sistem 'Pentatonik'?",
-                options: [
-                    { text: "7 Nada", correct: true }, // 12 - 5 = 7
-                    { text: "5 Nada", correct: false },
-                    { text: "12 Nada", correct: false },
-                    { text: "2 Nada", correct: false }
-                ]
-            },
-            {
-                question: "Dari daftar instrumen mancanegara, manakah dua alat musik yang memiliki kesamaan identik dalam teknik memainkannya secara fisik?",
-                options: [
-                    { text: "Saung Gauk (Myanmar) dan Rondala (Filipina)", correct: true }, // Keduanya dipetik
-                    { text: "Gulintangan (Brunei) dan Rondala (Filipina)", correct: false },
-                    { text: "Saung Gauk (Myanmar) dan Gulintangan (Brunei)", correct: false },
-                    { text: "Sasando (NTT) dan Gulintangan (Brunei)", correct: false }
-                ]
-            },
-            {
-                question: "Seorang dirigen paduan suara membutuhkan alat bantu untuk menentukan tempo lagu secara konstan, sekaligus referensi frekuensi untuk menyamakan nada dasar penyanyi. Dua alat yang secara akurat merepresentasikan fungsi tersebut adalah...",
-                options: [
-                    { text: "Metronome dan Pipa Nada", correct: true },
-                    { text: "Birama dan Tuts Piano", correct: false },
-                    { text: "Tuts Garis Para Nada dan Kunci Nada", correct: false },
-                    { text: "Artikulasi dan Phrasering", correct: false }
-                ]
-            },
-            {
-                question: "Dalam pembagian wilayah suara, seorang penyanyi wanita menyadari suaranya tidak cukup tinggi untuk mencapai Sopran, namun terlalu tinggi jika dipaksa menyanyi di wilayah Alto. Maka wilayah suaranya disebut...",
-                options: [
-                    { text: "Mezzo Sopran", correct: true },
-                    { text: "Tenor", correct: false },
-                    { text: "Bariton", correct: false },
-                    { text: "Sopran Minor", correct: false }
-                ]
-            },
-            // --- SOAL GAMBAR ---
-            {
-                question: "Gambar di bawah ini menampilkan sebuah ansambel gamelan yang unik karena material utamanya menggunakan bambu besar, bukan perunggu. Berdasarkan kisi-kisi, dari manakah asal kesenian ini?",
-                images: [
-                    "https://upload-wikimedia-org.cdn.ampproject.org/i/s/upload.wikimedia.org/wikipedia/commons/2/29/Gamelan_jegog_instruments.jpg",
-                    "https://api.allorigins.win/raw?url=https://upload.wikimedia.org/wikipedia/commons/2/29/Gamelan_jegog_instruments.jpg",
-                    "https://upload.wikimedia.org/wikipedia/commons/2/29/Gamelan_jegog_instruments.jpg"
-                ],
-                imageAlt: "[Gambar Gamelan Jegog]",
-                options: [
-                    { text: "Bali", correct: true },
-                    { text: "Sunda", correct: false },
-                    { text: "Betawi", correct: false },
-                    { text: "Halmahera", correct: false }
-                ]
-            },
-            {
-                question: "Perhatikan struktur unik alat musik di bawah ini yang memanfaatkan daun lontar sebagai resonansinya. Alat musik ini dimainkan dengan cara dipetik. Apakah nama alat musik ini dan dari mana asalnya?",
-                images: [
-                    "https://upload-wikimedia-org.cdn.ampproject.org/i/s/upload.wikimedia.org/wikipedia/commons/1/15/Sasando.jpg",
-                    "https://api.allorigins.win/raw?url=https://upload.wikimedia.org/wikipedia/commons/1/15/Sasando.jpg",
-                    "https://upload.wikimedia.org/wikipedia/commons/1/15/Sasando.jpg"
-                ],
-                imageAlt: "[Gambar Sasando]",
-                options: [
-                    { text: "Sasando dari Nusa Tenggara Timur", correct: true },
-                    { text: "Rindik dari Nusa Tenggara Timur", correct: false },
-                    { text: "Hitada dari Halmahera", correct: false },
-                    { text: "Rondala dari Filipina", correct: false }
-                ]
-            },
-            {
-                question: "Berdasarkan ciri fisiknya yang menyerupai harpa melengkung, instrumen mancanegara yang dimainkan dengan cara dipetik pada gambar di bawah ini adalah...",
-                images: [
-                    "https://upload-wikimedia-org.cdn.ampproject.org/i/s/upload.wikimedia.org/wikipedia/commons/9/91/Saung.jpg",
-                    "https://api.allorigins.win/raw?url=https://upload.wikimedia.org/wikipedia/commons/9/91/Saung.jpg",
-                    "https://upload.wikimedia.org/wikipedia/commons/9/91/Saung.jpg"
-                ],
-                imageAlt: "[Gambar Saung Gauk]",
-                options: [
-                    { text: "Saung Gauk dari Myanmar", correct: true },
-                    { text: "Rondala dari Filipina", correct: false },
-                    { text: "Gulintangan dari Brunei Darussalam", correct: false },
-                    { text: "Gambang dari Betawi", correct: false }
-                ]
+            { 
+                question: "Instrumen mancanegara pada gambar di bawah ini berasal dari Myanmar, dan dimainkan dengan cara dipetik menyerupai harpa. Namanya adalah...", 
+                image: "https://upload.wikimedia.org/wikipedia/commons/9/91/Saung.jpg", 
+                options: [{text: "Saung Gauk", correct: true}, {text: "Rondala", correct: false}, {text: "Gulintangan", correct: false}, {text: "Gambang", correct: false}] 
             }
         ];
 
-        // --- LOGIKA KUIS ---
+        // LOGIKA KUIS
         let currentQuestions = [];
         let currentQuestionIndex = 0;
         let score = 0;
         let answered = false;
 
-        // Fungsi Acak (Fisher-Yates)
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -297,18 +260,14 @@
             return array;
         }
 
-        // Inisialisasi Kuis
         function initQuiz() {
-            // Acak urutan soal
             currentQuestions = shuffleArray([...rawQuestions]);
-            // Acak pilihan ganda di dalam setiap soal
             currentQuestions.forEach(q => {
                 q.options = shuffleArray([...q.options]);
             });
             loadQuestion();
         }
 
-        // Muat Soal ke Layar
         function loadQuestion() {
             answered = false;
             document.getElementById('nextBtn').classList.add('hidden');
@@ -316,46 +275,42 @@
             const q = currentQuestions[currentQuestionIndex];
             document.getElementById('questionText').innerText = q.question;
             
-            // Logika Tampilkan/Sembunyikan Gambar (Sistem Anti-Blokir Lapis Baja)
+            // --- SISTEM GAMBAR ANTI-BLOKIR (Bulletproof) ---
             const imageContainer = document.getElementById('imageContainer');
             const questionImage = document.getElementById('questionImage');
+            const fallbackLink = document.getElementById('imageFallbackLink');
             
-            if (q.images) {
-                questionImage.alt = q.imageAlt || "[Gambar Alat Musik]";
+            if (q.image) {
+                // Tampilkan container
                 imageContainer.classList.remove('hidden');
+                questionImage.classList.remove('hidden');
+                fallbackLink.classList.add('hidden'); // Sembunyikan fallback dulu
                 
-                // Reset error event sebelum mencoba meload gambar
-                questionImage.onerror = null; 
-                let imgIndex = 0;
+                // Set gambar
+                questionImage.src = q.image;
                 
-                // Fungsi otomatis pindah link jika diblokir server Vercel/Wikipedia
+                // Jika Vercel tetap memblokir (CORS / 403), jangan biarkan JS error
                 questionImage.onerror = function() {
-                    imgIndex++;
-                    if(imgIndex < q.images.length) {
-                        this.src = q.images[imgIndex]; 
-                    } else {
-                        // Jika Vercel tetap menolak semua link, tampilkan peringatan ini agar layout tidak rusak
-                        this.onerror = null;
-                        this.src = 'https://dummyimage.com/600x300/ef4444/ffffff&text=Sistem+Memblokir+Gambar';
-                    }
+                    this.onerror = null; // Matikan loop
+                    this.classList.add('hidden'); // Sembunyikan icon rusak
+                    
+                    // Munculkan tombol klik direct link
+                    fallbackLink.href = q.image;
+                    fallbackLink.classList.remove('hidden');
                 };
-                
-                // Mulai load dari jalur pertama (Google Cache Server)
-                questionImage.src = q.images[imgIndex];
-
             } else {
                 imageContainer.classList.add('hidden');
                 questionImage.removeAttribute('src'); 
-                questionImage.alt = '';
                 questionImage.onerror = null;
             }
+            // ----------------------------------------------
             
             // Update Progress
             const progressPercent = ((currentQuestionIndex) / currentQuestions.length) * 100;
             document.getElementById('progressBar').style.width = progressPercent + '%';
             document.getElementById('questionCount').innerText = `Soal ${currentQuestionIndex + 1} dari ${currentQuestions.length}`;
 
-            // Render Tombol
+            // Render Tombol Opsi
             const optionsContainer = document.getElementById('optionsContainer');
             optionsContainer.innerHTML = '';
             
@@ -364,47 +319,37 @@
                 btn.className = 'option-btn w-full text-left p-4 rounded-xl text-lg font-medium bg-white/5 cursor-pointer';
                 btn.innerHTML = `<span class="inline-block w-8 font-bold opacity-50">${String.fromCharCode(65 + index)}.</span> ${opt.text}`;
                 
-                // Event Listener Klik Jawaban
                 btn.onclick = () => selectAnswer(btn, opt.correct, q.options);
                 optionsContainer.appendChild(btn);
             });
 
-            // Re-trigger animasi
+            // Animasi
             const quizContainer = document.getElementById('quizContainer');
             quizContainer.classList.remove('fade-in');
             void quizContainer.offsetWidth; 
             quizContainer.classList.add('fade-in');
         }
 
-        // Handle Pilihan User
         function selectAnswer(selectedBtn, isCorrect, options) {
-            if (answered) return; // Mencegah klik dua kali
+            if (answered) return;
             answered = true;
 
             const allBtns = document.querySelectorAll('.option-btn');
-            
-            // Matikan semua tombol
             allBtns.forEach(btn => btn.disabled = true);
 
             if (isCorrect) {
                 selectedBtn.classList.add('correct');
-                score += 10; // Maks 100 (10 soal x 10)
+                score += 2; // 50 Soal x 2 = 100 Poin
                 document.getElementById('scoreText').innerText = `Skor: ${score}`;
             } else {
                 selectedBtn.classList.add('wrong');
-                // Cari dan tandai jawaban yang benar
                 options.forEach((opt, idx) => {
-                    if (opt.correct) {
-                        allBtns[idx].classList.add('correct');
-                    }
+                    if (opt.correct) allBtns[idx].classList.add('correct');
                 });
             }
-
-            // Tampilkan tombol lanjut
             document.getElementById('nextBtn').classList.remove('hidden');
         }
 
-        // Navigasi Soal Berikutnya
         document.getElementById('nextBtn').addEventListener('click', () => {
             currentQuestionIndex++;
             if (currentQuestionIndex < currentQuestions.length) {
@@ -414,7 +359,6 @@
             }
         });
 
-        // Tampilkan Layar Hasil
         function showResult() {
             document.getElementById('quizContainer').classList.add('hidden');
             document.getElementById('resultScreen').classList.remove('hidden');
@@ -428,13 +372,13 @@
                 feedbackText.innerText = "Sempurna! Kamu pantas dapat nilai A+ di Ujian Praktik.";
                 finalScoreElement.className = "text-6xl font-black mb-6 text-green-400";
             } else if (score >= 75) {
-                feedbackText.innerText = "Hebat! Analisismu sudah sangat bagus.";
+                feedbackText.innerText = "Hebat! Penguasaan materi sesuai kisi-kisi sangat bagus.";
                 finalScoreElement.className = "text-6xl font-black mb-6 text-blue-400";
             } else if (score >= 50) {
                 feedbackText.innerText = "Cukup baik, tapi pastikan membaca kisi-kisi lebih teliti lagi.";
                 finalScoreElement.className = "text-6xl font-black mb-6 text-yellow-400";
             } else {
-                feedbackText.innerText = "Waduh, sepertinya kamu harus membaca catatan dengan lebih detail lagi!";
+                feedbackText.innerText = "Waduh, sepertinya kamu harus menghafal catatan dengan lebih detail lagi!";
                 finalScoreElement.className = "text-6xl font-black mb-6 text-red-400";
             }
         }
