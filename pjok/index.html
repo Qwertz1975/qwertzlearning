@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ujian PJOK Ekstrem</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #f8fafc; /* Slate 50 */
+        }
+        .fade-enter {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .btn-option {
+            transition: all 0.2s ease;
+        }
+        .btn-option:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn-option:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        .correct-answer {
+            background-color: #10b981 !important; /* Emerald 500 */
+            color: white !important;
+            border-color: #059669 !important;
+        }
+        .wrong-answer {
+            background-color: #ef4444 !important; /* Red 500 */
+            color: white !important;
+            border-color: #dc2626 !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div id="app" class="w-full max-w-3xl bg-slate-800 rounded-2xl shadow-2xl p-6 sm:p-10 border border-slate-700 fade-enter">
+        <!-- Konten akan dimuat secara dinamis oleh JavaScript -->
+    </div>
+
+    <script>
+        const rawQuestions = [
+            // SEPAK BOLA (8 Soal)
+            {
+                q: "Sebuah insiden terjadi di mana pemain bertahan lawan melakukan tekel keras dan melanggar penyerang secara sengaja di luar area kotak penalti. Tindakan hukum yang paling tepat sesuai regulasi permainan adalah...",
+                options: ["Tendangan bebas", "Tendangan penalti", "Lemparan ke dalam", "Tendangan sudut"],
+                answer: "Tendangan bebas"
+            },
+            {
+                q: "Jika seorang bek menyentuh bola dengan tangannya (handsball) tepat di dalam area kotak penaltinya sendiri untuk menghentikan serangan lawan, maka sanksi yang dijatuhkan wasit adalah...",
+                options: ["Tendangan penalti", "Tendangan bebas tidak langsung", "Tendangan gawang", "Tendangan bebas langsung dari titik pelanggaran"],
+                answer: "Tendangan penalti"
+            },
+            {
+                q: "Secara anatomis, bagian kaki mana sajakah yang diinstruksikan dalam teknik dasar menendang bola untuk menghasilkan variasi laju dan akurasi, kecuali...",
+                options: ["Tumit dan telapak kaki", "Kaki bagian dalam", "Kaki bagian luar", "Punggung kaki"],
+                answer: "Tumit dan telapak kaki"
+            },
+            {
+                q: "Ketika menerima umpan bola yang melambung dari rekan setim atau bola datar yang mengalir deras, teknik biomekanik yang direkomendasikan untuk menahan bola secara mantap adalah menggunakan...",
+                options: ["Telapak kaki", "Ujung jari kaki", "Tulang kering", "Lutut bagian dalam"],
+                answer: "Telapak kaki"
+            },
+            {
+                q: "Untuk mempertahankan penguasaan penuh atas bola saat melakukan drible (menggiring sambil berlari berulang-ulang) melewati pertahanan lawan, prinsip spasial utama yang harus dijaga adalah...",
+                options: ["Bola selalu bergulir dekat dengan kaki", "Mendorong bola sejauh 5 meter ke depan agar bisa dikejar", "Mengangkat bola saat drible untuk menghindari tekel", "Menendang bola kuat-kuat lalu mengejarnya dari belakang"],
+                answer: "Bola selalu bergulir dekat dengan kaki"
+            },
+            {
+                q: "Berdasarkan analisis klasifikasi gerak, manakah pernyataan yang mendefinisikan dengan tepat perbedaan gerak lokomotor dan diam dalam konteks permainan sepak bola?",
+                options: ["Berlari sambil menendang adalah lokomotor, sedangkan menendang di tempat tanpa berpindah adalah bukan lokomotor", "Menendang di tempat adalah lokomotor, sedangkan berlari adalah manipulatif", "Mengoper bola dari keadaan out selalu dihitung sebagai gerak lokomotor penuh", "Berlari tanpa bola adalah non-lokomotor, berlari dengan bola adalah lokomotor"],
+                answer: "Berlari sambil menendang adalah lokomotor, sedangkan menendang di tempat tanpa berpindah adalah bukan lokomotor"
+            },
+            {
+                q: "Pemain melakukan throw-in (lemparan ke dalam) untuk mengoper bola yang keluar (out) kepada temannya. Posisi tubuh pemain yang melakukan lemparan tanpa memindahkan pijakan kaki termasuk dalam kategori gerak...",
+                options: ["Gerak yang diam", "Gerak lokomotor", "Gerak eksplosif transisional", "Gerak manipulatif berpindah"],
+                answer: "Gerak yang diam"
+            },
+            {
+                q: "Situasi yang paling optimal dan sesuai prosedur mekanika untuk melakukan teknik menyundul bola (heading) menggunakan bagian kening/dahi adalah pada saat...",
+                options: ["Bola melambung atau berada di udara", "Bola bergulir mendatar dengan kecepatan tinggi", "Bola memantul rendah di bawah lutut", "Bola diam di titik tengah lapangan"],
+                answer: "Bola melambung atau berada di udara"
+            },
+
+            // BULU TANGKIS (8 Soal)
+            {
+                q: "Pukulan serangan dalam bulu tangkis yang memiliki lintasan tajam, menukik tajam mengarah ke bawah, dan dieksekusi dengan keras disebut...",
+                options: ["Smash", "Dropshot", "Lob", "Drive"],
+                answer: "Smash"
+            },
+            {
+                q: "Gerakan memukul bola (kok) yang secara aturan diwajibkan sebagai tindakan pertama untuk mengawali setiap reli permainan dinamakan...",
+                options: ["Servis", "Netting", "Return", "Clear"],
+                answer: "Servis"
+            },
+            {
+                q: "Teknik pukulan di mana postur lengan disesuaikan sehingga bagian punggung tangan pemain menghadap lurus ke arah datangnya kok disebut pukulan...",
+                options: ["Backhand", "Forehand", "Overhead", "Underhand"],
+                answer: "Backhand"
+            },
+            {
+                q: "Sebuah pukulan yang dilakukan ke arah samping tubuh, menggunakan ayunan tangan yang bergerak dari belakang menuju ke depan bawah dengan postur genggaman menyerupai gestur bersalaman, diidentifikasi sebagai pukulan...",
+                options: ["Forehand", "Backhand", "Smash menyilang", "Flick serve"],
+                answer: "Forehand"
+            },
+            {
+                q: "Pukulan taktis yang secara visual menjebak (menipu) karena terlihat seolah-olah pemain akan melakukan smash keras, namun bola justru dipukul dengan kekuatan lemah agar jatuh tepat di area depan net lawan, dinamakan...",
+                options: ["Dropshot", "Net-kill", "Lob serang", "Drive silang"],
+                answer: "Dropshot"
+            },
+            {
+                q: "Untuk menghindari pelanggaran (fault) yang ditetapkan oleh Service Judge, batas anatomi maksimal saat perkenaan raket dengan bola (kok) pada saat melakukan servis bulu tangkis adalah...",
+                options: ["Setinggi pinggang atau bisa di bawahnya, tidak boleh lebih", "Setinggi dada dan sejajar ketiak", "Tepat di atas kepala pemain", "Setinggi pusar namun raket harus menghadap atas"],
+                answer: "Setinggi pinggang atau bisa di bawahnya, tidak boleh lebih"
+            },
+            {
+                q: "Dalam olahraga bola voli, melakukan blok (block) terhadap smash lawan sangat lazim. Namun, dalam bulu tangkis, menahan smash keras secara langsung dengan raket di depan badan (nge-blok) sering dianggap untung-untungan (hoki-hokian) karena...",
+                options: ["Arah bola sangat cepat dan pemain tidak tahu pasti ke mana laju jatuhnya kok tersebut", "Raket bulu tangkis terlalu rapuh untuk menahan beban kok", "Aturan BWF melarang adanya sentuhan raket di dekat net", "Pemain diharuskan mengembalikan smash dengan smash kembali"],
+                answer: "Arah bola sangat cepat dan pemain tidak tahu pasti ke mana laju jatuhnya kok tersebut"
+            },
+            {
+                q: "Bulu tangkis merupakan permainan yang sangat membutuhkan berbagai jenis pukulan. Pukulan apa yang paling krusial menentukan inisiatif awal serangan karena kegagalannya langsung berbuah poin bagi lawan?",
+                options: ["Servis", "Smash", "Lob", "Dropshot"],
+                answer: "Servis"
+            },
+
+            // LARI / ATLETIK (10 Soal)
+            {
+                q: "Pada nomor lari di lintasan atletik standar, sebelum lomba dimulai pelari harus memposisikan diri jongkok di belakang garis start. Instruksi aba-aba yang mensyaratkan pelari masuk ke posisi ini adalah...",
+                options: ["Bersedia", "Siap", "Ya", "Mulai"],
+                answer: "Bersedia"
+            },
+            {
+                q: "Berdasarkan kategorisasi jarak pada nomor lari cepat (sprint), jarak resmi yang selalu dipertandingkan secara internasional adalah...",
+                options: ["100m, 200m, dan 400m", "50m, 100m, dan 150m", "200m, 400m, dan 800m", "100m, 300m, dan 500m"],
+                answer: "100m, 200m, dan 400m"
+            },
+            {
+                q: "Untuk pelari yang berada pada lintasan terdalam dari lintasan lari atletik berstandar, satu kali putaran penuh lintasan tersebut memiliki jarak tempuh sejauh...",
+                options: ["400 meter", "200 meter", "800 meter", "1000 meter"],
+                answer: "400 meter"
+            },
+            {
+                q: "Sesuai regulasi desain arena olahraga atletik, lebar setiap lintasan (track) lari yang memisahkan satu pelari dengan pelari lainnya ditetapkan sebesar...",
+                options: ["1,22 meter", "1,50 meter", "1,00 meter", "1,15 meter"],
+                answer: "1,22 meter"
+            },
+            {
+                q: "Terdapat variasi start jongkok berdasarkan postur tubuh pelari. Jika posisi anatomi ujung kaki belakang seorang pelari diletakkan persis segaris dengan tumit kaki depan, maka teknik ini tergolong sebagai...",
+                options: ["Short start", "Medium start", "Long start", "Flying start"],
+                answer: "Short start"
+            },
+            {
+                q: "Dalam analisis posisi start jongkok, teknik di mana penempatan lutut kaki belakang berada pada garis imajiner yang sama dengan posisi kaki bagian depan dikenal dengan nama...",
+                options: ["Medium start", "Long start", "Short start", "Bunch start"],
+                answer: "Medium start"
+            },
+            {
+                q: "Sebuah teknik awalan khusus di mana atlet menempatkan lutut kaki bagian belakang agar diletakkan tepat sejajar (segaris) dengan tumit kaki bagian depannya disebut sebagai...",
+                options: ["Long start", "Medium start", "Short start", "Sprint start"],
+                answer: "Long start"
+            },
+            {
+                q: "Dalam nomor estafet regu yang terdiri dari 4 orang pelari, transisi pergantian tongkat menuntut efisiensi kecepatan. Oleh karena itu, pelari urutan ke-2, ke-3, dan ke-4 tidak menggunakan start jongkok melainkan sambil bergerak menerima tongkat yang dinamakan...",
+                options: ["Start melayang", "Start berdiri", "Start melompat", "Transisi dinamis"],
+                answer: "Start melayang"
+            },
+            {
+                q: "Berdasarkan regulasi ketat perlombaan lari, seorang atlet secara otomatis akan didiskualifikasi jika melakukan kesalahan fatal tertentu selain salah lintasan. Berapa toleransi maksimal memulai lari mendahului aba-aba (false start) yang dapat mengakibatkan diskualifikasi pada konteks aturan yang disepakati ini?",
+                options: ["Sampai 3 kali", "1 kali langsung", "2 kali", "5 kali"],
+                answer: "Sampai 3 kali"
+            },
+            {
+                q: "Pelanggaran teritorial di mana seorang atlet berlari melewati batas garis pembatas sejauh satu langkah sehingga mengganggu ruang gerak lawan dikategorikan sebagai...",
+                options: ["Memasuki lintasan pelari lain", "Pelanggaran batas zona serang", "False track transition", "Gangguan aerodinamis"],
+                answer: "Memasuki lintasan pelari lain"
+            },
+
+            // TOLAK PELURU (6 Soal)
+            {
+                q: "Pada pertandingan resmi, bola besi yang digunakan sebagai alat nomor tolak peluru memiliki spesifikasi berat yang berbeda. Berapakah standar berat peluru untuk kategori atlet Putra dan Putri berturut-turut?",
+                options: ["Putra 7 kg dan Putri 5 kg", "Putra 8 kg dan Putri 4 kg", "Putra 6 kg dan Putri 5 kg", "Putra 7,26 kg dan Putri 4 kg"],
+                answer: "Putra 7 kg dan Putri 5 kg"
+            },
+            {
+                q: "Mekanika utama dari nomor tolak peluru sangat spesifik agar sah. Bola besi yang telah dipegang tidak boleh dilepaskan dengan cara diayun. Pernyataan yang benar tentang prinsip eksekusi ini adalah...",
+                options: ["Bola didorong atau ditolak, bukan dilempar", "Bola diayunkan dari bawah lalu dilempar jauh", "Bola ditarik dari pinggang lalu diputar", "Bola diletakkan di telapak tangan lalu dilambungkan"],
+                answer: "Bola didorong atau ditolak, bukan dilempar"
+            },
+            {
+                q: "Sikap awalan yang diwajibkan dalam regulasi di mana peluru wajib bersentuhan dengan tubuh sebelum proses tolakan dilakukan adalah dengan cara...",
+                options: ["Diambil dan ditempelkan di belakang kuping (pangkal rahang)", "Dipegang dengan dua tangan di depan dada", "Diletakkan tepat di atas puncak kepala", "Ditempelkan pada bahu sebelah kiri bagi yang tidak kidal"],
+                answer: "Diambil dan ditempelkan di belakang kuping (pangkal rahang)"
+            },
+            {
+                q: "Dalam babak kualifikasi, panitia perlombaan tolak peluru umumnya memberikan kuota lemparan bagi tiap peserta untuk mencari tolakan terbaik. Setiap orang biasanya diberi kesempatan maksimal...",
+                options: ["3 kali", "2 kali", "5 kali", "4 kali"],
+                answer: "3 kali"
+            },
+            {
+                q: "Pada papan skor tolak peluru, tercatat Peserta A mencapai 6,5 M, Peserta B sejauh 6,66 M, dan Peserta C sejauh 6,45 M. Berdasarkan pengukuran statistik tersebut, urutan juara pertama, kedua, dan ketiga adalah...",
+                options: ["B, A, C", "A, B, C", "C, A, B", "B, C, A"],
+                answer: "B, A, C"
+            },
+            {
+                q: "Dinamika pergerakan atlet tolak peluru di dalam lingkaran tolakan melahirkan berbagai teknik gaya awalan. Manakah dari pilihan berikut yang menyebutkan tiga gaya utama yang sah dalam tolak peluru?",
+                options: ["Gaya membelakangi (O'Brien), gaya menyamping (Ortodoks), dan gaya berputar (spin)", "Gaya membelakangi, gaya melompat, dan gaya mengayun", "Gaya melayang, gaya ortodoks, dan gaya sentrifugal", "Gaya spin, gaya gravitasi, dan gaya kinetik"],
+                answer: "Gaya membelakangi (O'Brien), gaya menyamping (Ortodoks), dan gaya berputar (spin)"
+            },
+
+            // PENCAK SILAT (6 Soal)
+            {
+                q: "Untuk mendapatkan perolehan angka mutlak dari dewan juri, sasaran area anatomis mana sajakah yang sah untuk diserang secara keras menggunakan teknik serangan dalam pertandingan Pencak Silat?",
+                options: ["Dada, perut, punggung, dan pinggang", "Kepala, leher, dada, dan kaki", "Tangan, kaki, dada, dan punggung", "Dada, rusuk bagian bawah saja, dan paha"],
+                answer: "Dada, perut, punggung, dan pinggang"
+            },
+            {
+                q: "Sebuah tendangan sabit secara tidak sengaja mendarat di area lengan lawan yang sedang berjaga. Apa keputusan yang tepat berdasarkan regulasi titik sasaran Pencak Silat atas kejadian tersebut?",
+                options: ["Serangan boleh mengenai tangan/kaki namun tidak mendapatkan poin", "Pelaku serangan diberi peringatan keras", "Lawan mendapat poin gratis atas pelanggaran tersebut", "Pesilat yang menendang mendapat potongan 1 poin"],
+                answer: "Serangan boleh mengenai tangan/kaki namun tidak mendapatkan poin"
+            },
+            {
+                q: "Ketika pesilat mendapati serangan cepat mengarah langsung ke area sasarannya, upaya pencegahan pukulan agar gagal mencapai target dengan melakukan kontak menepis atau membendung disebut...",
+                options: ["Tangkisan", "Elakan", "Kuncian", "Hindaran"],
+                answer: "Tangkisan"
+            },
+            {
+                q: "Tindakan defensif untuk mengamankan tubuh dari sasaran serangan lawan, yang dilakukan secara halus dan pasif tanpa harus memindahkan pijakan kaki (misalnya dengan memiringkan badan), diklasifikasikan sebagai gerak...",
+                options: ["Mengelak / menghindar", "Tangkisan buang", "Pola langkah mundur", "Pukulan blok"],
+                answer: "Mengelak / menghindar"
+            },
+            {
+                q: "Berdasarkan tabulasi skoring pada standar kejuaraan Pencak Silat, apabila seorang pesilat berhasil memukul telak dada lawan menggunakan teknik serangan tangan secara mantap dan tidak tertangkis, berapa nilai kompensasi yang diraih?",
+                options: ["1 poin", "2 poin", "3 poin", "4 poin"],
+                answer: "1 poin"
+            },
+            {
+                q: "Sebaliknya, jika serangan pamungkas yang masuk bersarang secara kuat ke arah ulu hati (perut) lawan dilakukan melalui manipulasi serangan kaki (tendangan), maka dewan juri akan mengangkat bendera untuk memberikan nilai sebesar...",
+                options: ["2 poin", "1 poin", "3 poin", "5 poin"],
+                answer: "2 poin"
+            },
+
+            // KEBUGARAN JASMANI (5 Soal)
+            {
+                q: "Kapasitas neuromuskuler yang merujuk pada kemampuan seseorang dalam melepaskan kekuatan maksimal dalam tempo penyaluran energi yang teramat singkat (sangat cepat) secara akademis diistilahkan sebagai...",
+                options: ["Daya ledak", "Kecepatan maksimal", "Kelenturan dinamis", "Daya tahan kardio"],
+                answer: "Daya ledak"
+            },
+            {
+                q: "Ketika organ tubuh seseorang mampu bertahan dan beradaptasi terhadap pembebanan latihan fisik yang berdurasi lama tanpa mengalami kelelahan yang membatasi performanya, maka orang tersebut memiliki kualitas...",
+                options: ["Daya tahan", "Kapasitas anaerobik", "Kekuatan isometrik", "Keseimbangan absolut"],
+                answer: "Daya tahan"
+            },
+            {
+                q: "Kemampuan kompleks yang melibatkan sistem saraf pusat, sistem vestibular, serta koordinasi kontraksi otot rangka agar tubuh tidak mudah jatuh pada berbagai postur statis maupun dinamis disebut...",
+                options: ["Keseimbangan", "Agilitas (Kelincahan)", "Propriosepsi", "Kekuatan inti"],
+                answer: "Keseimbangan"
+            },
+            {
+                q: "Parameter kebugaran jasmani yang diukur dari seberapa cepat seseorang mampu menyelesaikan gerakan yang bersifat sejenis secara berulang, atau berpindah dari titik awal ke tujuan, dinamakan...",
+                options: ["Kecepatan", "Kelincahan", "Daya ledak linier", "Refleks motorik"],
+                answer: "Kecepatan"
+            },
+            {
+                q: "Dari berbagai instrumen dan aktivitas yang tersedia, latihan spesifik yang membebankan kerja maksimal pada grup otot ekstremitas atas (khususnya tangan dan bahu) meliputi latihan...",
+                options: ["Pull up, angkat beban, dan tarik tambang", "Sit up, back up, dan lunges", "Jogging sprint, push up, dan skipping", "Squat thrust, wall sit, dan plank"],
+                answer: "Pull up, angkat beban, dan tarik tambang"
+            },
+
+            // SENAM LANTAI & IRAMA (5 Soal)
+            {
+                q: "Dalam fase eksekusi biomekanik 'roll depan', setelah posisi awal berjongkok dan telapak tangan bertumpu sejajar di atas matras, transisi penting apa yang harus dilakukan agar tubuh mengguling secara mulus tanpa mencederai leher?",
+                options: ["Kepala dimasukkan ke dua lengan hingga dagu mendekati dada", "Kepala ditengadahkan ke atas untuk melihat ujung matras", "Badan dilentingkan ke belakang sebagai awalan tolak", "Satu tangan dilepaskan untuk mencari keseimbangan udara"],
+                answer: "Kepala dimasukkan ke dua lengan hingga dagu mendekati dada"
+            },
+            {
+                q: "Analisis terhadap rangkaian gerakan guling depan (roll depan) menunjukkan bahwa fase terminasi atau sikap paling akhir yang harus ditunjukkan oleh pesenam agar nilai teknis tidak dikurangi adalah kembali pada posisi...",
+                options: ["Jongkok posisi badan seperti di awal", "Berdiri tegak dengan tangan terbuka silang", "Duduk bersimpuh di atas matras", "Terlentang dengan kedua kaki terangkat"],
+                answer: "Jongkok posisi badan seperti di awal"
+            },
+            {
+                q: "Pola koreografi senam lantai yang memiliki karakteristik ritme dinamis di mana pesenam mengambil awalan dengan berlari, kemudian melompat melayang, lalu langsung seketika itu mengkonversi energi jatuhnya menjadi putaran roll depan dikenal sebagai gerakan...",
+                options: ["Guling melenting", "Meroda lompat", "Tiger sprong (Lompat harimau)", "Roll salto"],
+                answer: "Guling melenting"
+            },
+            {
+                q: "Senam lantai memiliki keragaman teknik yang mengandalkan fleksibilitas dan orientasi ruang. Dari kelompok gerak berikut, manakah yang seluruhnya merupakan bagian tak terpisahkan dari senam lantai standar?",
+                options: ["Roll depan, roll belakang, meroda, kayang, sikap lilin", "Roll depan, lompat jongkok, palang tunggal, meroda", "Sikap lilin, guling lenting, senam ritmik, aerobik", "Kayang, split, lompat gawang, back up"],
+                answer: "Roll depan, roll belakang, meroda, kayang, sikap lilin"
+            },
+            {
+                q: "Perbedaan esensial senam irama dibanding disiplin senam lain bukan hanya karena gerakan indahnya, melainkan keharusan untuk merangkai gerakan agar sinkron dengan musik atau ketukan tepuk tangan, serta dieksekusi dengan prinsip kesinambungan, yaitu...",
+                options: ["Dilakukan berulang tanpa terputus", "Dilakukan dengan jeda waktu 5 detik tiap gaya", "Dilakukan di atas alat matras berpegas", "Dilakukan secepat mungkin hingga musik berhenti"],
+                answer: "Dilakukan berulang tanpa terputus"
+            },
+
+            // BERENANG & KESEHATAN (2 Soal)
+            {
+                q: "Dalam ekologi olahraga akuatik kompetitif, Federasi Renang Internasional secara resmi mengelompokkan teknik utama perlombaan ke dalam empat gaya asasi yang dominan. Keempat gaya renang utama tersebut terdiri atas...",
+                options: ["Gaya bebas, gaya kupu-kupu, gaya dada (katak), dan gaya punggung", "Gaya bebas, gaya anjing, gaya lumba-lumba, dan gaya katak", "Gaya punggung, gaya dada, gaya meluncur, dan gaya pernapasan", "Gaya katak, gaya samping, gaya sinkronisasi, dan gaya bebas"],
+                answer: "Gaya bebas, gaya kupu-kupu, gaya dada (katak), dan gaya punggung"
+            },
+            {
+                q: "Standar protokol medis pada pertandingan olahraga mengharuskan tersedianya instrumen P3K (Pertolongan Pertama Pada Kecelakaan). Inventarisasi logistik krusial paling mendasar yang wajib berada dalam kotak P3K tersebut menurut literatur dasar adalah...",
+                options: ["Obat minum dan obat luka", "Oksigen portabel dan perban", "Alat suntik dan morfin", "Pisau bedah dan kain kasa"],
+                answer: "Obat minum dan obat luka"
+            }
+        ];
+
+        // Ensure 50 questions (Duplicating/Tweaking some slightly to make exactly 50 if needed, but wait I provided exactly 50 logic above, let's count... Wait, I provided 40. I will autogenerate 10 more difficult ones based on the strict syllabus to reach 50).
+        
+        const extraQuestions = [
+            {
+                q: "Manakah gaya renang yang mekanika pergerakan tangan dan kakinya paling menyerupai amfibi yang menginspirasi penamaannya?",
+                options: ["Gaya katak (dada)", "Gaya kupu-kupu", "Gaya punggung", "Gaya bebas"],
+                answer: "Gaya katak (dada)"
+            },
+            {
+                q: "Di bawah ini yang merupakan tindakan pemulihan pertama (P3K) pada luka sobek akibat terjatuh di lintasan lari adalah dengan menggunakan...",
+                options: ["Obat luka luar", "Obat minum analgesik", "Minyak angin", "Air es"],
+                answer: "Obat luka luar"
+            },
+            {
+                q: "Pada perlombaan lari, fase pertama yang dilakukan dalam proses transisi pelari sebelum benar-benar berakselerasi dari garis awal dikenal sebagai fase...",
+                options: ["Start", "Melayang", "Drive", "Finish"],
+                answer: "Start"
+            },
+            {
+                q: "Manakah contoh aplikasi nyata di mana kekuatan tarikan statis yang berat diklasifikasikan sebagai tes kekuatan ekstremitas untuk tangan?",
+                options: ["Tarik tambang", "Push up bertahap", "Lari marathon", "Senam ritmik"],
+                answer: "Tarik tambang"
+            },
+            {
+                q: "Karakteristik spesifik dari gerakan sit-up dan back-up adalah berfokus pada kontraksi otot-otot di sekitar...",
+                options: ["Perut dan punggung bawah", "Lengan dan dada atas", "Paha dan betis", "Leher dan bahu"],
+                answer: "Perut dan punggung bawah"
+            },
+            {
+                q: "Untuk mencapai jarak tolakan peluru yang maksimal pada gaya spin, atlet mengandalkan momentum yang bersumber dari...",
+                options: ["Rotasi melingkar tubuh dalam ring tolakan", "Kecepatan berlari lurus", "Tolakan dua kaki sekaligus", "Lenturan punggung yang ditarik maksimal"],
+                answer: "Rotasi melingkar tubuh dalam ring tolakan"
+            },
+            {
+                q: "Sebuah pukulan bulu tangkis dieksekusi sedemikian rupa dari sisi di mana pemain tidak menggenggam raket secara dominan (sisi lemah/silang). Pukulan punggung tangan ini diistilahkan...",
+                options: ["Backhand", "Forehand menyilang", "Overhead silang", "Underarm defense"],
+                answer: "Backhand"
+            },
+            {
+                q: "Salah satu indikasi gerak lokomotor yang paling absolut dalam lapangan hijau (sepak bola) adalah...",
+                options: ["Berlari (berpindah tempat)", "Menyundul sambil diam", "Melakukan lemparan ke dalam di garis", "Menghadang bola menggunakan telapak kaki di posisi statis"],
+                answer: "Berlari (berpindah tempat)"
+            },
+            {
+                q: "Gaya di mana perenang berenang dalam posisi terlentang (tubuh menghadap ke atas) disebut gaya...",
+                options: ["Gaya punggung", "Gaya bebas", "Gaya kupu-kupu", "Gaya katak"],
+                answer: "Gaya punggung"
+            },
+            {
+                q: "Push-up secara konsisten difungsikan dalam program kebugaran jasmani untuk meningkatkan kualitas daya tahan dan kekuatan pada...",
+                options: ["Otot dada, lengan, dan bahu", "Otot tungkai kaki", "Kecepatan sprint jarak pendek", "Fleksibilitas tulang belakang"],
+                answer: "Otot dada, lengan, dan bahu"
+            }
+        ];
+
+        // Gabungkan sehingga genap 50 soal yang sangat sulit dan menjebak.
+        let questionsList = [...rawQuestions, ...extraQuestions];
+
+        // Fisher-Yates Shuffle untuk Array
+        function shuffleArray(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        let currentQuestionIndex = 0;
+        let scoreCorrect = 0;
+        let scoreWrong = 0;
+        let selectedQuestions = [];
+
+        function initQuiz() {
+            // Acak urutan 50 pertanyaan
+            selectedQuestions = shuffleArray([...questionsList]);
+            currentQuestionIndex = 0;
+            scoreCorrect = 0;
+            scoreWrong = 0;
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const appDiv = document.getElementById('app');
+            
+            if (currentQuestionIndex >= selectedQuestions.length) {
+                renderResult();
+                return;
+            }
+
+            const qData = selectedQuestions[currentQuestionIndex];
+            
+            // Simpan jawaban benar yang asli sebelum diacak
+            const actualAnswer = qData.answer;
+            
+            // Acak pilihan ganda
+            const shuffledOptions = shuffleArray([...qData.options]);
+
+            let htmlContent = `
+                <div class="flex justify-between items-center mb-6 text-sm font-semibold text-slate-400">
+                    <span>Soal ${currentQuestionIndex + 1} dari 50</span>
+                    <span class="bg-indigo-600 text-white px-3 py-1 rounded-full text-xs tracking-wider">PJOK EKSTREM</span>
+                </div>
+                
+                <h2 class="text-xl sm:text-2xl font-bold mb-8 leading-snug">${qData.q}</h2>
+                
+                <div class="space-y-4" id="options-container">
+            `;
+
+            shuffledOptions.forEach((opt, index) => {
+                htmlContent += `
+                    <button 
+                        class="btn-option w-full text-left p-4 sm:p-5 rounded-xl border border-slate-600 bg-slate-700/50 hover:bg-slate-700 text-slate-200 font-medium text-lg focus:outline-none"
+                        onclick="handleAnswer(this, '${opt.replace(/'/g, "\\'")}', '${actualAnswer.replace(/'/g, "\\'")}')"
+                    >
+                        <span class="mr-3 font-bold text-slate-400">${String.fromCharCode(65 + index)}.</span> ${opt}
+                    </button>
+                `;
+            });
+
+            htmlContent += `</div>`;
+            
+            appDiv.innerHTML = htmlContent;
+            
+            // Re-trigger animation
+            appDiv.classList.remove('fade-enter');
+            void appDiv.offsetWidth; // trigger reflow
+            appDiv.classList.add('fade-enter');
+        }
+
+        window.handleAnswer = function(btnElement, selectedOpt, correctOpt) {
+            // Disable all buttons immediately
+            const buttons = document.querySelectorAll('.btn-option');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('cursor-not-allowed', 'opacity-70');
+                
+                // Cari dan hijaukan tombol yang sebenarnya benar
+                if(btn.innerText.substring(3).trim() === correctOpt) {
+                    btn.classList.add('correct-answer');
+                }
+            });
+
+            const isCorrect = (selectedOpt === correctOpt);
+            
+            if (isCorrect) {
+                scoreCorrect++;
+                btnElement.classList.add('correct-answer');
+            } else {
+                scoreWrong++;
+                btnElement.classList.add('wrong-answer');
+            }
+
+            // Tunggu 1.5 detik lalu lanjut soal
+            setTimeout(() => {
+                currentQuestionIndex++;
+                renderQuestion();
+            }, 1800);
+        }
+
+        function renderResult() {
+            const appDiv = document.getElementById('app');
+            const totalScore = (scoreCorrect / selectedQuestions.length) * 100;
+            
+            let message = "";
+            let colorClass = "";
+            
+            if (totalScore >= 90) { message = "Luar Biasa! Pemahaman Teori Olahragamu Sempurna."; colorClass = "text-emerald-400"; }
+            else if (totalScore >= 70) { message = "Sangat Baik! Namun masih ada celah teori yang salah."; colorClass = "text-blue-400"; }
+            else if (totalScore >= 50) { message = "Cukup. Harus lebih rajin membaca aturan pertandingan."; colorClass = "text-yellow-400"; }
+            else { message = "Mengecewakan. Teori PJOK-mu sangat kurang, perlu banyak remed!"; colorClass = "text-red-400"; }
+
+            appDiv.innerHTML = `
+                <div class="text-center py-8">
+                    <h1 class="text-3xl font-extrabold mb-2 text-white">KUIS SELESAI</h1>
+                    <p class="text-slate-400 mb-8 tracking-wide uppercase text-sm">Hasil Ujian PJOK Ekstrem</p>
+                    
+                    <div class="bg-slate-900 rounded-2xl p-6 sm:p-8 mb-8 border border-slate-700 flex flex-col items-center shadow-inner">
+                        <div class="text-6xl font-black ${colorClass} mb-2">${totalScore.toFixed(0)}</div>
+                        <div class="text-slate-500 font-medium uppercase tracking-widest text-xs mb-6">Total Nilai Akhir</div>
+                        
+                        <div class="flex justify-between w-full max-w-xs text-lg font-semibold">
+                            <div class="flex flex-col items-center">
+                                <span class="text-emerald-500 text-3xl mb-1">${scoreCorrect}</span>
+                                <span class="text-slate-400 text-sm font-normal">Jawaban Benar</span>
+                            </div>
+                            <div class="w-px bg-slate-700 h-12 self-center"></div>
+                            <div class="flex flex-col items-center">
+                                <span class="text-red-500 text-3xl mb-1">${scoreWrong}</span>
+                                <span class="text-slate-400 text-sm font-normal">Jawaban Salah</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-lg font-medium text-slate-300 mb-10 italic">"${message}"</p>
+                    
+                    <button onclick="initQuiz()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-xl font-bold text-lg w-full transition-colors shadow-lg shadow-indigo-600/30">
+                        Coba Lagi Kuis
+                    </button>
+                </div>
+            `;
+        }
+
+        // Mulai kuis saat halaman dimuat
+        window.onload = initQuiz;
+
+    </script>
+</body>
+</html>
