@@ -44,12 +44,12 @@
 
         /* Floating Toast Animation */
         @keyframes slideInUp {
-            from { transform: translate(-50%, 100%); opacity: 0; }
-            to { transform: translate(-50%, 0); opacity: 1; }
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
         @keyframes fadeOut {
-            from { transform: translate(-50%, 0); opacity: 1; }
-            to { transform: translate(-50%, 20px); opacity: 0; }
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(20px); opacity: 0; }
         }
         .toast-enter {
             animation: slideInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -90,9 +90,13 @@
         
         <!-- Header -->
         <header class="text-center mb-10">
-            <h1 class="text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-indigo-400 mb-2 drop-shadow-sm">
+            <!-- Ditambahkan py-2 dan leading-normal agar tidak terpotong -->
+            <h1 class="text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-indigo-400 mb-4 drop-shadow-sm py-2 leading-normal">
                 QwertzLearning
             </h1>
+            <p class="text-slate-400 text-sm md:text-base mb-6 max-w-xl mx-auto italic">
+                "Jangan jadikan quiz ini menjadi satu satu nya bahan Ujian, alangkah baiknya belajar lagi dengan kisi-kisi nya. -Qwertz."
+            </p>
             <div class="h-1 w-20 bg-gradient-to-r from-brand-400 to-indigo-400 mx-auto rounded-full opacity-70"></div>
         </header>
 
@@ -261,8 +265,8 @@
 
     </main>
 
-    <!-- Toast Notification Container -->
-    <div id="toast-container" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"></div>
+    <!-- Toast Notification Container (Diubah layoutnya agar tidak terpotong) -->
+    <div id="toast-container" class="fixed bottom-6 left-0 right-0 z-50 flex flex-col items-center gap-2 pointer-events-none px-4"></div>
 
     <script>
         // Inisialisasi ikon Lucide
@@ -275,12 +279,12 @@
             
             // Create toast element
             const toast = document.createElement('div');
-            toast.className = 'toast-enter bg-rose-500/90 backdrop-blur-md text-white px-6 py-3 rounded-full shadow-lg shadow-rose-500/20 flex items-center gap-2 border border-rose-400/30 text-sm md:text-base font-medium';
+            toast.className = 'toast-enter bg-rose-500/95 backdrop-blur-md text-white px-5 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl shadow-lg shadow-rose-500/20 flex items-center gap-3 border border-rose-400/30 text-sm font-medium w-full max-w-sm md:max-w-md';
             
-            // Icon lock
+            // Icon lock and message (Diubah menggunakan leading-relaxed agar break wrap dengan baik)
             toast.innerHTML = `
-                <i data-lucide="lock-keyhole" class="w-4 h-4"></i>
-                Quiz belum di buat
+                <i data-lucide="lock-keyhole" class="w-5 h-5 shrink-0"></i>
+                <span class="leading-relaxed">Quiz belum di buat, Silahkan Chat Admin untuk meminta quiz.</span>
             `;
             
             // Hapus toast sebelumnya jika ada agar tidak menumpuk terlalu banyak
@@ -291,7 +295,7 @@
             container.appendChild(toast);
             lucide.createIcons(); // Render ulang ikon di dalam toast
 
-            // Hilangkan setelah 2.5 detik
+            // Hilangkan setelah 3.5 detik (sedikit lebih lama karena teksnya panjang)
             clearTimeout(toastTimeout);
             toastTimeout = setTimeout(() => {
                 toast.classList.remove('toast-enter');
@@ -301,7 +305,7 @@
                         container.removeChild(toast);
                     }
                 }, 300); // Wait for exit animation
-            }, 2500);
+            }, 3500);
         }
     </script>
 </body>
