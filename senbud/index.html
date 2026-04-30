@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer"> 
     <title>Kuis Master Seni Budaya</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -167,7 +168,7 @@
         });
 
         // --- DATA SOAL SANGAT SUSAH (7 Teks + 3 Gambar) ---
-        // Menggunakan Image Proxy (wsrv.nl) untuk bypass pemblokiran gambar
+        // Memperbaiki URL Proxy dengan menambahkan 'https://' pada parameter target
         const rawQuestions = [
             {
                 question: "Berdasarkan bagan kriteria penjurian, manakah elemen di bawah ini yang BUKAN merupakan sub-kategori/turunan dari 'Teknik Vokal', melainkan kriteria utama yang berdiri sendiri setara dengan penampilan?",
@@ -235,7 +236,7 @@
             // --- SOAL GAMBAR ---
             {
                 question: "Gambar di bawah ini menampilkan sebuah ansambel gamelan yang unik karena material utamanya menggunakan bambu besar, bukan perunggu. Berdasarkan kisi-kisi, dari manakah asal kesenian ini?",
-                image: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/2/29/Gamelan_jegog_instruments.jpg/640px-Gamelan_jegog_instruments.jpg",
+                image: "https://wsrv.nl/?url=https://upload.wikimedia.org/wikipedia/commons/2/29/Gamelan_jegog_instruments.jpg&w=500",
                 imageAlt: "[Gambar Gamelan Jegog]",
                 options: [
                     { text: "Bali", correct: true },
@@ -246,7 +247,7 @@
             },
             {
                 question: "Perhatikan struktur unik alat musik di bawah ini yang memanfaatkan daun lontar sebagai resonansinya. Alat musik ini dimainkan dengan cara dipetik. Apakah nama alat musik ini dan dari mana asalnya?",
-                image: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/1/15/Sasando.jpg/640px-Sasando.jpg",
+                image: "https://wsrv.nl/?url=https://upload.wikimedia.org/wikipedia/commons/1/15/Sasando.jpg&w=500",
                 imageAlt: "[Gambar Sasando]",
                 options: [
                     { text: "Sasando dari Nusa Tenggara Timur", correct: true },
@@ -257,7 +258,7 @@
             },
             {
                 question: "Berdasarkan ciri fisiknya yang menyerupai harpa melengkung, instrumen mancanegara yang dimainkan dengan cara dipetik pada gambar di bawah ini adalah...",
-                image: "https://wsrv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/9/91/Saung.jpg/640px-Saung.jpg",
+                image: "https://wsrv.nl/?url=https://upload.wikimedia.org/wikipedia/commons/9/91/Saung.jpg&w=500",
                 imageAlt: "[Gambar Saung Gauk]",
                 options: [
                     { text: "Saung Gauk dari Myanmar", correct: true },
@@ -307,8 +308,6 @@
             const questionImage = document.getElementById('questionImage');
             
             if (q.image) {
-                // Hapus fungsi onerror yang menyebabkan stuck sebelumnya
-                questionImage.onerror = null;
                 questionImage.src = q.image;
                 questionImage.alt = q.imageAlt || "[Gambar Alat Musik]";
                 imageContainer.classList.remove('hidden');
