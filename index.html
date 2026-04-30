@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QwertzLearning</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        /* Floating Toast Animation */
+        @keyframes slideInUp {
+            from { transform: translate(-50%, 100%); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { transform: translate(-50%, 0); opacity: 1; }
+            to { transform: translate(-50%, 20px); opacity: 0; }
+        }
+        .toast-enter {
+            animation: slideInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .toast-exit {
+            animation: fadeOut 0.3s ease-out forwards;
+        }
+
+        /* Glassmorphism utility */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="text-slate-200 antialiased selection:bg-brand-500 selection:text-white pb-12">
+
+    <!-- Container Utama -->
+    <main class="max-w-3xl mx-auto px-5 pt-12">
+        
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-indigo-400 mb-2 drop-shadow-sm">
+                QwertzLearning
+            </h1>
+            <div class="h-1 w-20 bg-gradient-to-r from-brand-400 to-indigo-400 mx-auto rounded-full opacity-70"></div>
+        </header>
+
+        <!-- Jadwal Section -->
+        <section class="glass rounded-3xl p-6 md:p-8 mb-10 shadow-2xl relative overflow-hidden">
+            <!-- Decorative Glow -->
+            <div class="absolute -top-20 -right-20 w-40 h-40 bg-brand-500 rounded-full mix-blend-screen filter blur-[80px] opacity-30"></div>
+            
+            <div class="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
+                <i data-lucide="calendar-clock" class="text-brand-400 w-6 h-6"></i>
+                <h2 class="text-lg font-semibold tracking-wide text-white">JADWAL UJIAN SEKOLAH</h2>
+            </div>
+
+            <!-- Scrollable Jadwal -->
+            <div class="max-h-64 overflow-y-auto pr-4 text-sm md:text-base">
+                <div class="flex flex-col gap-6">
+                    <!-- Senin -->
+                    <div class="flex flex-col md:flex-row md:items-start gap-2 md:gap-6">
+                        <div class="font-semibold text-brand-400 w-36 shrink-0">Senin, 04 Mei 2026</div>
+                        <div class="flex flex-col gap-1 text-slate-300">
+                            <span><span class="text-white font-medium">07.30 - 09.30:</span> B. INDONESIA</span>
+                            <span><span class="text-white font-medium">10.00 - 12.00:</span> PANCASILA</span>
+                        </div>
+                    </div>
+                    <!-- Selasa -->
+                    <div class="flex flex-col md:flex-row md:items-start gap-2 md:gap-6">
+                        <div class="font-semibold text-brand-400 w-36 shrink-0">Selasa, 05 Mei 2026</div>
+                        <div class="flex flex-col gap-1 text-slate-300">
+                            <span><span class="text-white font-medium">07.30 - 09.30:</span> MATEMATIKA</span>
+                            <span><span class="text-white font-medium">10.00 - 12.00:</span> SENI BUDAYA</span>
+                        </div>
+                    </div>
+                    <!-- Rabu -->
+                    <div class="flex flex-col md:flex-row md:items-start gap-2 md:gap-6">
+                        <div class="font-semibold text-brand-400 w-36 shrink-0">Rabu, 06 Mei 2026</div>
+                        <div class="flex flex-col gap-1 text-slate-300">
+                            <span><span class="text-white font-medium">07.30 - 09.30:</span> B. INGGRIS</span>
+                            <span><span class="text-white font-medium">10.00 - 12.00:</span> PJOK</span>
+                        </div>
+                    </div>
+                    <!-- Kamis -->
+                    <div class="flex flex-col md:flex-row md:items-start gap-2 md:gap-6">
+                        <div class="font-semibold text-brand-400 w-36 shrink-0">Kamis, 07 Mei 2026</div>
+                        <div class="flex flex-col gap-1 text-slate-300">
+                            <span><span class="text-white font-medium">07.30 - 09.30:</span> IPA</span>
+                            <span><span class="text-white font-medium">10.00 - 12.00:</span> INFORMATIKA</span>
+                        </div>
+                    </div>
+                    <!-- Jumat -->
+                    <div class="flex flex-col md:flex-row md:items-start gap-2 md:gap-6">
+                        <div class="font-semibold text-brand-400 w-36 shrink-0">Jumat, 08 Mei 2026</div>
+                        <div class="flex flex-col gap-1 text-slate-300">
+                            <span><span class="text-white font-medium">07.30 - 09.30:</span> AGAMA</span>
+                            <span><span class="text-white font-medium">10.00 - 12.00:</span> IPS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Daftar Mata Pelajaran Section -->
+        <section>
+            <div class="flex items-center gap-3 mb-6 px-2">
+                <i data-lucide="book-open" class="text-emerald-400 w-5 h-5"></i>
+                <h2 class="text-lg font-medium text-white">Pilih Mata Pelajaran</h2>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                <!-- === PRIORITAS: UNLOCKED === -->
+                <a href="/pkn" class="group relative flex items-center justify-between p-5 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-600/20 border border-emerald-500/30 hover:from-emerald-500/30 hover:to-teal-600/30 transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-emerald-500/20">
+                    <div class="flex flex-col">
+                        <span class="font-semibold text-lg text-emerald-300 group-hover:text-emerald-200 transition-colors">Pancasila</span>
+                        <span class="text-xs text-emerald-500/80 mt-1">Siap dikerjakan</span>
+                    </div>
+                    <div class="bg-emerald-500/20 p-2 rounded-full group-hover:bg-emerald-500/40 transition-colors">
+                        <i data-lucide="unlock" class="w-5 h-5 text-emerald-400"></i>
+                    </div>
+                </a>
+
+                <a href="/senbud" class="group relative flex items-center justify-between p-5 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-600/20 border border-emerald-500/30 hover:from-emerald-500/30 hover:to-teal-600/30 transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-emerald-500/20">
+                    <div class="flex flex-col">
+                        <span class="font-semibold text-lg text-emerald-300 group-hover:text-emerald-200 transition-colors">Seni Budaya</span>
+                        <span class="text-xs text-emerald-500/80 mt-1">Siap dikerjakan</span>
+                    </div>
+                    <div class="bg-emerald-500/20 p-2 rounded-full group-hover:bg-emerald-500/40 transition-colors">
+                        <i data-lucide="unlock" class="w-5 h-5 text-emerald-400"></i>
+                    </div>
+                </a>
+
+                <a href="/agama" class="group relative flex items-center justify-between p-5 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-600/20 border border-emerald-500/30 hover:from-emerald-500/30 hover:to-teal-600/30 transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-emerald-500/20">
+                    <div class="flex flex-col">
+                        <span class="font-semibold text-lg text-emerald-300 group-hover:text-emerald-200 transition-colors">Agama</span>
+                        <span class="text-xs text-emerald-500/80 mt-1">Siap dikerjakan</span>
+                    </div>
+                    <div class="bg-emerald-500/20 p-2 rounded-full group-hover:bg-emerald-500/40 transition-colors">
+                        <i data-lucide="unlock" class="w-5 h-5 text-emerald-400"></i>
+                    </div>
+                </a>
+
+                <!-- === LOCKED === -->
+                <button onclick="showLockedToast()" class="w-full text-left group relative flex items-center justify-between p-5 rounded-2xl glass border-white/5 hover:bg-white/5 transition-all duration-300 cursor-not-allowed opacity-80">
+                    <div class="flex flex-col">
+                        <span class="font-medium text-lg text-slate-400">Bahasa Indonesia</span>
+                        <span class="text-xs text-slate-500 mt-1">Terkunci</span>
+                    </div>
+                    <i data-lucide="lock" class="w-5 h-5 text-slate-500"></i>
+                </button>
+
+                <button onclick="showLockedToast()" class="w-full text-left group relative flex items-center justify-between p-5 rounded-2xl glass border-white/5 hover:bg-white/5 transition-all duration-300 cursor-not-allowed opacity-80">
+                    <div class="flex flex-col">
+                        <span class="font-medium text-lg text-slate-400">Matematika</span>
+                        <span class="text-xs text-slate-500 mt-1">Terkunci</span>
+                    </div>
+                    <i data-lucide="lock" class="w-5 h-5 text-slate-500"></i>
+                </button>
+
+                <button onclick="showLockedToast()" class="w-full text-left group relative flex items-center justify-between p-5 rounded-2xl glass border-white/5 hover:bg-white/5 transition-all duration-300 cursor-not-allowed opacity-80">
+                    <div class="flex flex-col">
+                        <span class="font-medium text-lg text-slate-400">Bahasa Inggris</span>
+                        <span class="text-xs text-slate-500 mt-1">Terkunci</span>
+                    </div>
+                    <i data-lucide="lock" class="w-5 h-5 text-slate-500"></i>
+                </button>
+
+                <button onclick="showLockedToast()" class="w-full text-left group relative flex items-center justify-between p-5 rounded-2xl glass border-white/5 hover:bg-white/5 transition-all duration-300 cursor-not-allowed opacity-80">
+                    <div class="flex flex-col">
+                        <span class="font-medium text-lg text-slate-400">PJOK</span>
+                        <span class="text-xs text-slate-500 mt-1">Terkunci</span>
+                    </div>
+                    <i data-lucide="lock" class="w-5 h-5 text-slate-500"></i>
+                </button>
+
+                <button onclick="showLockedToast()" class="w-full text-left group relative flex items-center justify-between p-5 rounded-2xl glass border-white/5 hover:bg-white/5 transition-all duration-300 cursor-not-allowed opacity-80">
+                    <div class="flex flex-col">
+                        <span class="font-medium text-lg text-slate-400">IPA</span>
+                        <span class="text-xs text-slate-500 mt-1">Terkunci</span>
+                    </div>
+                    <i data-lucide="lock" class="w-5 h-5 text-slate-500"></i>
+                </button>
+
+                <button onclick="showLockedToast()" class="w-full text-left group relative flex items-center justify-between p-5 rounded-2xl glass border-white/5 hover:bg-white/5 transition-all duration-300 cursor-not-allowed opacity-80">
+                    <div class="flex flex-col">
+                        <span class="font-medium text-lg text-slate-400">Informatika</span>
+                        <span class="text-xs text-slate-500 mt-1">Terkunci</span>
+                    </div>
+                    <i data-lucide="lock" class="w-5 h-5 text-slate-500"></i>
+                </button>
+
+                <button onclick="showLockedToast()" class="w-full text-left group relative flex items-center justify-between p-5 rounded-2xl glass border-white/5 hover:bg-white/5 transition-all duration-300 cursor-not-allowed opacity-80">
+                    <div class="flex flex-col">
+                        <span class="font-medium text-lg text-slate-400">IPS</span>
+                        <span class="text-xs text-slate-500 mt-1">Terkunci</span>
+                    </div>
+                    <i data-lucide="lock" class="w-5 h-5 text-slate-500"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Footer Teks -->
+        <footer class="mt-16 text-center">
+            <p class="text-slate-400 font-medium italic tracking-wide text-sm md:text-base">
+                Semangat Belajarnyaa.. -Qwertz
+            </p>
+        </footer>
+
+    </main>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script>
+        // Inisialisasi ikon Lucide
+        lucide.createIcons();
+
+        // Fungsi Notifikasi Status Locked
+        let toastTimeout;
+        function showLockedToast() {
+            const container = document.getElementById('toast-container');
+            
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = 'toast-enter bg-rose-500/90 backdrop-blur-md text-white px-6 py-3 rounded-full shadow-lg shadow-rose-500/20 flex items-center gap-2 border border-rose-400/30 text-sm md:text-base font-medium';
+            
+            // Icon lock
+            toast.innerHTML = `
+                <i data-lucide="lock-keyhole" class="w-4 h-4"></i>
+                Quiz belum di buat
+            `;
+            
+            // Hapus toast sebelumnya jika ada agar tidak menumpuk terlalu banyak
+            if(container.firstChild) {
+                container.innerHTML = '';
+            }
+
+            container.appendChild(toast);
+            lucide.createIcons(); // Render ulang ikon di dalam toast
+
+            // Hilangkan setelah 2.5 detik
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('toast-enter');
+                toast.classList.add('toast-exit');
+                setTimeout(() => {
+                    if (toast.parentNode === container) {
+                        container.removeChild(toast);
+                    }
+                }, 300); // Wait for exit animation
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
