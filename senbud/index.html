@@ -168,7 +168,7 @@
         });
 
         // --- DATA SOAL SANGAT SUSAH (7 Teks + 3 Gambar) ---
-        // Memperbaiki URL Proxy dengan menambahkan 'https://' pada parameter target
+        // Menggunakan DuckDuckGo Image Proxy untuk menembus pemblokiran Vercel/Wikipedia
         const rawQuestions = [
             {
                 question: "Berdasarkan bagan kriteria penjurian, manakah elemen di bawah ini yang BUKAN merupakan sub-kategori/turunan dari 'Teknik Vokal', melainkan kriteria utama yang berdiri sendiri setara dengan penampilan?",
@@ -236,8 +236,8 @@
             // --- SOAL GAMBAR ---
             {
                 question: "Gambar di bawah ini menampilkan sebuah ansambel gamelan yang unik karena material utamanya menggunakan bambu besar, bukan perunggu. Berdasarkan kisi-kisi, dari manakah asal kesenian ini?",
-                image: "https://wsrv.nl/?url=https://upload.wikimedia.org/wikipedia/commons/2/29/Gamelan_jegog_instruments.jpg&w=500",
-                imageAlt: "[Gambar Gamelan Jegog]",
+                image: "https://external-content.duckduckgo.com/iu/?u=https://upload.wikimedia.org/wikipedia/commons/2/29/Gamelan_jegog_instruments.jpg",
+                imageAlt: "",
                 options: [
                     { text: "Bali", correct: true },
                     { text: "Sunda", correct: false },
@@ -247,8 +247,8 @@
             },
             {
                 question: "Perhatikan struktur unik alat musik di bawah ini yang memanfaatkan daun lontar sebagai resonansinya. Alat musik ini dimainkan dengan cara dipetik. Apakah nama alat musik ini dan dari mana asalnya?",
-                image: "https://wsrv.nl/?url=https://upload.wikimedia.org/wikipedia/commons/1/15/Sasando.jpg&w=500",
-                imageAlt: "[Gambar Sasando]",
+                image: "https://external-content.duckduckgo.com/iu/?u=https://upload.wikimedia.org/wikipedia/commons/1/15/Sasando.jpg",
+                imageAlt: "",
                 options: [
                     { text: "Sasando dari Nusa Tenggara Timur", correct: true },
                     { text: "Rindik dari Nusa Tenggara Timur", correct: false },
@@ -258,8 +258,8 @@
             },
             {
                 question: "Berdasarkan ciri fisiknya yang menyerupai harpa melengkung, instrumen mancanegara yang dimainkan dengan cara dipetik pada gambar di bawah ini adalah...",
-                image: "https://wsrv.nl/?url=https://upload.wikimedia.org/wikipedia/commons/9/91/Saung.jpg&w=500",
-                imageAlt: "[Gambar Saung Gauk]",
+                image: "https://external-content.duckduckgo.com/iu/?u=https://upload.wikimedia.org/wikipedia/commons/9/91/Saung.jpg",
+                imageAlt: "",
                 options: [
                     { text: "Saung Gauk dari Myanmar", correct: true },
                     { text: "Rondala dari Filipina", correct: false },
@@ -308,6 +308,8 @@
             const questionImage = document.getElementById('questionImage');
             
             if (q.image) {
+                // Hapus event onerror sebelumnya
+                questionImage.onerror = null;
                 questionImage.src = q.image;
                 questionImage.alt = q.imageAlt || "[Gambar Alat Musik]";
                 imageContainer.classList.remove('hidden');
