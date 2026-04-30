@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -125,7 +126,7 @@
 
         <!-- Question Image (Hidden by default) -->
         <div id="imageContainer" class="hidden mb-8 w-full flex justify-center">
-            <img id="questionImage" src="" alt="" onerror="this.onerror=null; this.src='https://placehold.co/600x400/1e1b4b/ffffff?text=Gambar+Tidak+Tersedia'" class="rounded-xl shadow-2xl border border-gray-600/50 max-h-72 object-contain bg-black/20 p-2">
+            <img id="questionImage" alt="" class="rounded-xl shadow-2xl border border-gray-600/50 max-h-72 object-contain bg-black/20 p-2">
         </div>
 
         <!-- Options -->
@@ -167,6 +168,7 @@
         });
 
         // --- DATA SOAL SANGAT SUSAH (7 Teks + 3 Gambar) ---
+        // Menggunakan direct link original agar tidak diblokir
         const rawQuestions = [
             {
                 question: "Berdasarkan bagan kriteria penjurian, manakah elemen di bawah ini yang BUKAN merupakan sub-kategori/turunan dari 'Teknik Vokal', melainkan kriteria utama yang berdiri sendiri setara dengan penampilan?",
@@ -234,7 +236,7 @@
             // --- SOAL GAMBAR ---
             {
                 question: "Gambar di bawah ini menampilkan sebuah ansambel gamelan yang unik karena material utamanya menggunakan bambu besar, bukan perunggu. Berdasarkan kisi-kisi, dari manakah asal kesenian ini?",
-                image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Gamelan_jegog_instruments.jpg/800px-Gamelan_jegog_instruments.jpg",
+                image: "https://upload.wikimedia.org/wikipedia/commons/2/29/Gamelan_jegog_instruments.jpg",
                 imageAlt: "",
                 options: [
                     { text: "Bali", correct: true },
@@ -245,7 +247,7 @@
             },
             {
                 question: "Perhatikan struktur unik alat musik di bawah ini yang memanfaatkan daun lontar sebagai resonansinya. Alat musik ini dimainkan dengan cara dipetik. Apakah nama alat musik ini dan dari mana asalnya?",
-                image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Sasando.jpg/800px-Sasando.jpg",
+                image: "https://upload.wikimedia.org/wikipedia/commons/1/15/Sasando.jpg",
                 imageAlt: "",
                 options: [
                     { text: "Sasando dari Nusa Tenggara Timur", correct: true },
@@ -256,7 +258,7 @@
             },
             {
                 question: "Berdasarkan ciri fisiknya yang menyerupai harpa melengkung, instrumen mancanegara yang dimainkan dengan cara dipetik pada gambar di bawah ini adalah...",
-                image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Saung.jpg/800px-Saung.jpg",
+                image: "https://upload.wikimedia.org/wikipedia/commons/9/91/Saung.jpg",
                 imageAlt: "",
                 options: [
                     { text: "Saung Gauk dari Myanmar", correct: true },
@@ -301,18 +303,24 @@
             const q = currentQuestions[currentQuestionIndex];
             document.getElementById('questionText').innerText = q.question;
             
-            // Logika Tampilkan/Sembunyikan Gambar
+            // Logika Tampilkan/Sembunyikan Gambar yang Diperbaiki
             const imageContainer = document.getElementById('imageContainer');
             const questionImage = document.getElementById('questionImage');
             
             if (q.image) {
+                // Set fallback jika gambar Wikipedia tetap gagal dimuat di jaringan pengguna
+                questionImage.onerror = function() {
+                    this.onerror = null;
+                    this.src = 'https://dummyimage.com/600x400/1e1b4b/ffffff&text=Gambar+Gagal+Dimuat';
+                };
                 questionImage.src = q.image;
                 questionImage.alt = q.imageAlt || "";
                 imageContainer.classList.remove('hidden');
             } else {
                 imageContainer.classList.add('hidden');
-                questionImage.src = '';
+                questionImage.removeAttribute('src'); // Hapus atribut src agar tidak error di background
                 questionImage.alt = '';
+                questionImage.onerror = null; // Bersihkan event listener error
             }
             
             // Update Progress
@@ -410,3 +418,6 @@
     </script>
 </body>
 </html>
+
+
+```
