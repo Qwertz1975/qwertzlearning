@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Premium IPA SMP</title>
+    <title>Quiz IPA SMP</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -14,21 +14,27 @@
         }
 
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* Background gradient yang cerah agar efek glass terlihat jelas */
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            background-attachment: fixed;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            color: #333;
+            color: #1a202c;
         }
 
+        /* Glassmorphism Container */
         .container {
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             width: 100%;
             max-width: 700px;
             border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
             padding: 40px;
             position: relative;
             overflow: hidden;
@@ -40,24 +46,26 @@
         }
 
         .header h1 {
-            color: #2d3748;
+            color: #1a202c;
             font-size: 28px;
             font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
         }
 
         .music-player {
-            background: #f7fafc;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
             padding: 15px;
             border-radius: 12px;
             margin-bottom: 25px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid rgba(255, 255, 255, 0.5);
             text-align: center;
         }
 
         .music-player label {
             display: block;
             font-weight: 600;
-            color: #4a5568;
+            color: #2d3748;
             margin-bottom: 10px;
         }
 
@@ -65,13 +73,14 @@
             display: block;
             margin: 0 auto;
             font-size: 14px;
-            color: #718096;
+            color: #2d3748;
         }
 
         audio {
             width: 100%;
             margin-top: 15px;
             outline: none;
+            border-radius: 30px;
         }
 
         .question-box {
@@ -81,9 +90,10 @@
         .question-text {
             font-size: 18px;
             font-weight: 600;
-            color: #2d3748;
+            color: #1a202c;
             margin-bottom: 15px;
             white-space: pre-line;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.4);
         }
 
         .question-img {
@@ -103,8 +113,9 @@
         }
 
         .option-btn {
-            background: #f7fafc;
-            border: 2px solid #e2e8f0;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
             padding: 15px 20px;
             border-radius: 12px;
             font-size: 16px;
@@ -112,12 +123,12 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: 500;
-            color: #4a5568;
+            color: #1a202c;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
         .option-btn:hover:not(:disabled) {
-            background: #ebf4ff;
-            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.7);
             transform: translateY(-2px);
         }
 
@@ -126,29 +137,35 @@
         }
 
         .option-btn.correct {
-            background: #c6f6d5;
-            border-color: #48bb78;
-            color: #22543d;
+            background: rgba(72, 187, 120, 0.8);
+            border-color: #38a169;
+            color: #fff;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
         }
 
         .option-btn.wrong {
-            background: #fed7d7;
-            border-color: #f56565;
-            color: #742a2a;
+            background: rgba(245, 101, 101, 0.8);
+            border-color: #e53e3e;
+            color: #fff;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
         }
 
         .explanation {
             margin-top: 25px;
             padding: 20px;
-            background: #fffaf0;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
             border-left: 5px solid #ed8936;
             border-radius: 8px;
+            border-top: 1px solid rgba(255,255,255,0.5);
+            border-right: 1px solid rgba(255,255,255,0.5);
+            border-bottom: 1px solid rgba(255,255,255,0.5);
             display: none;
             animation: fadeIn 0.5s ease;
         }
 
         .explanation h3 {
-            color: #dd6b20;
+            color: #c05621;
             font-size: 16px;
             margin-bottom: 8px;
         }
@@ -156,14 +173,15 @@
         .explanation p {
             font-size: 15px;
             line-height: 1.6;
-            color: #4a5568;
+            color: #1a202c;
         }
 
         .next-btn {
             margin-top: 25px;
-            background: #667eea;
+            background: rgba(43, 108, 176, 0.8);
+            backdrop-filter: blur(5px);
             color: white;
-            border: none;
+            border: 1px solid rgba(255,255,255,0.3);
             padding: 15px 30px;
             border-radius: 10px;
             font-size: 16px;
@@ -172,10 +190,11 @@
             width: 100%;
             transition: background 0.3s ease;
             display: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
         .next-btn:hover {
-            background: #5a67d8;
+            background: rgba(43, 108, 176, 1);
         }
 
         .score-board {
@@ -185,30 +204,33 @@
 
         .score-board h2 {
             font-size: 32px;
-            color: #2d3748;
+            color: #1a202c;
             margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
         }
 
         .score-board p {
             font-size: 18px;
-            color: #718096;
+            color: #2d3748;
             margin-bottom: 30px;
         }
 
         .restart-btn {
-            background: #48bb78;
+            background: rgba(72, 187, 120, 0.9);
             color: white;
-            border: none;
+            border: 1px solid rgba(255,255,255,0.4);
+            backdrop-filter: blur(5px);
             padding: 15px 30px;
             border-radius: 10px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: background 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
         .restart-btn:hover {
-            background: #38a169;
+            background: rgba(56, 161, 105, 1);
         }
 
         @keyframes fadeIn {
@@ -221,7 +243,7 @@
 
     <div class="container">
         <div class="header" id="header">
-            <h1>Quiz IPA Premium</h1>
+            <h1>Quiz IPA</h1>
         </div>
 
         <div class="music-player" id="music-section">
@@ -255,13 +277,13 @@
     </div>
 
     <script>
-        // Data Soal (Diambil dari foto ujian)
+        // Data Soal
         const questions = [
             {
                 question: "Perhatikan beberapa perubahan materi berikut ini!\n1) Lilin meleleh\n2) Pakaian basah yang dijemur\n3) Bensin dibakar\n4) Emas dilebur\n5) Sumbu lilin yang dibakar\n6) Fotosintesis\n\nDari pernyataan tersebut yang merupakan perubahan fisika terdapat pada nomor....",
                 image: "", 
                 options: ["1, 2 dan 3", "1, 2 dan 4", "3, 5 dan 6", "4, 5 dan 6"],
-                answer: 1, // Index 1 adalah "1, 2 dan 4"
+                answer: 1, 
                 explanation: "Halo! Perubahan fisika itu cuma wujudnya aja yang berubah, tapi sifat zat aslinya tetap sama. Contohnya kayak lilin yang meleleh, baju basah yang jadi kering (air menguap), sama emas yang dilebur. Nah, kalau dibakar atau proses fotosintesis itu udah masuk perubahan kimia karena menghasilkan zat baru ya!"
             },
             {
@@ -273,7 +295,7 @@
             },
             {
                 question: "Perhatikan gambar struktur bagian organ berikut ini!\n(Gambar menunjukkan struktur mirip kumpulan anggur di saluran pernapasan)\n\nGambar tersebut merupakan bagian dari organ....",
-                image: "https://images.unsplash.com/photo-1599598425947-33002621ec32?auto=format&fit=crop&q=80&w=400", // Placeholder premium, bisa diganti nama file "gambar-paru.jpg"
+                image: "https://images.unsplash.com/photo-1599598425947-33002621ec32?auto=format&fit=crop&q=80&w=400",
                 options: ["Ginjal", "Hati", "Kulit", "Paru-paru"],
                 answer: 3,
                 explanation: "Gambar di soal kamu itu nunjukin alveolus, yang bentuknya bulat-bulat kayak anggur. Fungsinya sangat penting sebagai tempat pertukaran gas oksigen (O2) dan karbon dioksida (CO2). Tentu saja tempatnya ada di dalam paru-paru kita, nak!"
@@ -303,7 +325,6 @@
         let score = 0;
         let hasAnswered = false;
 
-        // Elemen DOM
         const questionText = document.getElementById("question-text");
         const questionImg = document.getElementById("question-img");
         const optionsContainer = document.getElementById("options-container");
@@ -316,7 +337,6 @@
         const audioUpload = document.getElementById("audio-upload");
         const audioPlayer = document.getElementById("audio-player");
 
-        // Fitur Pemutar Musik
         audioUpload.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -326,7 +346,6 @@
             }
         });
 
-        // Muat Pertanyaan
         function loadQuestion() {
             hasAnswered = false;
             explanationBox.style.display = "none";
@@ -336,7 +355,6 @@
             const currentQ = questions[currentQuestionIndex];
             questionText.innerText = `Soal ${currentQuestionIndex + 1}:\n${currentQ.question}`;
 
-            // Logika gambar
             if (currentQ.image !== "") {
                 questionImg.src = currentQ.image;
                 questionImg.style.display = "block";
@@ -344,11 +362,9 @@
                 questionImg.style.display = "none";
             }
 
-            // Buat tombol opsi
             currentQ.options.forEach((option, index) => {
                 const btn = document.createElement("button");
                 btn.className = "option-btn";
-                // Gunakan alfabet A, B, C, D
                 const letter = String.fromCharCode(65 + index);
                 btn.innerText = `${letter}. ${option}`;
                 btn.onclick = () => checkAnswer(index, btn);
@@ -356,7 +372,6 @@
             });
         }
 
-        // Cek Jawaban
         function checkAnswer(selectedIndex, selectedBtn) {
             if (hasAnswered) return;
             hasAnswered = true;
@@ -364,28 +379,21 @@
             const currentQ = questions[currentQuestionIndex];
             const allBtns = optionsContainer.querySelectorAll(".option-btn");
 
-            // Disable semua tombol
             allBtns.forEach(btn => btn.disabled = true);
 
-            // Cek benar/salah
             if (selectedIndex === currentQ.answer) {
                 selectedBtn.classList.add("correct");
                 score++;
             } else {
                 selectedBtn.classList.add("wrong");
-                // Tunjukkan yang benar
                 allBtns[currentQ.answer].classList.add("correct");
             }
 
-            // Tampilkan penjelasan
             explanationText.innerText = currentQ.explanation;
             explanationBox.style.display = "block";
-            
-            // Munculkan tombol next
             nextBtn.style.display = "block";
         }
 
-        // Pertanyaan Selanjutnya
         function nextQuestion() {
             currentQuestionIndex++;
             if (currentQuestionIndex < questions.length) {
@@ -395,14 +403,12 @@
             }
         }
 
-        // Tampilkan Nilai
         function showScore() {
             quizArea.style.display = "none";
             scoreBoard.style.display = "block";
             finalScoreText.innerText = score;
         }
 
-        // Ulangi Quiz
         function restartQuiz() {
             currentQuestionIndex = 0;
             score = 0;
@@ -411,7 +417,6 @@
             loadQuestion();
         }
 
-        // Mulai Quiz saat halaman dimuat
         loadQuestion();
     </script>
 </body>
