@@ -4,433 +4,457 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz IPA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady();
+                }
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
     <style>
+        /* Glassmorphism Premium UI */
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Poppins', sans-serif;
         }
 
         body {
-            /* Warna background gelap sesuai foto */
-            background-color: #0b1120;
+            margin: 0;
+            padding: 20px;
             min-height: 100vh;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #ffffff;
             display: flex;
             justify-content: center;
-            align-items: center;
-            padding: 20px;
-            color: #f8fafc;
         }
 
-        .container {
-            /* Warna card slightly lighter */
-            background-color: #1e293b;
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .glass-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 900px;
             width: 100%;
-            max-width: 600px;
-            border-radius: 16px;
-            padding: 30px 25px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            position: relative;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
         }
 
-        /* Fitur Audio (Disesuaikan dengan tema gelap) */
-        .music-player {
-            background-color: #0f172a;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 25px;
+        h1 {
             text-align: center;
-            border: 1px solid #334155;
+            font-weight: 700;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: -webkit-linear-gradient(#fff, #a1c4fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .music-player label {
-            display: block;
-            font-weight: 600;
-            color: #94a3b8;
-            margin-bottom: 10px;
-            font-size: 14px;
+        /* Music Player Styling */
+        .music-section {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .custom-file-upload {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .custom-file-upload:hover {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(255,255,255,0.2);
         }
 
         input[type="file"] {
-            display: block;
-            margin: 0 auto;
-            font-size: 12px;
-            color: #94a3b8;
+            display: none;
         }
 
         audio {
             width: 100%;
-            margin-top: 10px;
-            height: 35px;
+            max-width: 400px;
+            border-radius: 30px;
             outline: none;
         }
 
-        /* Header Quiz (Mirip foto) */
-        .quiz-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+        /* Question Cards */
+        .question-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: transform 0.3s ease;
         }
 
-        .question-counter {
-            color: #94a3b8;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .badge {
-            background-color: #6366f1; /* Warna ungu seperti di foto */
-            color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
+        .question-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.06);
         }
 
         .question-text {
-            font-size: 18px;
-            font-weight: 700;
-            color: #f8fafc;
-            margin-bottom: 20px;
-            line-height: 1.5;
-            white-space: pre-line;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            line-height: 1.6;
         }
 
-        /* Styling untuk Gambar Soal */
-        .question-img {
+        .ai-image-placeholder {
             width: 100%;
-            max-height: 200px;
-            object-fit: contain;
-            background-color: #0f172a;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
-            border: 1px solid #334155;
+            max-width: 500px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
-        .options {
+        .options-container {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
 
-        .option-btn {
-            background-color: #0f172a; /* Warna tombol pilihan */
-            border: 1px solid transparent;
-            padding: 18px 20px;
-            border-radius: 12px;
-            font-size: 16px;
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-weight: 600;
-            color: #e2e8f0;
+        .option-label {
             display: flex;
             align-items: center;
-        }
-
-        .option-letter {
-            color: #94a3b8;
-            margin-right: 15px;
-            font-weight: 700;
-        }
-
-        .option-btn:hover:not(:disabled) {
-            background-color: #334155;
-        }
-
-        .option-btn:disabled {
-            cursor: not-allowed;
-        }
-
-        .option-btn.correct {
-            background-color: rgba(34, 197, 94, 0.2);
-            border: 1px solid #22c55e;
-            color: #4ade80;
-        }
-
-        .option-btn.correct .option-letter {
-            color: #4ade80;
-        }
-
-        .option-btn.wrong {
-            background-color: rgba(239, 68, 68, 0.2);
-            border: 1px solid #ef4444;
-            color: #f87171;
-        }
-
-        .option-btn.wrong .option-letter {
-            color: #f87171;
-        }
-
-        /* Box Pembahasan */
-        .explanation {
-            margin-top: 25px;
-            padding: 20px;
-            background-color: #334155;
-            border-left: 4px solid #f59e0b;
-            border-radius: 8px;
-            display: none;
-            animation: fadeIn 0.4s ease;
-        }
-
-        .explanation h3 {
-            color: #fbbf24;
-            font-size: 15px;
-            margin-bottom: 8px;
-        }
-
-        .explanation p {
-            font-size: 14px;
-            line-height: 1.6;
-            color: #cbd5e1;
-        }
-
-        .next-btn {
-            margin-top: 20px;
-            background-color: #6366f1;
-            color: white;
-            border: none;
-            padding: 16px 30px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 700;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px 20px;
+            border-radius: 10px;
             cursor: pointer;
-            width: 100%;
-            transition: background 0.3s ease;
-            display: none;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
         }
 
-        .next-btn:hover {
-            background-color: #4f46e5;
+        .option-label:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .score-board {
-            text-align: center;
-            display: none;
-            padding: 40px 0;
+        input[type="radio"] {
+            margin-right: 15px;
+            cursor: pointer;
+            accent-color: #4facfe;
         }
 
-        .score-board h2 {
-            font-size: 28px;
-            color: #f8fafc;
-            margin-bottom: 10px;
-        }
-
-        .score-board p {
-            font-size: 16px;
-            color: #94a3b8;
-            margin-bottom: 30px;
-        }
-
-        .restart-btn {
-            background-color: #22c55e;
+        /* Submit Button */
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             padding: 15px 30px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 700;
+            border-radius: 30px;
+            font-size: 1.2em;
+            font-weight: 600;
             cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .submit-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(118, 75, 162, 0.5);
         }
+
+        /* Evaluation & Explanations */
+        #evaluation-result {
+            display: none;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .score-box {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            padding: 20px;
+            border-radius: 16px;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #00ff88;
+        }
+
+        .explanation-box {
+            display: none;
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 5px solid #4facfe;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin-top: 20px;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .explanation-box.correct { border-left-color: #00ff88; }
+        .explanation-box.wrong { border-left-color: #ff4757; }
+
+        .physics-format p { margin: 5px 0; }
+        .physics-format strong { color: #a1c4fd; }
+        
+        .correct-ans { background: rgba(0, 255, 136, 0.2) !important; border: 1px solid #00ff88 !important; }
+        .wrong-ans { background: rgba(255, 71, 87, 0.2) !important; border: 1px solid #ff4757 !important; }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div class="glass-container">
+        <h1>Quiz IPA</h1>
         
-        <div class="music-player" id="music-section">
-            <label for="audio-upload">🎵 Tambahkan Musik Latar (.mp3):</label>
-            <input type="file" id="audio-upload" accept="audio/*">
-            <audio id="audio-player" controls loop style="display:none;"></audio>
+        <div class="music-section">
+            <label for="musicInput" class="custom-file-upload">
+                🎵 Tambahkan Musik Background (Opsional)
+            </label>
+            <input type="file" id="musicInput" accept="audio/*">
+            <audio id="audioPlayer" controls></audio>
         </div>
 
-        <div id="quiz-area">
-            <div class="quiz-header">
-                <div class="question-counter" id="question-counter">Soal 1 dari 5</div>
-                <div class="badge">IPA SMP</div>
+        <div id="quiz-form">
             </div>
 
-            <div class="question-box">
-                <p class="question-text" id="question-text">Memuat pertanyaan...</p>
-                <img id="question-img" class="question-img" src="" alt="Gambar Soal (Silakan masukkan file gambar)">
-            </div>
-            
-            <div class="options" id="options-container">
-                </div>
+        <button class="submit-btn" id="submitBtn" onclick="evaluateQuiz()">Evaluasi Jawaban</button>
 
-            <div class="explanation" id="explanation-box">
-                <h3>👨‍🏫 Penjelasan Guru:</h3>
-                <p id="explanation-text"></p>
-            </div>
-
-            <button class="next-btn" id="next-btn" onclick="nextQuestion()">Soal Selanjutnya</button>
-        </div>
-
-        <div class="score-board" id="score-board">
-            <h2>Quiz Selesai! 🎉</h2>
-            <p>Skor kamu: <strong id="final-score" style="color: white; font-size: 20px;">0</strong> dari 5</p>
-            <button class="restart-btn" onclick="restartQuiz()">Ulangi Quiz</button>
+        <div id="evaluation-result">
+            <div class="score-box" id="scoreDisplay"></div>
         </div>
     </div>
 
     <script>
-        // Data Soal (Diambil KHUSUS soal bergambar dari ujian)
-        // PENTING: Ganti tulisan di dalam 'image' dengan nama file hasil crop kamu.
-        const questions = [
-            {
-                question: "Rama melakukan percobaan pengukuran ketebalan uang logam dengan menggunakan micrometer sekrup, dengan hasil seperti gambar berikut!\n\nKetebalan uang logam yang terukur adalah ....",
-                image: "gambar-mikrometer.jpg", // TINGGAL GANTI NAMA FILE INI
-                options: ["7,23 mm", "7,73 mm", "8,23 mm", "8,78 mm"],
-                answer: 1, 
-                explanation: "Cara bacanya gampang! Liat skala utama (yang di kiri) itu angkanya udah ngelewatin garis 7,5 mm. Terus liat skala nonius (yang diputar di kanan), garis yang lurus sejajar itu angka 23, artinya 0,23 mm. Tinggal ditambah deh: 7,5 + 0,23 = 7,73 mm."
-            },
-            {
-                question: "Perhatikan tuas di bawah ini!\nUntuk menahan beban 300 N, agar berada posisi seimbang, besar gaya F yang harus diberikan adalah ....",
-                image: "gambar-tuas.jpg", // TINGGAL GANTI NAMA FILE INI
-                options: ["50 N", "100 N", "150 N", "200 N"],
-                answer: 1,
-                explanation: "Inget rumus pengungkit: Beban × Lengan Beban = Kuasa × Lengan Kuasa (W × Lb = F × Lk). Di gambar, Lb = ½ m (0,5), Lk = 1 ½ m (1,5), dan Beban (W) = 300 N. Jadi: 300 × 0,5 = F × 1,5. Berarti 150 = 1,5 F. Maka F = 150 / 1,5 = 100 N."
-            },
-            {
-                question: "Perhatikan gambar rangkaian listrik dibawah ini!\nJika R1 = R2 = 10 Ω dan R3 = R4 = 8 Ω. Besar kuat arus (I) yang mengalir pada rangkaian adalah ... (V = 12 V)",
-                image: "gambar-listrik.jpg", // TINGGAL GANTI NAMA FILE INI
-                options: ["0,5 A", "2,0 A", "36,0 A", "288 A"],
-                answer: 0,
-                explanation: "Pertama, cari hambatan pengganti yang paralel (R3 & R4): 1/Rp = 1/8 + 1/8 = 2/8, jadi Rp = 8/2 = 4 Ω. Terus tambahin semua hambatannya (seri): 10 + 10 + 4 = 24 Ω. Terakhir masukin rumus hukum Ohm I = V/R, jadi 12 Volt dibagi 24 Ohm = 0,5 Ampere."
-            },
-            {
-                question: "Perhatikan gambar!\nKeping bimetal terdiri dari keping berwarna hitam (koefisien 0,000019/°C) dan keping putih (koefisien 0,000017/°C). Gambar keping bimetal yang tepat setelah dipanaskan ditunjukkan pada nomor ....",
-                image: "gambar-bimetal.jpg", // TINGGAL GANTI NAMA FILE INI
-                options: ["I", "II", "III", "IV"],
-                answer: 0,
-                explanation: "Prinsip bimetal itu: kalau dipanaskan, dia bakal melengkung ke arah logam yang koefisien muainya LEBIH KECIL. Karena yang putih lebih kecil angkanya (17 < 19), maka bimetal melengkung ke arah putih (putih di bagian dalam, hitam di bagian luar alias gambar I)."
-            },
-            {
-                question: "Perhatikan gambar berikut!\nJika potensial gravitasi 9,8 m/s², energi potensial dari buah kelapa (m = 0,5 kg) yang jatuh dari pohon setinggi 5 m adalah ...",
-                image: "gambar-kelapa.jpg", // TINGGAL GANTI NAMA FILE INI
-                options: ["24,5 J", "49,0 J", "245 J", "490 J"],
-                answer: 0,
-                explanation: "Rumus Energi Potensial itu sangat gampang: Ep = m × g × h (massa dikali gravitasi dikali ketinggian). Tinggal kita kalikan aja semuanya dari gambar: 0,5 kg × 9,8 m/s² × 5 meter = 24,5 Joule."
-            }
-        ];
-
-        let currentQuestionIndex = 0;
-        let score = 0;
-        let hasAnswered = false;
-
-        const questionCounter = document.getElementById("question-counter");
-        const questionText = document.getElementById("question-text");
-        const questionImg = document.getElementById("question-img");
-        const optionsContainer = document.getElementById("options-container");
-        const explanationBox = document.getElementById("explanation-box");
-        const explanationText = document.getElementById("explanation-text");
-        const nextBtn = document.getElementById("next-btn");
-        const quizArea = document.getElementById("quiz-area");
-        const scoreBoard = document.getElementById("score-board");
-        const finalScoreText = document.getElementById("final-score");
-        const audioUpload = document.getElementById("audio-upload");
-        const audioPlayer = document.getElementById("audio-player");
-
-        // Musik 
-        audioUpload.addEventListener('change', function(e) {
+        // Music Player Logic
+        document.getElementById('musicInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
-            if (file) {
-                audioPlayer.src = URL.createObjectURL(file);
-                audioPlayer.style.display = 'block';
-                audioPlayer.play();
+            if(file) {
+                const url = URL.createObjectURL(file);
+                const audio = document.getElementById('audioPlayer');
+                audio.src = url;
+                audio.style.display = 'block';
+                audio.play();
             }
         });
 
-        function loadQuestion() {
-            hasAnswered = false;
-            explanationBox.style.display = "none";
-            nextBtn.style.display = "none";
-            optionsContainer.innerHTML = "";
-
-            const currentQ = questions[currentQuestionIndex];
-            
-            questionCounter.innerText = `Soal ${currentQuestionIndex + 1} dari ${questions.length}`;
-            questionText.innerText = currentQ.question;
-
-            // Logic memuat gambar
-            if (currentQ.image !== "") {
-                questionImg.src = currentQ.image;
-                questionImg.style.display = "block";
-            } else {
-                questionImg.style.display = "none";
+        // Quiz Data
+        const questions = [
+            {
+                id: 1,
+                text: "1. Rama melakukan percobaan pengukuran ketebalan uang logam dengan menggunakan micrometer sekrup, dengan hasil seperti gambar berikut!",
+                image: "https://placehold.co/600x250/1a1a1a/4facfe?text=Diagram+Mikrometer+Sekrup%0A(Skala+Utama+7.0mm,+Skala+Nonius+23)",
+                options: ["7,23 mm", "7,73 mm", "8,23 mm", "8,78 mm"],
+                correct: 0,
+                isPhysics: true,
+                explanation: {
+                    diketahui: "Skala Utama (SU) = 7,0 mm<br>Skala Nonius (SN) = 23 × 0,01 mm = 0,23 mm",
+                    ditanya: "Ketebalan uang logam (Hasil Pengukuran)?",
+                    rumus: "$$Hasil = SU + SN$$",
+                    jawab: "$$Hasil = 7,0\\text{ mm} + 0,23\\text{ mm} = 7,23\\text{ mm}$$",
+                    kesimpulan: "Jadi, ketebalan uang logam yang terukur adalah 7,23 mm."
+                }
+            },
+            {
+                id: 2,
+                text: "2. Pada sebuah balok terdapat tiga gaya yang bekerja seperti pada gambar tersebut. Jika massa balok 2.500 gr, besar dan arah percepatan balok adalah ....",
+                image: "https://placehold.co/600x250/1a1a1a/4facfe?text=Diagram+Balok+dan+Gaya%0AF1=10N+(kiri),+F2=14N+(kanan),+F3=8N+(kiri)",
+                options: ["1,0 m/s² ke kanan", "1,6 m/s² ke kiri", "2,2 m/s² ke kanan", "2,8 m/s² ke kiri"],
+                correct: 1,
+                isPhysics: true,
+                explanation: {
+                    diketahui: "$$F_1 = 10\\text{ N (ke kiri)}$$<br>$$F_2 = 14\\text{ N (ke kanan)}$$<br>$$F_3 = 8\\text{ N (ke kiri)}$$<br>$$m = 2.500\\text{ gr} = 2,5\\text{ kg}$$",
+                    ditanya: "Besar dan arah percepatan balok ($$a$$)?",
+                    rumus: "$$\\Sigma F = m \\cdot a$$",
+                    jawab: "$$\\Sigma F = F_2 - (F_1 + F_3)$$<br>$$\\Sigma F = 14 - (10 + 8) = 14 - 18 = -4\\text{ N}$$ (Tanda negatif menunjukkan arah resultan gaya ke kiri).<br>$$a = \\frac{\\Sigma F}{m} = \\frac{4}{2,5} = 1,6\\text{ m/s}^2$$",
+                    kesimpulan: "Percepatan balok adalah 1,6 m/s² dengan arah ke kiri."
+                }
+            },
+            {
+                id: 3,
+                text: "3. Perhatikan gambar berikut! Jika percepatan gravitasi 9,8 m/s², energi potensialnya adalah ...",
+                image: "https://placehold.co/600x250/1a1a1a/4facfe?text=Ilustrasi+Pohon+Kelapa%0Amassa+=+0.5+kg,+tinggi+=+5+m",
+                options: ["24,5 J", "49,0 J", "245 J", "490 J"],
+                correct: 0,
+                isPhysics: true,
+                explanation: {
+                    diketahui: "$$m = 0,5\\text{ kg}$$<br>$$h = 5\\text{ m}$$<br>$$g = 9,8\\text{ m/s}^2$$",
+                    ditanya: "Energi Potensial ($$E_p$$)?",
+                    rumus: "$$E_p = m \\cdot g \\cdot h$$",
+                    jawab: "$$E_p = 0,5 \\cdot 9,8 \\cdot 5$$<br>$$E_p = 24,5\\text{ Joule}$$",
+                    kesimpulan: "Energi potensial buah tersebut adalah 24,5 J."
+                }
+            },
+            {
+                id: 4,
+                text: "4. Perhatikan tuas di bawah ini! Untuk menahan beban 300 N, agar berada pada posisi seimbang, besar gaya F yang harus diberikan adalah ....",
+                image: "https://placehold.co/600x250/1a1a1a/4facfe?text=Diagram+Tuas%0ALengan+Beban+=+0.5m,+Lengan+Kuasa+=+1.5m",
+                options: ["50 N", "100 N", "150 N", "200 N"],
+                correct: 1,
+                isPhysics: true,
+                explanation: {
+                    diketahui: "Beban ($$W$$) = 300 N<br>Lengan Beban ($$L_w$$) = $$\\frac{1}{2}\\text{ m} = 0,5\\text{ m}$$<br>Lengan Kuasa ($$L_f$$) = $$1\\frac{1}{2}\\text{ m} = 1,5\\text{ m}$$",
+                    ditanya: "Gaya Kuasa ($$F$$)?",
+                    rumus: "$$W \\cdot L_w = F \\cdot L_f$$",
+                    jawab: "$$300 \\cdot 0,5 = F \\cdot 1,5$$<br>$$150 = 1,5 \\cdot F$$<br>$$F = \\frac{150}{1,5} = 100\\text{ N}$$",
+                    kesimpulan: "Besar gaya F yang harus diberikan adalah 100 N."
+                }
+            },
+            {
+                id: 5,
+                text: "5. Perhatikan gambar rangkaian listrik di bawah ini! Jika R₁ = R₂ = 10 Ω dan R₃ = R₄ = 8 Ω, dan V = 12 V. Besar kuat arus yang mengalir pada rangkaian adalah ...",
+                image: "https://placehold.co/600x250/1a1a1a/4facfe?text=Rangkaian+Listrik%0AR1,R2+(Seri)+lalu+bercabang+R3,R4+(Paralel)",
+                options: ["0,5 A", "2,0 A", "36,0 A", "288 A"],
+                correct: 0,
+                isPhysics: true,
+                explanation: {
+                    diketahui: "$$R_1 = 10\\ \\Omega,\\ R_2 = 10\\ \\Omega$$ (Seri)<br>$$R_3 = 8\\ \\Omega,\\ R_4 = 8\\ \\Omega$$ (Paralel)<br>$$V = 12\\text{ V}$$",
+                    ditanya: "Kuat Arus Total ($$I$$)?",
+                    rumus: "$$I = \\frac{V}{R_{total}}$$<br>$$R_p = \\frac{R_3 \\cdot R_4}{R_3 + R_4}$$<br>$$R_s = R_1 + R_2$$",
+                    jawab: "Hambatan paralel ($$R_p$$): $$\\frac{1}{R_p} = \\frac{1}{8} + \\frac{1}{8} = \\frac{2}{8} \\implies R_p = 4\\ \\Omega$$<br>Hambatan seri ($$R_s$$): $$R_s = 10 + 10 = 20\\ \\Omega$$<br>Hambatan Total: $$R_{total} = R_s + R_p = 20 + 4 = 24\\ \\Omega$$<br>Kuat Arus: $$I = \\frac{12}{24} = 0,5\\text{ A}$$",
+                    kesimpulan: "Besar kuat arus yang mengalir adalah 0,5 A."
+                }
+            },
+            {
+                id: 6,
+                text: "6. Perhatikan beberapa perubahan materi berikut ini: 1) Lilin meleleh, 2) Pakaian basah yang di jemur, 3) Bensin di bakar, 4) Emas di lebur, 5) Sumbu lilin yang dibakar, 6) Fotosintesis. Dari pernyataan tersebut yang merupakan perubahan fisika terdapat pada nomor....",
+                image: "", // No image for this question
+                options: ["1, 2 dan 3", "1, 2 dan 4", "3, 5 dan 6", "4, 5 dan 6"],
+                correct: 1,
+                isPhysics: false,
+                explanation: {
+                    kesimpulan: "Perubahan fisika adalah perubahan materi yang tidak menghasilkan zat baru, melainkan hanya perubahan wujud atau bentuk. <br><br>1) Lilin meleleh (Fisika - wujud padat ke cair)<br>2) Pakaian basah dijemur (Fisika - air menguap)<br>3) Bensin dibakar (Kimia - pembakaran)<br>4) Emas dilebur (Fisika - wujud padat ke cair)<br>5) Sumbu lilin dibakar (Kimia - pembakaran)<br>6) Fotosintesis (Kimia - reaksi pembuatan makanan)<br><br>Jadi jawaban yang tepat adalah 1, 2, dan 4."
+                }
             }
+        ];
 
-            // Generate Tombol Pilihan sesuai desain foto (Ada huruf A, B, C, D di kiri)
-            currentQ.options.forEach((option, index) => {
-                const btn = document.createElement("button");
-                btn.className = "option-btn";
-                
-                const letter = String.fromCharCode(65 + index); // A, B, C, D
-                
-                // Masukkan huruf dan text jawaban
-                btn.innerHTML = `<span class="option-letter">${letter}.</span> ${option}`;
-                
-                btn.onclick = () => checkAnswer(index, btn);
-                optionsContainer.appendChild(btn);
+        const quizForm = document.getElementById('quiz-form');
+
+        // Render Questions
+        questions.forEach((q, index) => {
+            let optionsHTML = '';
+            q.options.forEach((opt, i) => {
+                optionsHTML += `
+                    <label class="option-label" id="label-q${index}-o${i}">
+                        <input type="radio" name="q${index}" value="${i}">
+                        <span class="option-text">${opt}</span>
+                    </label>
+                `;
             });
-        }
 
-        function checkAnswer(selectedIndex, selectedBtn) {
-            if (hasAnswered) return;
-            hasAnswered = true;
+            let imageHTML = q.image ? `<img src="${q.image}" alt="Gambar Soal ${index+1}" class="ai-image-placeholder">` : '';
 
-            const currentQ = questions[currentQuestionIndex];
-            const allBtns = optionsContainer.querySelectorAll(".option-btn");
-
-            allBtns.forEach(btn => btn.disabled = true);
-
-            if (selectedIndex === currentQ.answer) {
-                selectedBtn.classList.add("correct");
-                score++;
+            // Format Penjelasan
+            let explanationContent = '';
+            if (q.isPhysics) {
+                explanationContent = `
+                    <div class="physics-format">
+                        <p><strong>Diketahui:</strong><br>${q.explanation.diketahui}</p>
+                        <p><strong>Ditanya:</strong><br>${q.explanation.ditanya}</p>
+                        <p><strong>Jawab:</strong></p>
+                        <p><strong>Rumus:</strong><br>${q.explanation.rumus}</p>
+                        <p><strong>Jawaban:</strong><br>${q.explanation.jawab}<br><br><strong>${q.explanation.kesimpulan}</strong></p>
+                    </div>
+                `;
             } else {
-                selectedBtn.classList.add("wrong");
-                allBtns[currentQ.answer].classList.add("correct");
+                explanationContent = `<p>${q.explanation.kesimpulan}</p>`;
             }
 
-            explanationText.innerText = currentQ.explanation;
-            explanationBox.style.display = "block";
-            nextBtn.style.display = "block";
-        }
+            const questionHTML = `
+                <div class="question-card" id="card-q${index}">
+                    <div class="question-text">${q.text}</div>
+                    ${imageHTML}
+                    <div class="options-container">
+                        ${optionsHTML}
+                    </div>
+                    <div class="explanation-box" id="exp-q${index}">
+                        <h4>📘 Pembahasan:</h4>
+                        ${explanationContent}
+                    </div>
+                </div>
+            `;
+            quizForm.innerHTML += questionHTML;
+        });
 
-        function nextQuestion() {
-            currentQuestionIndex++;
-            if (currentQuestionIndex < questions.length) {
-                loadQuestion();
-            } else {
-                showScore();
-            }
-        }
+        // Evaluate Quiz Function
+        function evaluateQuiz() {
+            let score = 0;
+            
+            questions.forEach((q, index) => {
+                const selected = document.querySelector(`input[name="q${index}"]:checked`);
+                const explanationBox = document.getElementById(`exp-q${index}`);
+                
+                // Reset styling
+                q.options.forEach((_, i) => {
+                    document.getElementById(`label-q${index}-o${i}`).classList.remove('correct-ans', 'wrong-ans');
+                });
 
-        function showScore() {
-            quizArea.style.display = "none";
-            scoreBoard.style.display = "block";
-            finalScoreText.innerText = score;
-        }
+                if (selected) {
+                    const selectedValue = parseInt(selected.value);
+                    if (selectedValue === q.correct) {
+                        score++;
+                        document.getElementById(`label-q${index}-o${selectedValue}`).classList.add('correct-ans');
+                        explanationBox.classList.add('correct');
+                    } else {
+                        document.getElementById(`label-q${index}-o${selectedValue}`).classList.add('wrong-ans');
+                        document.getElementById(`label-q${index}-o${q.correct}`).classList.add('correct-ans');
+                        explanationBox.classList.add('wrong');
+                    }
+                } else {
+                    // If not answered, highlight correct answer
+                    document.getElementById(`label-q${index}-o${q.correct}`).classList.add('correct-ans');
+                    explanationBox.classList.add('wrong');
+                }
+                
+                // Show Explanation
+                explanationBox.style.display = 'block';
+            });
 
-        function restartQuiz() {
-            currentQuestionIndex = 0;
-            score = 0;
-            scoreBoard.style.display = "none";
-            quizArea.style.display = "block";
-            loadQuestion();
-        }
+            // Re-render MathJax inside newly shown elements
+            MathJax.typesetPromise();
 
-        loadQuestion();
+            // Show Score
+            const resultDiv = document.getElementById('evaluation-result');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const total = questions.length;
+            const percentage = Math.round((score / total) * 100);
+            
+            scoreDisplay.innerHTML = `Skor Anda: ${score} dari ${total} (${percentage} / 100)`;
+            resultDiv.style.display = 'block';
+            
+            // Scroll to results
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+            
+            // Disable button after submit
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('submitBtn').innerText = "Evaluasi Selesai";
+            document.getElementById('submitBtn').style.opacity = '0.5';
+        }
     </script>
 </body>
 </html>
