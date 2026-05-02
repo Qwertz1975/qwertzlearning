@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Ujian Sekolah IPS</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            background: #0d0d1a;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0d0d1a; }
+        ::-webkit-scrollbar-thumb { background: #e85d26; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
+
+        const QUESTIONS = [
+            // ===== KELAS 7: GEOGRAFI, SOSIOLOGI, SEJARAH & EKONOMI DASAR =====
+            {
+                id: 1, kelas: 7, topik: "Letak Geologis",
+                soal: "Sebagian besar wilayah Indonesia memiliki banyak gunung berapi aktif. Pengaruh letak geologis ini terhadap kehidupan masyarakat di sekitarnya adalah...",
+                pilihan: ["Memudahkan pembangunan infrastruktur jalan tol", "Tanah menjadi sangat subur untuk lahan pertanian", "Bebas dari ancaman gempa bumi tektonik", "Suhu udara menjadi panas sepanjang tahun"],
+                jawaban: 1,
+                pembahasan: "Letak geologis pada jalur sirkum Mediterania dan Pasifik membuat Indonesia banyak gunung berapi. Abu vulkanik hasil letusan menyuburkan tanah untuk pertanian."
+            },
+            {
+                id: 2, kelas: 7, topik: "Iklim Indonesia",
+                soal: "Perubahan iklim global menyebabkan kemarau panjang (El Nino) di Indonesia. Dampak terbesar fenomena ini bagi kehidupan ekonomi masyarakat pedesaan adalah...",
+                pilihan: ["Meningkatnya tangkapan ikan nelayan", "Gagal panen yang memicu kenaikan harga bahan pokok", "Berkembangnya industri garmen dan pakaian", "Menurunnya biaya impor beras"],
+                jawaban: 1,
+                pembahasan: "Kemarau panjang sangat berdampak pada sektor agraris. Gagal panen menyebabkan pasokan berkurang, sehingga memicu kelangkaan dan kenaikan harga di pasar."
+            },
+            {
+                id: 3, kelas: 7, topik: "Flora & Fauna",
+                soal: "Berdasarkan garis Wallace dan Weber, hewan seperti Anoa, Babi Rusa, dan Komodo merupakan satwa endemik yang berada di wilayah tipe...",
+                pilihan: ["Asiatis (Barat)", "Peralihan (Tengah)", "Australis (Timur)", "Eropa (Utara)"],
+                jawaban: 1,
+                pembahasan: "Fauna peralihan berada di kawasan Indonesia bagian tengah (Sulawesi, Nusa Tenggara), dipisahkan oleh Garis Wallace di barat dan Garis Weber di timur."
+            },
+            {
+                id: 4, kelas: 7, topik: "Dinamika Kependudukan",
+                soal: "Angka kelahiran di Indonesia masih cukup tinggi. Permasalahan kependudukan yang paling mungkin terjadi 10-15 tahun ke depan akibat kondisi ini adalah...",
+                pilihan: ["Kekurangan tenaga kerja muda", "Penurunan angka kriminalitas", "Tingginya beban persaingan lapangan kerja", "Kualitas pendidikan yang merata otomatis tercapai"],
+                jawaban: 2,
+                pembahasan: "Ledakan penduduk usia produktif (bonus demografi) jika tidak diimbangi dengan lapangan kerja akan menimbulkan pengangguran dan persaingan kerja yang sangat ketat."
+            },
+            {
+                id: 5, kelas: 7, topik: "Interaksi Sosial",
+                soal: "Dua sahabat yang tinggal di Indonesia dan Jepang sering bertukar kabar dan belajar budaya melalui video call. Berdasarkan caranya, jenis kontak sosial yang terjadi adalah...",
+                pilihan: ["Kontak sosial primer", "Kontak sosial sekunder langsung", "Kontak sosial sekunder tidak langsung", "Kontak sosial tersier"],
+                jawaban: 1,
+                pembahasan: "Kontak sekunder langsung adalah interaksi yang menggunakan media/alat (telepon, video call), tetapi pesannya langsung sampai tanpa pihak ketiga."
+            },
+            {
+                id: 6, kelas: 7, topik: "Interaksi Sosial",
+                soal: "Festival Budaya Dieng Culture Festival mempertemukan masyarakat lokal dengan wisatawan dari berbagai daerah dan negara. Faktor pendorong utama terjadinya interaksi sosial dalam ilustrasi tersebut adalah...",
+                pilihan: ["Simpati", "Identifikasi", "Imitasi", "Daya tarik budaya dan rekreasi"],
+                jawaban: 3,
+                pembahasan: "Dalam konteks festival pariwisata, interaksi sosial dipicu oleh ketertarikan (daya tarik) terhadap keunikan budaya lokal."
+            },
+            {
+                id: 7, kelas: 7, topik: "Lembaga Sosial",
+                soal: "Kantor Urusan Agama (KUA) atau Catatan Sipil merupakan contoh lembaga keluarga. Fungsi manifes (nyata) dari lembaga tersebut adalah...",
+                pilihan: ["Menentukan kelas sosial seseorang", "Mengatur hubungan ekonomi antar wilayah", "Mengesahkan ikatan pernikahan secara hukum dan agama", "Menyelenggarakan pendidikan politik bagi warga"],
+                jawaban: 2,
+                pembahasan: "Fungsi lembaga agama/keluarga dalam konteks perkawinan adalah memberikan legalitas/pengesahan atas ikatan suami istri."
+            },
+            {
+                id: 8, kelas: 7, topik: "Ekonomi: Kebutuhan",
+                soal: "Seorang warga membeli sepeda motor untuk memudahkan perjalanannya bekerja sebagai kurir. Sepeda motor bagi warga tersebut termasuk alat pemuas kebutuhan berdasarkan tujuan penggunaannya sebagai...",
+                pilihan: ["Barang konsumsi", "Barang produksi", "Barang substitusi", "Barang komplementer"],
+                jawaban: 1,
+                pembahasan: "Barang produksi/modal adalah barang yang digunakan untuk menghasilkan barang/jasa lain atau menunjang pekerjaan (seperti motor untuk kurir)."
+            },
+            {
+                id: 9, kelas: 7, topik: "Ekonomi: Kelangkaan",
+                soal: "Pasca erupsi gunung berapi, banyak jembatan dan jalan terputus. Hal ini menyebabkan harga bahan pokok di daerah terdampak melonjak drastis. Penyebab utama kelangkaan tersebut adalah...",
+                pilihan: ["Kesedihan warga yang enggan berbelanja", "Terhambatnya saluran distribusi barang", "Peningkatan daya beli masyarakat secara tiba-tiba", "Pemerintah sengaja menimbun barang"],
+                jawaban: 1,
+                pembahasan: "Infrastruktur yang rusak menyebabkan distribusi terhambat. Barang tidak bisa masuk, stok menipis, sehingga terjadi kelangkaan dan harga naik."
+            },
+            {
+                id: 10, kelas: 7, topik: "Ekonomi: Permintaan",
+                soal: "Menjelang hari raya besar, kurva permintaan terhadap daging sapi bergeser ke kanan atas. Dampak dari pergeseran tersebut terhadap pasar adalah...",
+                pilihan: ["Harga daging turun karena pasokan melimpah", "Harga daging sapi akan mengalami kenaikan", "Masyarakat beralih tidak mengonsumsi daging", "Penjual daging akan mengalami kerugian"],
+                jawaban: 1,
+                pembahasan: "Kurva permintaan bergeser ke kanan atas berarti jumlah permintaan meningkat tajam. Sesuai hukum ekonomi, jika permintaan naik, harga akan ikut naik."
+            },
+            {
+                id: 11, kelas: 7, topik: "Ekonomi: Kegiatan Pokok",
+                soal: "Penggunaan mesin pemanen padi (combine harvester) oleh petani menggantikan tenaga manusia merupakan salah satu upaya peningkatan mutu produksi melalui cara...",
+                pilihan: ["Ekstensifikasi", "Diversifikasi", "Intensifikasi", "Rasionalisasi"],
+                jawaban: 3,
+                pembahasan: "Rasionalisasi adalah peningkatan mutu produksi dengan menggunakan ilmu pengetahuan dan teknologi (mesin), bukan menambah lahan (ekstensifikasi)."
+            },
+            {
+                id: 12, kelas: 7, topik: "Ekonomi: Distribusi",
+                soal: "Kehadiran aplikasi e-commerce dan layanan kurir instan sangat memudahkan penjual pakaian di suatu daerah mengirim barang ke pembeli di pulau lain. Dampak positif teknologi dalam kegiatan distribusi ini adalah...",
+                pilihan: ["Menambah panjang mata rantai distribusi", "Mempercepat waktu dan memperluas jangkauan pasar", "Menurunkan kualitas barang saat tiba", "Membuat harga barang menjadi tidak terkendali"],
+                jawaban: 1,
+                pembahasan: "Teknologi digital dan logistik memotong perantara, mempercepat pengiriman, dan memungkinkan produk lokal dijual ke pasar nasional bahkan global."
+            },
+            {
+                id: 13, kelas: 7, topik: "Praaksara",
+                soal: "Ciri-ciri kehidupan manusia pada masa Neolithikum (Zaman Batu Muda) yang paling tepat adalah...",
+                pilihan: ["Hidup berpindah-pindah (nomaden) dan berburu", "Mulai mengenal tradisi food producing dan menetap (sedenter)", "Alat-alat batu masih sangat kasar dan belum diasah", "Mengenal teknik peleburan logam a cire perdue"],
+                jawaban: 1,
+                pembahasan: "Neolithikum ditandai dengan revolusi kebudayaan: dari food gathering menjadi food producing (bercocok tanam), menetap, dan alat batu sudah dihaluskan (kapak persegi/lonjong)."
+            },
+            {
+                id: 14, kelas: 7, topik: "Hindu-Buddha",
+                soal: "Candi Borobudur berbentuk punden berundak dengan stupa di puncaknya, sedangkan Candi Prambanan menjulang tinggi dan ramping. Perbedaan corak ini menyimpulkan bahwa...",
+                pilihan: ["Borobudur adalah candi Buddha, Prambanan adalah candi Hindu", "Keduanya adalah peninggalan Kerajaan Majapahit", "Prambanan berfungsi sebagai makam raja Buddha", "Borobudur dipengaruhi oleh arsitektur Tiongkok murni"],
+                jawaban: 0,
+                pembahasan: "Borobudur (Buddha) bercorak masif, melebar (punden berundak), dan berstupa. Prambanan (Hindu) bercorak ramping, menjulang tinggi menyimbolkan gunung suci."
+            },
+            {
+                id: 15, kelas: 7, topik: "Islam",
+                soal: "Bentuk atap Masjid Agung Demak yang berbentuk tumpang (bersusun) dan tidak memiliki kubah menunjukkan bukti adanya...",
+                pilihan: ["Konflik antara budaya lokal dan budaya asing", "Percampuran (akulturasi) antara kebudayaan Islam dan Hindu-Buddha", "Dominasi budaya Arab yang kuat di pesisir Jawa", "Penolakan masyarakat Jawa terhadap arsitektur Islam"],
+                jawaban: 1,
+                pembahasan: "Atap tumpang pada masjid-masjid kuno di Indonesia adalah bentuk akulturasi dengan arsitektur Meru (Hindu) yang melambangkan gunung suci."
+            },
+
+            // ===== KELAS 8: ASEAN, MOBILITAS, KOLONIALISME =====
+            {
+                id: 16, kelas: 8, topik: "ASEAN: Interaksi Bencana",
+                soal: "Ketika Topan Haiyan melanda Filipina, negara-negara ASEAN segera mengirimkan bantuan medis dan logistik. Hal ini menunjukkan interaksi keruangan dalam bentuk...",
+                pilihan: ["Kerja sama politik dan keamanan militer", "Solidaritas sosial dan kemanusiaan regional", "Persaingan ekonomi dan penguasaan sumber daya", "Pertukaran tenaga kerja terampil"],
+                jawaban: 1,
+                pembahasan: "Bantuan bencana adalah implementasi dari pilar sosial budaya ASEAN yang mengedepankan solidaritas dan kemanusiaan."
+            },
+            {
+                id: 17, kelas: 8, topik: "ASEAN: Perubahan Ruang",
+                soal: "Alih fungsi lahan pertanian menjadi kawasan industri di negara-negara ASEAN membawa dampak perubahan ruang. Pengaruh negatif di bidang ekonomi dan sosial dari fenomena ini adalah...",
+                pilihan: ["Meningkatnya devisa negara secara merata", "Terancamnya ketahanan pangan dan tergusurnya petani lokal", "Harga tanah menjadi sangat murah", "Bertambahnya flora dan fauna endemik"],
+                jawaban: 1,
+                pembahasan: "Berkurangnya lahan pertanian menurunkan produksi pangan (ancaman ketahanan pangan) dan petani kehilangan mata pencaharian utamanya."
+            },
+            {
+                id: 18, kelas: 8, topik: "Mobilitas Sosial",
+                soal: "Seorang anak keluarga kurang mampu rajin belajar, mendapat beasiswa hingga lulus sarjana, dan akhirnya menjadi manajer sukses. Faktor pendorong mobilitas sosial pada ilustrasi tersebut adalah...",
+                pilihan: ["Faktor struktural", "Faktor individu (pendidikan dan kegigihan)", "Faktor keadaan ekonomi asal", "Faktor politik negara"],
+                jawaban: 1,
+                pembahasan: "Pendidikan (achievement) dan kegigihan/kualitas diri adalah faktor individu yang sangat kuat untuk mendorong mobilitas sosial vertikal naik."
+            },
+            {
+                id: 19, kelas: 8, topik: "Konflik Sosial",
+                soal: "Terjadi sengketa lahan antara perusahaan dengan masyarakat adat. Untuk mencegah kekerasan, kedua belah pihak sepakat membawa masalah ini ke pengadilan. Cara penyelesaian konflik ini disebut...",
+                pilihan: ["Mediasi", "Arbitrase", "Ajudikasi", "Konsiliasi"],
+                jawaban: 2,
+                pembahasan: "Ajudikasi adalah penyelesaian konflik (sengketa) melalui jalur hukum / pengadilan."
+            },
+            {
+                id: 20, kelas: 8, topik: "Saluran Mobilitas Sosial",
+                soal: "Banyak perwira menengah kepolisian yang mendapat kenaikan pangkat setelah berhasil mengungkap kasus besar. Saluran mobilitas sosial yang digunakan pada contoh tersebut adalah...",
+                pilihan: ["Organisasi politik", "Organisasi ekonomi", "Angkatan bersenjata / kepolisian", "Lembaga keagamaan"],
+                jawaban: 2,
+                pembahasan: "Kepolisian dan TNI memiliki hierarki pangkat yang jelas, memungkinkan anggotanya melakukan mobilitas vertikal naik (promosi)."
+            },
+            {
+                id: 21, kelas: 8, topik: "Keberagaman Budaya",
+                soal: "Pemerintah menetapkan warisan budaya tak benda ke UNESCO. Peran pemerintah dalam ilustrasi tersebut bertujuan untuk...",
+                pilihan: ["Memperoleh keuntungan finansial dari luar negeri", "Melindungi dan melestarikan budaya nasional dari klaim negara lain", "Mengganti budaya lokal dengan budaya internasional", "Membatasi berkembangnya budaya daerah lain"],
+                jawaban: 1,
+                pembahasan: "Pendaftaran ke UNESCO merupakan bentuk perlindungan hukum internasional agar warisan budaya nasional tidak diklaim negara lain dan tetap lestari."
+            },
+            {
+                id: 22, kelas: 8, topik: "Pelaku Ekonomi",
+                soal: "Dalam siklus ekonomi 3 sektor, Pemerintah memiliki peran penting bagi Rumah Tangga Konsumen (RTK) dan Produsen (RTP), yaitu...",
+                pilihan: ["Hanya sebagai pemungut pajak tanpa memberikan imbal balik", "Menyediakan faktor-faktor produksi seperti tanah dan modal", "Menerima pajak dan membelanjakannya untuk infrastruktur serta subsidi", "Memproduksi seluruh barang kebutuhan pokok masyarakat"],
+                jawaban: 2,
+                pembahasan: "Pemerintah memungut pajak dari RTK dan RTP, kemudian uang pajak tersebut dikembalikan dalam bentuk fasilitas publik, jalan raya, subsidi, dan keamanan."
+            },
+            {
+                id: 23, kelas: 8, topik: "Perdagangan Antarpulau",
+                soal: "Satu pulau mengirimkan beras dan produk industri ke pulau lain, sebaliknya pulau tersebut mengirimkan sumber daya alam. Faktor utama pendorong perdagangan antarpulau ini adalah...",
+                pilihan: ["Perbedaan budaya lokal", "Perbedaan faktor produksi dan sumber daya alam yang dimiliki", "Kesamaan letak astronomis kedua pulau", "Keinginan menekan harga di pulau sendiri"],
+                jawaban: 1,
+                pembahasan: "Perdagangan terjadi karena setiap daerah memiliki keunggulan (sumber daya) yang berbeda sehingga saling membutuhkan."
+            },
+            {
+                id: 24, kelas: 8, topik: "MEA (Masyarakat Ekonomi ASEAN)",
+                soal: "Salah satu tantangan MEA bagi Indonesia adalah masuknya produk dan tenaga kerja asing secara bebas. Solusi paling tepat bagi tenaga kerja Indonesia untuk menghadapi MEA adalah...",
+                pilihan: ["Mendesak pemerintah menutup masuknya pekerja asing", "Meningkatkan kualitas SDM, keterampilan, dan sertifikasi profesi", "Menurunkan standar upah agar lebih murah dari pekerja asing", "Melakukan protes ke kantor Sekretariat ASEAN"],
+                jawaban: 1,
+                pembahasan: "Sertifikasi dan peningkatan kompetensi adalah kunci agar SDM Indonesia mampu bersaing dengan tenaga kerja asing di pasar bebas ASEAN."
+            },
+            {
+                id: 25, kelas: 8, topik: "Kerja Paksa / Kebijakan Kolonial",
+                soal: "Pada masa pemerintahan kolonial Inggris, diterapkan sistem Landrente (Sewa Tanah). Konsep utama dari sistem ini adalah...",
+                pilihan: ["Petani wajib menanam tanaman ekspor yang laku di Eropa", "Semua tanah adalah milik negara, petani yang menggarap harus membayar pajak sewa", "Petani dibebaskan dari segala bentuk pajak asalkan menanam padi", "Hanya bangsawan pribumi yang boleh menyewa tanah"],
+                jawaban: 1,
+                pembahasan: "Landrente system didasarkan pada anggapan bahwa pemerintah kolonial adalah pemilik tanah, sehingga petani pemakai tanah wajib membayar sewa/pajak."
+            },
+            {
+                id: 26, kelas: 8, topik: "Penjelajahan Samudera",
+                soal: "Rute pelayaran bangsa Belanda tahun 1596 hingga sampai ke wilayah Nusantara adalah...",
+                pilihan: ["Eropa - Pantai Barat Afrika - Tanjung Harapan - Samudera Hindia - Selat Sunda", "Eropa - Benua Amerika - Samudera Pasifik - Filipina - Maluku", "Eropa - Laut Merah - India - Selat Malaka - Banten", "Eropa - Kutub Selatan - Australia - Pantai Selatan Jawa"],
+                jawaban: 0,
+                pembahasan: "Belanda meniru rute Portugis (mengitari Afrika) tetapi tidak lewat Selat Malaka, melainkan langsung menyeberangi Samudera Hindia menuju Selat Sunda."
+            },
+            {
+                id: 27, kelas: 8, topik: "Imperialisme - UU Agraria 1870",
+                soal: "Pemerintah kolonial mengeluarkan Undang-Undang Agraria (1870) yang mengizinkan pemodal swasta asing menyewa tanah. Dampak negatif kebijakan ini bagi rakyat adalah...",
+                pilihan: ["Rakyat bisa membuka usaha perkebunan sendiri secara bebas", "Rakyat menjadi buruh dengan upah murah di tanah leluhurnya sendiri", "Terjadinya penghapusan seluruh jenis pajak tanaman", "Meningkatnya kesejahteraan petani karena disubsidi swasta"],
+                jawaban: 1,
+                pembahasan: "Masuknya swasta memicu kapitalisme eksploitatif. Rakyat yang kehilangan hak garap terpaksa menjadi kuli/buruh murah di perkebunan besar swasta."
+            },
+            {
+                id: 28, kelas: 8, topik: "Pendudukan Jepang",
+                soal: "Jepang membentuk gerakan 3A (Cahaya, Pelindung, dan Pemimpin Asia). Namun, propaganda ini gagal menarik simpati rakyat karena...",
+                pilihan: ["Gerakan ini terlalu banyak memberi fasilitas bagi kaum terpelajar", "Gerakan ini dipimpin oleh tokoh nasionalis radikal", "Rakyat menyadari itu hanya strategi untuk mengeksploitasi sumber daya", "Tokoh gerakan secara terang-terangan memberontak kepada Jepang"],
+                jawaban: 2,
+                pembahasan: "Rakyat dan tokoh nasionalis tidak simpati karena gerakan 3A jelas hanya alat propaganda Jepang demi kepentingan perang mereka, bukan untuk kemerdekaan."
+            },
+            {
+                id: 29, kelas: 8, topik: "Kolonialisme Belanda",
+                soal: "Sistem Tanam Paksa (Cultuurstelsel) bertujuan untuk...",
+                pilihan: ["Meningkatkan kualitas tanaman ekspor Indonesia", "Menyelamatkan kas negara kolonial yang kosong akibat biaya perang yang besar", "Memperkenalkan teknologi pertanian modern dari Eropa", "Membantu petani terbebas dari jerat utang"],
+                jawaban: 1,
+                pembahasan: "Belanda nyaris bangkrut akibat biaya perang yang besar di Eropa dan wilayah jajahannya. Tanam Paksa adalah cara instan mengisi kas."
+            },
+            {
+                id: 30, kelas: 8, topik: "Perlawanan Kolonial",
+                soal: "Strategi untuk mengalahkan perlawanan rakyat di Jawa adalah dengan menerapkan taktik...",
+                pilihan: ["Benteng Stelsel", "Kapitulasi Tuntang", "Devide et Impera", "Konsentrasi Stelsel"],
+                jawaban: 0,
+                pembahasan: "Taktik Benteng Stelsel (membangun benteng di setiap wilayah yang ditaklukkan lalu menghubungkannya dengan jalan) efektif mempersempit ruang gerak pasukan perlawanan."
+            },
+            {
+                id: 31, kelas: 8, topik: "Bentuk Muka Bumi ASEAN",
+                soal: "Sungai Mekong merupakan sungai terpanjang di Asia Tenggara yang mengalir melewati beberapa negara. Negara yang dilalui oleh Sungai Mekong dan menjadikannya sebagai urat nadi pertanian adalah...",
+                pilihan: ["Malaysia, Singapura, dan Brunei", "Filipina, Indonesia, dan Timor Leste", "Myanmar, Thailand, Kamboja, dan Vietnam", "Laos, Indonesia, dan Malaysia"],
+                jawaban: 2,
+                pembahasan: "Sungai Mekong melintasi daratan Indo-China (Myanmar, Thailand, Laos, Kamboja, Vietnam) dan sangat subur untuk lahan padi."
+            },
+            {
+                id: 32, kelas: 8, topik: "Lembaga Ekonomi",
+                soal: "Koperasi merupakan soko guru perekonomian Indonesia. Tujuan utama didirikannya koperasi adalah...",
+                pilihan: ["Mencari keuntungan sebesar-besarnya bagi para pengurus", "Mensejahterakan anggota pada khususnya dan masyarakat pada umumnya", "Mematikan usaha-usaha swasta kecil", "Menjadi tempat meminjam uang tanpa batas"],
+                jawaban: 1,
+                pembahasan: "Koperasi berasaskan kekeluargaan, tujuannya bukan profit semata, melainkan kesejahteraan bersama anggotanya."
+            },
+
+            // ===== KELAS 9: BENUA, GLOBALISASI, EKONOMI INTERNASIONAL, KEMERDEKAAN =====
+            {
+                id: 33, kelas: 9, topik: "Letak Benua Asia",
+                soal: "Secara geografis, Benua Asia dan Benua Eropa berada dalam satu daratan luas. Batas alam yang memisahkan kedua benua ini di daratan adalah...",
+                pilihan: ["Pegunungan Himalaya", "Pegunungan Ural dan Laut Kaspia", "Terusan Suez dan Laut Merah", "Gurun Sahara"],
+                jawaban: 1,
+                pembahasan: "Batas pemisah antara benua Asia dan Eropa adalah Pegunungan Ural, Sungai Ural, Laut Kaspia, dan Pegunungan Kaukasus."
+            },
+            {
+                id: 34, kelas: 9, topik: "Region Benua Amerika",
+                soal: "Berdasarkan pembagian regionnya, negara Amerika Serikat dan Kanada tergabung dalam kawasan...",
+                pilihan: ["Amerika Latin", "Amerika Tengah", "Amerika Selatan", "Amerika Utara"],
+                jawaban: 3,
+                pembahasan: "Benua Amerika dibagi menjadi Utara, Tengah, dan Selatan. AS dan Kanada adalah negara-negara utama di region Amerika Utara."
+            },
+            {
+                id: 35, kelas: 9, topik: "Kondisi Alam Negara",
+                soal: "Negara ini memiliki daratan yang sebagian besar berupa gurun pasir, terletak di Asia Barat, dan merupakan salah satu penghasil minyak bumi terbesar di dunia. Negara yang dimaksud adalah...",
+                pilihan: ["Jepang", "Tiongkok", "Arab Saudi", "Mesir"],
+                jawaban: 2,
+                pembahasan: "Arab Saudi terletak di semenanjung Arabia (Asia Barat/Timur Tengah), beriklim gurun, dan kaya akan cadangan minyak bumi."
+            },
+            {
+                id: 36, kelas: 9, topik: "Kondisi Alam Australia",
+                soal: "Bagian timur dan pesisir Australia memiliki curah hujan yang cukup, sedangkan bagian pedalaman didominasi oleh gurun. Pengaruh kondisi ini terhadap aktivitas ekonomi penduduk adalah...",
+                pilihan: ["Sebagian besar penduduk bekerja sebagai penambang minyak di pedalaman", "Penduduk memusatkan sektor pertanian dan permukiman padat di daerah pesisir", "Mengandalkan hasil hutan tropis sebagai ekspor utama", "Membangun pabrik-pabrik besar di tengah gurun"],
+                jawaban: 1,
+                pembahasan: "Karena pedalaman berupa gurun yang kering, penduduk dan pusat ekonomi Australia sangat terkonsentrasi di pesisir Timur, Tenggara, dan Barat Daya."
+            },
+            {
+                id: 37, kelas: 9, topik: "Dinamika Penduduk Asia",
+                soal: "Tiongkok, India, dan Indonesia menyumbang jumlah populasi terbesar di Asia. Dampak kepadatan penduduk yang tinggi di negara-negara tersebut adalah...",
+                pilihan: ["Harga properti dan perumahan menjadi sangat murah", "Angka harapan hidup otomatis menjadi paling tinggi", "Tingginya alih fungsi lahan pertanian menjadi pemukiman", "Tidak terjadi masalah pencemaran lingkungan"],
+                jawaban: 2,
+                pembahasan: "Kepadatan penduduk yang tinggi membutuhkan ruang tinggal. Akibatnya, lahan pertanian hijau banyak diubah (alih fungsi) menjadi lahan perumahan dan industri."
+            },
+            {
+                id: 38, kelas: 9, topik: "Interaksi Antarruang Benua",
+                soal: "Banyak pelajar Indonesia yang melanjutkan studi ke negara-negara di Eropa. Hal ini merupakan bentuk interaksi antarruang benua dalam bidang...",
+                pilihan: ["Ekonomi", "Pendidikan", "Politik", "Pertahanan keamanan"],
+                jawaban: 1,
+                pembahasan: "Pertukaran pelajar dan pengiriman mahasiswa ke luar negeri adalah interaksi dalam bidang pendidikan dan pengembangan SDM."
+            },
+            {
+                id: 39, kelas: 9, topik: "Perubahan Sosial Budaya",
+                soal: "Masuknya budaya populer asing yang disukai remaja merupakan contoh perubahan sosial budaya yang disebabkan oleh faktor eksternal, yaitu...",
+                pilihan: ["Peperangan antar negara", "Bencana alam fisik", "Pengaruh kebudayaan masyarakat lain (Difusi budaya)", "Konflik di dalam masyarakat sendiri"],
+                jawaban: 2,
+                pembahasan: "Difusi atau penyebaran budaya asing dari luar ke dalam negeri melalui media massa/internet adalah faktor eksternal perubahan sosial budaya."
+            },
+            {
+                id: 40, kelas: 9, topik: "Penghambat Perubahan Sosial",
+                soal: "Suatu masyarakat memegang teguh adat istiadat leluhur dan menolak penggunaan teknologi modern. Faktor penghambat perubahan sosial budaya pada masyarakat tersebut adalah...",
+                pilihan: ["Prasangka terhadap hal-hal baru atau asing", "Sistem pendidikan yang sangat maju", "Komposisi penduduk yang heterogen", "Kontak dengan masyarakat luar yang sangat intens"],
+                jawaban: 0,
+                pembahasan: "Sikap tradisional yang kuat dan ketakutan (prasangka) bahwa teknologi modern dapat merusak tatanan adat membuat masyarakat menutup diri dari perubahan."
+            },
+            {
+                id: 41, kelas: 9, topik: "Cultural Shock",
+                soal: "Seorang warga pindah dari desa ke kota besar dan merasa stres serta bingung melihat pergaulan yang sangat berbeda. Kondisi psikologis ini dikenal dengan istilah...",
+                pilihan: ["Cultural animosity", "Cultural lag (ketertinggalan budaya)", "Goncangan budaya (Cultural shock)", "Asimilasi budaya"],
+                jawaban: 2,
+                pembahasan: "Goncangan budaya (cultural shock) adalah kondisi kebingungan secara mental ketika seseorang berhadapan dengan budaya baru yang sangat berbeda dengan kebiasaannya."
+            },
+            {
+                id: 42, kelas: 9, topik: "Dampak Globalisasi",
+                soal: "Sikap konsumtif dan gaya hidup mewah merupakan dampak negatif globalisasi. Upaya paling tepat bagi pelajar untuk menghindari dampak tersebut adalah...",
+                pilihan: ["Menggunakan kartu kredit untuk belanja online", "Menghapus akun media sosial secara permanen", "Membiasakan hidup hemat dan membeli sesuai kebutuhan", "Menolak membeli barang buatan dalam negeri"],
+                jawaban: 2,
+                pembahasan: "Gaya hidup konsumtif harus dilawan dengan literasi keuangan yang baik, yakni hidup hemat dan membedakan antara kebutuhan dan keinginan."
+            },
+            {
+                id: 43, kelas: 9, topik: "Bentuk Globalisasi",
+                soal: "Adanya gerai makanan cepat saji global dan masuknya produk otomotif internasional menunjukkan terjadinya globalisasi di bidang...",
+                pilihan: ["Komunikasi", "Ekonomi", "Transportasi", "Politik"],
+                jawaban: 1,
+                pembahasan: "Perusahaan multinasional yang membuka cabang di banyak negara dan perdagangan bebas adalah indikator utama dari globalisasi bidang ekonomi."
+            },
+            {
+                id: 44, kelas: 9, topik: "Keunggulan Komparatif",
+                soal: "Negara A mampu memproduksi suatu bahan alam dengan biaya murah, sedangkan Negara B ahli memproduksi barang elektronik berkualitas. Menurut teori keunggulan komparatif, langkah terbaik adalah...",
+                pilihan: ["Negara A berhenti memproduksi bahan alam", "Negara B melarang masuknya produk dari Negara A", "Kedua negara melakukan spesialisasi dan perdagangan internasional", "Kedua negara memutuskan hubungan perdagangan"],
+                jawaban: 2,
+                pembahasan: "Keunggulan komparatif menyarankan negara fokus memproduksi barang yang biayanya paling efisien, lalu melakukan perdagangan."
+            },
+            {
+                id: 45, kelas: 9, topik: "Perdagangan Internasional",
+                soal: "Negara yang tidak memiliki sumber daya alam tertentu harus membelinya dari negara lain. Faktor pendorong utama perdagangan internasional pada kasus ini adalah...",
+                pilihan: ["Keinginan memperluas wilayah kekuasaan", "Perbedaan sumber daya alam antarnegara", "Upaya menstabilkan harga dalam negeri", "Kesamaan selera penduduk"],
+                jawaban: 1,
+                pembahasan: "Tidak ada satu pun negara yang dapat memenuhi semua kebutuhannya sendiri. Perbedaan kepemilikan SDA adalah alasan paling mendasar terjadinya perdagangan internasional."
+            },
+            {
+                id: 46, kelas: 9, topik: "Ekonomi Kreatif",
+                soal: "Perkembangan industri game, animasi, dan fashion modern berbasis budaya lokal sangat pesat. Dampak positif dari ekonomi kreatif ini bagi perekonomian nasional adalah...",
+                pilihan: ["Menambah beban impor negara", "Menciptakan lapangan kerja baru dan meningkatkan nilai tambah ide", "Menurunkan devisa negara dari sektor pariwisata", "Mengurangi minat pemuda terhadap teknologi"],
+                jawaban: 1,
+                pembahasan: "Ekonomi kreatif bersumber dari kekayaan intelektual (ide/kreativitas). Dampaknya sangat luas untuk menciptakan lapangan kerja dan menaikkan nilai jual."
+            },
+            {
+                id: 47, kelas: 9, topik: "Tokoh Pasca Kemerdekaan",
+                soal: "Setelah Proklamasi, Indonesia berjuang secara diplomasi. Tokoh yang dikenal sangat aktif dalam jalur diplomasi di awal kemerdekaan adalah...",
+                pilihan: ["Tokoh Pergerakan A", "Tokoh Pergerakan B", "Sutan Sjahrir", "Tokoh Pergerakan D"],
+                jawaban: 2,
+                pembahasan: "Sutan Sjahrir sangat aktif dan brilian dalam jalur diplomasi, termasuk menjadi ujung tombak di Perundingan Linggarjati."
+            },
+            {
+                id: 48, kelas: 9, topik: "Gangguan Keamanan",
+                soal: "Pada masa Demokrasi Parlementer, sering terjadi pergantian kabinet dan muncul pemberontakan di beberapa daerah. Penyebab utama pemberontakan daerah saat itu adalah...",
+                pilihan: ["Keinginan mengubah ideologi negara", "Ketidakpuasan daerah terhadap alokasi dana pembangunan", "Penolakan terhadap hasil Pemilu pertama", "Keinginan bergabung dengan negara tetangga"],
+                jawaban: 1,
+                pembahasan: "Beberapa pemberontakan muncul karena tokoh daerah merasa pemerintah pusat tidak adil dalam pembagian hasil ekonomi dan pembangunan."
+            },
+            {
+                id: 49, kelas: 9, topik: "Masa Reformasi",
+                soal: "Salah satu tuntutan utama masyarakat pada masa awal Reformasi tahun 1998 yang berhasil mengubah struktur politik adalah...",
+                pilihan: ["Pembubaran organisasi massa tertentu", "Kembali pada Konstitusi lama yang tidak fleksibel", "Penghapusan Dwifungsi ABRI dan pemberantasan KKN", "Melarang pendirian partai politik baru"],
+                jawaban: 2,
+                pembahasan: "Agenda Reformasi 1998 antara lain: Amandemen UUD, Hapus Dwifungsi ABRI, Otonomi Daerah, dan Berantas KKN."
+            },
+            {
+                id: 50, kelas: 9, topik: "Kebijakan Pasca Kemerdekaan",
+                soal: "Pada masa awal kemerdekaan, kondisi ekonomi sangat buruk. Salah satu kebijakan pemerintah untuk menarik simpati dunia adalah...",
+                pilihan: ["Menerapkan sistem ekonomi baru", "Mengadakan bantuan pangan (beras) ke negara lain yang membutuhkan", "Melakukan nasionalisasi seluruh aset asing", "Mencetak uang sebanyak-banyaknya"],
+                jawaban: 1,
+                pembahasan: "Tahun 1946, Indonesia mengirimkan bantuan beras ke India yang sedang kelaparan. Langkah ini sukses menarik simpati dunia dan menembus blokade ekonomi."
+            }
+        ];
+
+        const KELAS_INFO = { 
+            7: { color: "#e85d26", label: "Kelas 7" }, 
+            8: { color: "#1a7a5e", label: "Kelas 8" }, 
+            9: { color: "#6b3fa0", label: "Kelas 9" } 
+        };
+
+        function QuizUjianSekolahIPS() {
+            const [phase, setPhase] = useState("home"); 
+            const [current, setCurrent] = useState(0);
+            const [selected, setSelected] = useState(null);
+            const [answers, setAnswers] = useState({});
+            const [showPembahasan, setShowPembahasan] = useState(false);
+            const [music, setMusic] = useState(null);
+            const [musicName, setMusicName] = useState("");
+            const [playing, setPlaying] = useState(false);
+            const [volume, setVolume] = useState(0.5);
+            const [reviewMode, setReviewMode] = useState(false);
+            const [reviewIdx, setReviewIdx] = useState(0);
+            const audioRef = useRef(null);
+            const fileInputRef = useRef(null);
+
+            useEffect(() => {
+                if (audioRef.current) {
+                    audioRef.current.volume = volume;
+                }
+            }, [volume]);
+
+            const handleMusicUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const url = URL.createObjectURL(file);
+                setMusic(url);
+                setMusicName(file.name);
+                setPlaying(false);
+            };
+
+            const togglePlay = () => {
+                if (!audioRef.current) return;
+                if (playing) { audioRef.current.pause(); } else { audioRef.current.play(); }
+                setPlaying(!playing);
+            };
+
+            const q = QUESTIONS[current];
+
+            const handleSelect = (i) => {
+                if (selected !== null) return;
+                setSelected(i);
+                setAnswers(prev => ({ ...prev, [current]: i }));
+                setShowPembahasan(true);
+            };
+
+            const next = () => {
+                setSelected(null);
+                setShowPembahasan(false);
+                if (current < QUESTIONS.length - 1) { setCurrent(c => c + 1); }
+                else { setPhase("result"); }
+            };
+
+            const prev = () => {
+                if (current > 0) {
+                    setSelected(answers[current - 1] ?? null);
+                    setShowPembahasan(answers[current - 1] !== undefined);
+                    setCurrent(c => c - 1);
+                }
+            };
+
+            const startQuiz = () => {
+                setCurrent(0); setSelected(null); setAnswers({}); setShowPembahasan(false); setPhase("quiz");
+            };
+
+            const score = Object.entries(answers).filter(([idx, ans]) => QUESTIONS[parseInt(idx)].jawaban === ans).length;
+            const pct = Math.round((score / QUESTIONS.length) * 100);
+
+            const grade = pct >= 90 ? { label: "Sempurna! 🏆", color: "#f59e0b" }
+                : pct >= 80 ? { label: "Sangat Baik! 🌟", color: "#10b981" }
+                : pct >= 70 ? { label: "Baik! 👍", color: "#3b82f6" }
+                : pct >= 60 ? { label: "Cukup 📚", color: "#8b5cf6" }
+                : { label: "Perlu Belajar Lagi 💪", color: "#ef4444" };
+
+            const MusicPlayer = () => (
+                <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "rgba(10,10,20,0.97)", backdropFilter: "blur(16px)", borderTop: "1px solid rgba(255,255,255,0.08)", padding: "10px 24px", display: "flex", alignItems: "center", gap: 16, zIndex: 100 }}>
+                    {music && <audio ref={audioRef} src={music} loop onEnded={() => setPlaying(false)} />}
+                    <button onClick={() => fileInputRef.current?.click()} style={{ background: "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 8, color: "#fff", padding: "7px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit" }}>
+                        🎵 Upload Musik
+                    </button>
+                    <input ref={fileInputRef} type="file" accept="audio/*" onChange={handleMusicUpload} style={{ display: "none" }} />
+                    {music && (
+                        <>
+                            <button onClick={togglePlay} style={{ background: playing ? "rgba(232,93,38,0.3)" : "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "50%", width: 36, height: 36, color: "#fff", cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                {playing ? "⏸" : "▶"}
+                            </button>
+                            <span style={{ color: "rgba(255,255,255,0.6)", fontSize: 12, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{musicName}</span>
+                            <input type="range" min={0} max={1} step={0.01} value={volume} onChange={e => setVolume(Number(e.target.value))} style={{ width: 80, accentColor: "#e85d26" }} />
+                            <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 11 }}>🔊</span>
+                        </>
+                    )}
+                    {!music && <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 12 }}>Upload file musik untuk menemanimu belajar ✨</span>}
+                </div>
+            );
+
+            // === HOME ===
+            if (phase === "home") return (
+                <div style={{ minHeight: "100vh", background: "linear-gradient(145deg,#0d0d1a 0%,#1a0a05 50%,#0a1a0d 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 20px 80px", fontFamily: "'Georgia', serif" }}>
+                    <style>{`
+                        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600&display=swap');
+                        * { box-sizing: border-box; }
+                        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(232,93,38,0.3) !important; }
+                        .btn-main:hover { transform: scale(1.03); filter: brightness(1.1); }
+                        .opt:hover { background: rgba(255,255,255,0.08) !important; border-color: rgba(255,255,255,0.3) !important; }
+                    `}</style>
+
+                    <div style={{ position: "fixed", top: -100, right: -100, width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(232,93,38,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
+                    <div style={{ position: "fixed", bottom: -80, left: -80, width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(26,122,94,0.1) 0%, transparent 70%)", pointerEvents: "none" }} />
+
+                    <div style={{ textAlign: "center", maxWidth: 680 }}>
+                        <div style={{ fontSize: 64, marginBottom: 8 }}>🌍</div>
+                        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(36px,6vw,64px)", fontWeight: 900, color: "#fff", margin: "0 0 8px", lineHeight: 1.1, letterSpacing: "-1px" }}>
+                            Quiz Ujian Sekolah
+                            <span style={{ display: "block", background: "linear-gradient(90deg,#e85d26,#f59e0b)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>IPS SMP</span>
+                        </h1>
+                        <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 16, fontFamily: "'Source Sans 3',sans-serif", marginBottom: 40 }}>50 Soal Pilihan Ganda · Kelas 7 – 9 · Berdasarkan Kisi-Kisi US Terbaru</p>
+
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, marginBottom: 40 }}>
+                            {[
+                                { icon: "🌋", num: "7", label: "Geografi, Sosiologi, Praaksara", clr: "#e85d26", sub: "15 soal" },
+                                { icon: "🤝", num: "8", label: "ASEAN, Mobilitas, Kolonial", clr: "#1a7a5e", sub: "17 soal" },
+                                { icon: "🌐", num: "9", label: "Benua, Globalisasi, Diplomasi", clr: "#6b3fa0", sub: "18 soal" }
+                            ].map(({ icon, num, label, clr, sub }) => (
+                                <div key={num} className="card-hover" style={{ background: "rgba(255,255,255,0.04)", border: `1px solid rgba(255,255,255,0.08)`, borderRadius: 16, padding: "20px 12px", transition: "all 0.3s", cursor: "default" }}>
+                                    <div style={{ fontSize: 28 }}>{icon}</div>
+                                    <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 28, fontWeight: 900, color: clr }}>Kelas {num}</div>
+                                    <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 12, fontFamily: "'Source Sans 3',sans-serif", marginTop: 4 }}>{label}</div>
+                                    <div style={{ color: clr, fontSize: 12, fontWeight: 700, marginTop: 4, fontFamily: "'Source Sans 3',sans-serif" }}>{sub}</div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <button className="btn-main" onClick={startQuiz} style={{ background: "linear-gradient(135deg,#e85d26 0%,#f59e0b 100%)", border: "none", borderRadius: 16, color: "#fff", padding: "18px 56px", fontSize: 20, fontWeight: 700, cursor: "pointer", transition: "all 0.25s", fontFamily: "'Playfair Display',serif", letterSpacing: "0.5px", boxShadow: "0 8px 32px rgba(232,93,38,0.4)" }}>
+                            Mulai Quiz IPS →
+                        </button>
+                    </div>
+                    <MusicPlayer />
+                </div>
+            );
+
+            // === QUIZ ===
+            if (phase === "quiz") {
+                const kinfo = KELAS_INFO[q.kelas];
+                const prog = ((current + 1) / QUESTIONS.length) * 100;
+                const answered = Object.keys(answers).length;
+
+                return (
+                    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg,#0d0d1a 0%,#1a0d08 60%,#0a100d 100%)", padding: "24px 16px 100px", fontFamily: "'Source Sans 3',Georgia,sans-serif" }}>
+                        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                    <span style={{ background: kinfo.color, color: "#fff", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>{kinfo.label}</span>
+                                    <span style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.6)", borderRadius: 8, padding: "4px 10px", fontSize: 12 }}>{q.topik}</span>
+                                </div>
+                                <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 13 }}>{answered}/{QUESTIONS.length} dijawab</span>
+                            </div>
+
+                            <div style={{ background: "rgba(255,255,255,0.07)", borderRadius: 99, height: 6, marginBottom: 24 }}>
+                                <div style={{ width: `${prog}%`, height: "100%", borderRadius: 99, background: `linear-gradient(90deg,${kinfo.color},#f59e0b)`, transition: "width 0.4s ease" }} />
+                            </div>
+
+                            <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "32px 28px", marginBottom: 16 }}>
+                                <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 13, marginBottom: 12, fontWeight: 600, letterSpacing: 1 }}>SOAL {current + 1} / 50</div>
+                                <p style={{ color: "#fff", fontSize: "clamp(15px,2.5vw,18px)", lineHeight: 1.7, margin: "0 0 28px", fontFamily: "'Playfair Display',serif" }}>{q.soal}</p>
+
+                                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                                    {q.pilihan.map((p, i) => {
+                                        const isCorrect = i === q.jawaban;
+                                        const isSelected = selected === i;
+                                        const revealed = selected !== null;
+                                        let bg = "rgba(255,255,255,0.04)";
+                                        let border = "1px solid rgba(255,255,255,0.1)";
+                                        let txtColor = "rgba(255,255,255,0.8)";
+                                        if (revealed) {
+                                            if (isCorrect) { bg = "rgba(16,185,129,0.15)"; border = "1px solid #10b981"; txtColor = "#6ee7b7"; }
+                                            else if (isSelected) { bg = "rgba(239,68,68,0.15)"; border = "1px solid #ef4444"; txtColor = "#fca5a5"; }
+                                        }
+                                        return (
+                                            <div key={i} className={revealed ? "" : "opt"} onClick={() => handleSelect(i)}
+                                                style={{ background: bg, border, borderRadius: 12, padding: "14px 18px", display: "flex", alignItems: "flex-start", gap: 12, cursor: revealed ? "default" : "pointer" }}>
+                                                <span style={{ minWidth: 28, height: 28, borderRadius: "50%", background: revealed && isCorrect ? "#10b981" : revealed && isSelected ? "#ef4444" : "rgba(255,255,255,0.1)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
+                                                    {revealed && isCorrect ? "✓" : revealed && isSelected && !isCorrect ? "✗" : String.fromCharCode(65 + i)}
+                                                </span>
+                                                <span style={{ color: txtColor, fontSize: 15, lineHeight: 1.5, paddingTop: 2 }}>{p}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {showPembahasan && (
+                                <div style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.25)", borderRadius: 16, padding: "20px 22px", marginBottom: 16 }}>
+                                    <div style={{ color: "#f59e0b", fontWeight: 700, fontSize: 13, marginBottom: 8, letterSpacing: 0.5 }}>💡 PEMBAHASAN</div>
+                                    <p style={{ color: "rgba(255,255,255,0.8)", fontSize: 14, lineHeight: 1.7, margin: 0 }}>{q.pembahasan}</p>
+                                </div>
+                            )}
+
+                            <div style={{ display: "flex", gap: 12, justifyContent: "space-between" }}>
+                                <button className="btn-nav" onClick={prev} disabled={current === 0}
+                                    style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 12, color: current === 0 ? "rgba(255,255,255,0.2)" : "#fff", padding: "13px 24px", fontSize: 15, fontWeight: 600, cursor: current === 0 ? "not-allowed" : "pointer", transition: "all 0.2s", fontFamily: "inherit" }}>
+                                    ← Sebelumnya
+                                </button>
+                                {selected !== null && (
+                                    <button className="btn-nav" onClick={next}
+                                        style={{ background: current === QUESTIONS.length - 1 ? "linear-gradient(135deg,#6b3fa0,#e85d26)" : "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: "13px 28px", fontSize: 15, fontWeight: 700, cursor: "pointer", transition: "all 0.2s", fontFamily: "inherit", boxShadow: "0 4px 20px rgba(232,93,38,0.3)" }}>
+                                        {current === QUESTIONS.length - 1 ? "🏁 Lihat Hasil" : "Selanjutnya →"}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        <MusicPlayer />
+                    </div>
+                );
+            }
+
+            // === RESULT ===
+            if (phase === "result") {
+                const byKelas = [7, 8, 9].map(k => {
+                    const qs = QUESTIONS.filter((_, i) => QUESTIONS[i].kelas === k);
+                    const correct = qs.filter((q2) => {
+                        const globalIdx = QUESTIONS.indexOf(q2);
+                        return answers[globalIdx] === q2.jawaban;
+                    }).length;
+                    return { kelas: k, total: qs.length, correct };
+                });
+
+                if (reviewMode) {
+                    const reviewQ = QUESTIONS[reviewIdx];
+                    const kinfo = KELAS_INFO[reviewQ.kelas];
+                    const userAns = answers[reviewIdx];
+                    const isCorrect = userAns === reviewQ.jawaban;
+                    return (
+                        <div style={{ minHeight: "100vh", background: "linear-gradient(160deg,#0d0d1a,#1a0d08)", padding: "24px 16px 100px", fontFamily: "'Source Sans 3',sans-serif" }}>
+                            <div style={{ maxWidth: 720, margin: "0 auto" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+                                    <button onClick={() => setReviewMode(false)} style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, color: "#fff", padding: "8px 16px", cursor: "pointer", fontSize: 14, fontFamily: "inherit" }}>← Kembali</button>
+                                    <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 14 }}>Review Soal {reviewIdx + 1} / 50</span>
+                                </div>
+
+                                <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "28px", marginBottom: 16 }}>
+                                    <p style={{ color: "#fff", fontSize: 17, lineHeight: 1.7, fontFamily: "'Playfair Display',serif", marginBottom: 24 }}>{reviewQ.soal}</p>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                                        {reviewQ.pilihan.map((p, i) => {
+                                            const isAns = i === reviewQ.jawaban;
+                                            const isUser = userAns === i;
+                                            let bg = "rgba(255,255,255,0.03)", border = "1px solid rgba(255,255,255,0.08)", clr = "rgba(255,255,255,0.6)";
+                                            if (isAns) { bg = "rgba(16,185,129,0.12)"; border = "1px solid #10b981"; clr = "#6ee7b7"; }
+                                            else if (isUser) { bg = "rgba(239,68,68,0.12)"; border = "1px solid #ef4444"; clr = "#fca5a5"; }
+                                            return (
+                                                <div key={i} style={{ background: bg, border, borderRadius: 12, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}>
+                                                    <span style={{ minWidth: 26, height: 26, borderRadius: "50%", background: isAns ? "#10b981" : isUser ? "#ef4444" : "rgba(255,255,255,0.08)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
+                                                        {isAns ? "✓" : isUser ? "✗" : String.fromCharCode(65 + i)}
+                                                    </span>
+                                                    <span style={{ color: clr, fontSize: 14 }}>{p}</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                                <div style={{ display: "flex", gap: 12 }}>
+                                    <button onClick={() => setReviewIdx(i => Math.max(0, i - 1))} disabled={reviewIdx === 0} style={{ flex: 1, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: "#fff", padding: 13, cursor: "pointer" }}>← Prev</button>
+                                    <button onClick={() => setReviewIdx(i => Math.min(49, i + 1))} disabled={reviewIdx === 49} style={{ flex: 1, background: "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: 13, cursor: "pointer", fontWeight: 700 }}>Next →</button>
+                                </div>
+                            </div>
+                            <MusicPlayer />
+                        </div>
+                    );
+                }
+
+                return (
+                    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg,#0d0d1a,#1a0d08,#0a100d)", padding: "40px 16px 100px", fontFamily: "'Source Sans 3',sans-serif" }}>
+                        <div style={{ maxWidth: 680, margin: "0 auto", textAlign: "center" }}>
+                            <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(28px,5vw,48px)", color: "#fff", margin: "0 0 8px" }}>Hasil Quiz IPS</h2>
+                            <div style={{ fontSize: "clamp(48px,10vw,80px)", fontWeight: 900, fontFamily: "'Playfair Display',serif", color: grade.color, lineHeight: 1 }}>{pct}%</div>
+                            <div style={{ color: grade.color, fontSize: 20, fontWeight: 700, margin: "8px 0 4px" }}>{grade.label}</div>
+                            <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: 36 }}>{score} dari {QUESTIONS.length} soal benar</p>
+
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 32 }}>
+                                {byKelas.map(({ kelas, total, correct }) => {
+                                    const kinfo = KELAS_INFO[kelas];
+                                    const p = Math.round((correct / total) * 100);
+                                    return (
+                                        <div key={kelas} style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${kinfo.color}33`, borderRadius: 16, padding: "18px 12px" }}>
+                                            <div style={{ color: kinfo.color, fontWeight: 900, fontFamily: "'Playfair Display',serif", fontSize: 28 }}>{p}%</div>
+                                            <div style={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>Kelas {kelas}</div>
+                                            <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>{correct}/{total} benar</div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+                                <button onClick={() => { setReviewIdx(0); setReviewMode(true); }}
+                                    style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 12, color: "#fff", padding: "13px 24px", cursor: "pointer", fontSize: 15, fontWeight: 600 }}>
+                                    📖 Review Soal
+                                </button>
+                                <button onClick={startQuiz}
+                                    style={{ background: "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: "13px 28px", cursor: "pointer", fontSize: 15, fontWeight: 700 }}>
+                                    🔄 Ulangi Quiz
+                                </button>
+                            </div>
+                        </div>
+                        <MusicPlayer />
+                    </div>
+                );
+            }
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<QuizUjianSekolahIPS />);
+    </script>
+</body>
+</html>
