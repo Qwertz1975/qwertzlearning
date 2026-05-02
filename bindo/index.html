@@ -1,828 +1,852 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Bahasa Indonesia - MehanGG</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            background: #0d0d1a;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0d0d1a; }
+        ::-webkit-scrollbar-thumb { background: #e85d26; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
 
-const QUESTIONS = [
-  // ===== KELAS 7: DONGENG, FABEL, CERPEN =====
-  {
-    id: 1, kelas: 7, topik: "Struktur Dongeng",
-    soal: "Bagian struktur dongeng yang berisi pengenalan karakter, latar, dan awal cerita disebut...",
-    pilihan: ["Komplikasi", "Orientasi", "Reorientasi", "Koda"],
-    jawaban: 1,
-    pembahasan: "Orientasi adalah bagian pembuka yang memperkenalkan karakter, latar tempat, waktu, dan suasana cerita."
-  },
-  {
-    id: 2, kelas: 7, topik: "Karakter & Fabel",
-    soal: "Dalam fabel, seekor rubah mendapatkan makanan milik burung gagak dengan cara memuji suara gagak hingga gagak membuka paruhnya. Sifat rubah dalam istilah sastra disebut...",
-    pilihan: ["Cerdas dan kreatif", "Pemberani", "Licik", "Bijaksana"],
-    jawaban: 2,
-    pembahasan: "🔑 Kunci: Jika kecerdasan digunakan untuk MERUGIKAN pihak lain, dalam bahasa sastra selalu disebut KELICIKAN, bukan kecerdasan."
-  },
-  {
-    id: 3, kelas: 7, topik: "Konflik Cerita",
-    soal: "Dalam cerita fabel, Kucing dan Anjing berkelahi memperebutkan tulang. Jenis konflik yang paling tepat menggambarkan situasi ini adalah...",
-    pilihan: ["Konflik karena saling membenci", "Konflik perebutan hak/kepemilikan", "Konflik manusia dengan alam", "Konflik batin diri sendiri"],
-    jawaban: 1,
-    pembahasan: "🔑 Pola Konflik: Selalu cari 'siapa yang merasa memiliki apa'. Konflik fabel biasanya bukan soal benci, melainkan PEREBUTAN HAK."
-  },
-  {
-    id: 4, kelas: 7, topik: "Simbolisme Sastra",
-    soal: "Dalam puisi 'Matahari masih bersinar meski tangismu tak berhenti', kata 'Matahari' paling tepat melambangkan...",
-    pilihan: ["Benda langit yang memberi panas", "Cuaca panas dan terik", "Harapan yang terus ada meski ada kesedihan", "Musim kemarau yang menyiksa"],
-    jawaban: 2,
-    pembahasan: "🔑 Simbolisme: 'Matahari' dalam sastra jarang berarti benda langit. Ia adalah kode untuk HARAPAN atau roda kehidupan yang terus berputar."
-  },
-  {
-    id: 5, kelas: 7, topik: "Struktur Dongeng",
-    soal: "Bagian akhir dongeng yang berisi simpulan cerita dan pesan moral secara eksplisit disebut...",
-    pilihan: ["Orientasi", "Komplikasi", "Reorientasi", "Koda"],
-    jawaban: 3,
-    pembahasan: "Koda adalah bagian penutup yang berisi simpulan dan pesan moral yang disampaikan secara langsung oleh penulis."
-  },
-  {
-    id: 6, kelas: 7, topik: "Alur Cerita",
-    soal: "Cerita dimulai dari tokoh yang sudah tua, lalu menceritakan masa mudanya. Jenis alur ini disebut...",
-    pilihan: ["Alur maju", "Alur mundur", "Alur campuran", "Alur melingkar"],
-    jawaban: 1,
-    pembahasan: "Alur mundur (flashback) adalah alur yang dimulai dari masa kini kemudian menceritakan kejadian di masa lalu."
-  },
-  {
-    id: 7, kelas: 7, topik: "Unsur Intrinsik",
-    soal: "Unsur intrinsik yang menentukan dari posisi mana penulis menyampaikan cerita (orang pertama/ketiga) disebut...",
-    pilihan: ["Tema", "Amanat", "Sudut Pandang", "Penokohan"],
-    jawaban: 2,
-    pembahasan: "Sudut pandang (point of view) mengatur posisi pencerita: orang pertama (aku), orang ketiga (ia/dia), atau serba tahu."
-  },
-  {
-    id: 8, kelas: 7, topik: "Penokohan",
-    soal: "'Meski hidup miskin, Pak Hasan tidak pernah berbohong. Setiap barang temuan selalu dikembalikan ke pemiliknya.' Teknik penggambaran tokoh ini adalah...",
-    pilihan: ["Teknik Analitik (langsung)", "Teknik Dramatik (tidak langsung)", "Teknik Sudut Pandang", "Teknik Dialog"],
-    jawaban: 1,
-    pembahasan: "Teknik dramatik menggambarkan watak tokoh melalui TINDAKAN, bukan pernyataan langsung dari penulis."
-  },
-  {
-    id: 9, kelas: 7, topik: "Unsur Ekstrinsik",
-    soal: "Unsur yang berasal dari LUAR karya sastra tetapi memengaruhi isi karya tersebut disebut...",
-    pilihan: ["Unsur intrinsik", "Unsur ekstrinsik", "Unsur struktural", "Unsur naratif"],
-    jawaban: 1,
-    pembahasan: "Unsur ekstrinsik adalah unsur dari luar karya sastra, meliputi latar sosial, moral, budaya, dan kondisi pengarang."
-  },
-  {
-    id: 10, kelas: 7, topik: "Latar Cerita",
-    soal: "Kalimat 'Suasana mencekam menyelimuti desa sejak matahari terbenam' menggambarkan latar...",
-    pilihan: ["Latar tempat", "Latar waktu", "Latar suasana", "Latar sosial"],
-    jawaban: 2,
-    pembahasan: "Latar suasana menggambarkan kondisi emosional atau atmosfer dalam cerita, bukan lokasi atau waktu."
-  },
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
 
-  // ===== KELAS 7: FAKTA, BERITA, SURAT =====
-  {
-    id: 11, kelas: 7, topik: "Fakta vs Opini",
-    soal: "Manakah kalimat yang merupakan FAKTA murni dalam sebuah berita?",
-    pilihan: [
-      "Gempa ini sangat mengerikan bagi warga setempat",
-      "Semoga para korban segera mendapatkan pertolongan",
-      "Gempa berkekuatan 6,2 SR terjadi pukul 03.45 WIB di Cianjur",
-      "Kejadian ini merupakan musibah yang amat menyedihkan"
-    ],
-    jawaban: 2,
-    pembahasan: "🔑 Filter Fakta: Cari ANGKA, JAM (WIB), dan NAMA TEMPAT. Kata 'sangat', 'mengerikan', 'semoga' adalah opini yang menyamar."
-  },
-  {
-    id: 12, kelas: 7, topik: "Fakta vs Opini",
-    soal: "Kata atau frasa berikut yang menjadi penanda OPINI dalam sebuah berita adalah...",
-    pilihan: ["Pukul 14.00 WIB", "Di Jalan Sudirman No. 5", "'Sangat' dan 'semoga'", "150 korban jiwa"],
-    jawaban: 2,
-    pembahasan: "Kata 'sangat', 'semoga', 'mengerikan' adalah penanda opini karena mengandung subjektivitas penulis."
-  },
-  {
-    id: 13, kelas: 7, topik: "Surat Resmi",
-    soal: "Penulisan tempat dan tanggal pada surat resmi yang BENAR adalah...",
-    pilihan: [
-      "Jakarta 1 Januari 2025",
-      "Jakarta, 1 Januari 2025",
-      "Jakarta: 1 Januari 2025",
-      "Jakarta - 1 Januari 2025"
-    ],
-    jawaban: 1,
-    pembahasan: "🔑 Tanda baca adalah harga mati: Dalam surat resmi, KOMA setelah nama kota adalah wajib. 'Jakarta, 1 Januari 2025'"
-  },
-  {
-    id: 14, kelas: 7, topik: "Surat Resmi",
-    soal: "Kop surat dalam surat resmi berfungsi sebagai...",
-    pilihan: [
-      "Tempat menulis nomor dan tanggal surat",
-      "Identitas resmi lembaga/instansi pengirim",
-      "Bagian penutup surat resmi",
-      "Tempat tanda tangan pejabat"
-    ],
-    jawaban: 1,
-    pembahasan: "🔑 Hierarki Surat: Kop surat adalah 'wajah' instansi. Logo dan alamat lengkap di paling atas = identitas lembaga."
-  },
-  {
-    id: 15, kelas: 7, topik: "Struktur Berita",
-    soal: "Bagian terpenting dalam berita yang memuat pokok informasi (5W+1H) secara ringkas disebut...",
-    pilihan: ["Judul berita", "Teras berita (lead)", "Isi berita", "Penutup berita"],
-    jawaban: 1,
-    pembahasan: "Teras berita (lead) adalah bagian pembuka yang memuat inti berita: Who, What, When, Where, Why, How."
-  },
-  {
-    id: 16, kelas: 7, topik: "Surat Resmi",
-    soal: "Surat yang menggunakan bahasa baku, memiliki kop surat, nomor surat, dan cap/stempel resmi adalah jenis...",
-    pilihan: ["Surat pribadi", "Surat tidak resmi", "Surat resmi/dinas", "Surat elektronik"],
-    jawaban: 2,
-    pembahasan: "Surat resmi/dinas memiliki ciri: kop surat, nomor surat, bahasa baku, dan cap stempel instansi."
-  },
-  {
-    id: 17, kelas: 7, topik: "Konflik Batin",
-    soal: "Konflik batin dalam cerpen ditandai oleh...",
-    pilihan: [
-      "Pertengkaran fisik antara dua tokoh",
-      "Tokoh yang berhadapan dengan bencana alam",
-      "Perasaan ragu, bimbang, atau gelisah dalam diri tokoh sendiri",
-      "Dialog panjang antara tokoh utama dan tokoh pembantu"
-    ],
-    jawaban: 2,
-    pembahasan: "Konflik batin (internal conflict) terjadi di dalam diri tokoh itu sendiri, bukan dengan pihak luar."
-  },
-  {
-    id: 18, kelas: 7, topik: "Latar Cerita",
-    soal: "Kalimat mana yang menunjukkan latar TEMPAT dalam sebuah cerpen?",
-    pilihan: [
-      "Saat fajar mulai menyingsing",
-      "Di tepi sungai Musi yang berair deras",
-      "Suasana haru menyelimuti seluruh ruangan",
-      "Tahun 1965 yang penuh gejolak"
-    ],
-    jawaban: 1,
-    pembahasan: "Latar tempat merujuk pada lokasi fisik kejadian. 'Di tepi sungai Musi' adalah nama tempat yang spesifik."
-  },
-  {
-    id: 19, kelas: 7, topik: "Reorientasi",
-    soal: "Bagian struktur dongeng yang berisi puncak penyelesaian masalah (resolusi) disebut...",
-    pilihan: ["Orientasi", "Komplikasi", "Reorientasi", "Koda"],
-    jawaban: 2,
-    pembahasan: "Reorientasi adalah bagian penyelesaian masalah, puncak dari rangkaian konflik dalam cerita."
-  },
-  {
-    id: 20, kelas: 7, topik: "Amanat",
-    soal: "Pesan moral yang ingin disampaikan pengarang kepada pembaca melalui sebuah karya sastra disebut...",
-    pilihan: ["Tema", "Alur", "Amanat", "Latar"],
-    jawaban: 2,
-    pembahasan: "Amanat adalah pesan moral atau pelajaran hidup yang ingin disampaikan pengarang, bisa tersurat atau tersirat."
-  },
+        const QUESTIONS = [
+            // ===== KELAS 7: DONGENG, FABEL, CERPEN =====
+            {
+                id: 1, kelas: 7, topik: "Struktur Dongeng",
+                soal: "Bagian struktur dongeng yang berisi pengenalan karakter, latar, dan awal cerita disebut...",
+                pilihan: ["Komplikasi", "Orientasi", "Reorientasi", "Koda"],
+                jawaban: 1,
+                pembahasan: "Orientasi adalah bagian pembuka yang memperkenalkan karakter, latar tempat, waktu, dan suasana cerita."
+            },
+            {
+                id: 2, kelas: 7, topik: "Karakter & Fabel",
+                soal: "Dalam fabel, seekor rubah mendapatkan makanan milik burung gagak dengan cara memuji suara gagak hingga gagak membuka paruhnya. Sifat rubah dalam istilah sastra disebut...",
+                pilihan: ["Cerdas dan kreatif", "Pemberani", "Licik", "Bijaksana"],
+                jawaban: 2,
+                pembahasan: "🔑 Kunci: Jika kecerdasan digunakan untuk MERUGIKAN pihak lain, dalam bahasa sastra selalu disebut KELICIKAN, bukan kecerdasan."
+            },
+            {
+                id: 3, kelas: 7, topik: "Konflik Cerita",
+                soal: "Dalam cerita fabel, Kucing dan Anjing berkelahi memperebutkan tulang. Jenis konflik yang paling tepat menggambarkan situasi ini adalah...",
+                pilihan: ["Konflik karena saling membenci", "Konflik perebutan hak/kepemilikan", "Konflik manusia dengan alam", "Konflik batin diri sendiri"],
+                jawaban: 1,
+                pembahasan: "🔑 Pola Konflik: Selalu cari 'siapa yang merasa memiliki apa'. Konflik fabel biasanya bukan soal benci, melainkan PEREBUTAN HAK."
+            },
+            {
+                id: 4, kelas: 7, topik: "Simbolisme Sastra",
+                soal: "Dalam puisi 'Matahari masih bersinar meski tangismu tak berhenti', kata 'Matahari' paling tepat melambangkan...",
+                pilihan: ["Benda langit yang memberi panas", "Cuaca panas dan terik", "Harapan yang terus ada meski ada kesedihan", "Musim kemarau yang menyiksa"],
+                jawaban: 2,
+                pembahasan: "🔑 Simbolisme: 'Matahari' dalam sastra jarang berarti benda langit. Ia adalah kode untuk HARAPAN atau roda kehidupan yang terus berputar."
+            },
+            {
+                id: 5, kelas: 7, topik: "Struktur Dongeng",
+                soal: "Bagian akhir dongeng yang berisi simpulan cerita dan pesan moral secara eksplisit disebut...",
+                pilihan: ["Orientasi", "Komplikasi", "Reorientasi", "Koda"],
+                jawaban: 3,
+                pembahasan: "Koda adalah bagian penutup yang berisi simpulan dan pesan moral yang disampaikan secara langsung oleh penulis."
+            },
+            {
+                id: 6, kelas: 7, topik: "Alur Cerita",
+                soal: "Cerita dimulai dari tokoh yang sudah tua, lalu menceritakan masa mudanya. Jenis alur ini disebut...",
+                pilihan: ["Alur maju", "Alur mundur", "Alur campuran", "Alur melingkar"],
+                jawaban: 1,
+                pembahasan: "Alur mundur (flashback) adalah alur yang dimulai dari masa kini kemudian menceritakan kejadian di masa lalu."
+            },
+            {
+                id: 7, kelas: 7, topik: "Unsur Intrinsik",
+                soal: "Unsur intrinsik yang menentukan dari posisi mana penulis menyampaikan cerita (orang pertama/ketiga) disebut...",
+                pilihan: ["Tema", "Amanat", "Sudut Pandang", "Penokohan"],
+                jawaban: 2,
+                pembahasan: "Sudut pandang (point of view) mengatur posisi pencerita: orang pertama (aku), orang ketiga (ia/dia), atau serba tahu."
+            },
+            {
+                id: 8, kelas: 7, topik: "Penokohan",
+                soal: "'Meski hidup miskin, Pak Hasan tidak pernah berbohong. Setiap barang temuan selalu dikembalikan ke pemiliknya.' Teknik penggambaran tokoh ini adalah...",
+                pilihan: ["Teknik Analitik (langsung)", "Teknik Dramatik (tidak langsung)", "Teknik Sudut Pandang", "Teknik Dialog"],
+                jawaban: 1,
+                pembahasan: "Teknik dramatik menggambarkan watak tokoh melalui TINDAKAN, bukan pernyataan langsung dari penulis."
+            },
+            {
+                id: 9, kelas: 7, topik: "Unsur Ekstrinsik",
+                soal: "Unsur yang berasal dari LUAR karya sastra tetapi memengaruhi isi karya tersebut disebut...",
+                pilihan: ["Unsur intrinsik", "Unsur ekstrinsik", "Unsur struktural", "Unsur naratif"],
+                jawaban: 1,
+                pembahasan: "Unsur ekstrinsik adalah unsur dari luar karya sastra, meliputi latar sosial, moral, budaya, dan kondisi pengarang."
+            },
+            {
+                id: 10, kelas: 7, topik: "Latar Cerita",
+                soal: "Kalimat 'Suasana mencekam menyelimuti desa sejak matahari terbenam' menggambarkan latar...",
+                pilihan: ["Latar tempat", "Latar waktu", "Latar suasana", "Latar sosial"],
+                jawaban: 2,
+                pembahasan: "Latar suasana menggambarkan kondisi emosional atau atmosfer dalam cerita, bukan lokasi atau waktu."
+            },
 
-  // ===== KELAS 8: TEKS OBSERVASI & KEBAHASAAN =====
-  {
-    id: 21, kelas: 8, topik: "Teks Observasi",
-    soal: "Kalimat utama dalam teks observasi umumnya terletak di...",
-    pilihan: [
-      "Selalu di tengah paragraf",
-      "Selalu di akhir paragraf saja",
-      "Di awal atau akhir paragraf (deduktif/induktif)",
-      "Di mana saja secara acak"
-    ],
-    jawaban: 2,
-    pembahasan: "Kalimat utama bisa di awal (paragraf deduktif) atau di akhir (paragraf induktif). Kalimat penjelas mendukung kalimat utama."
-  },
-  {
-    id: 22, kelas: 8, topik: "Verba Relasional",
-    soal: "Manakah di bawah ini yang termasuk VERBA RELASIONAL?",
-    pilihan: ["Berlari", "Memukul", "Adalah", "Menulis"],
-    jawaban: 2,
-    pembahasan: "🔑 Verba Relasional berfungsi seperti tanda '='. Jika kata tersebut bisa diganti dengan 'adalah' atau 'ialah', itu verba relasional."
-  },
-  {
-    id: 23, kelas: 8, topik: "Verba Relasional",
-    soal: "Cara termudah mengenali verba relasional dalam sebuah kalimat adalah...",
-    pilihan: [
-      "Kata tersebut menyatakan kegiatan fisik",
-      "Kata tersebut bisa diganti dengan 'adalah' atau 'ialah'",
-      "Kata tersebut selalu diikuti objek langsung",
-      "Kata tersebut hanya muncul di teks ilmiah"
-    ],
-    jawaban: 1,
-    pembahasan: "🔑 Tes mudah: Jika kamu bisa mengganti kata kerja tersebut dengan 'adalah' dan kalimatnya tetap masuk akal = verba relasional."
-  },
-  {
-    id: 24, kelas: 8, topik: "Kausalitas",
-    soal: "'Hujan terjadi karena air menguap ke atmosfer, mengembun, lalu turun kembali.' Kata yang menunjukkan hubungan SEBAB-AKIBAT adalah...",
-    pilihan: ["Terjadi", "Menguap", "Karena", "Mengembun"],
-    jawaban: 2,
-    pembahasan: "🔑 Kausalitas: Kata 'karena', 'akibatnya', 'sehingga' adalah penanda sebab-akibat. Fenomena alam adalah RANTAI KEJADIAN, bukan sihir."
-  },
-  {
-    id: 25, kelas: 8, topik: "Poster & Iklan",
-    soal: "Kalimat poster yang baik dan efektif harus bersifat...",
-    pilihan: [
-      "Panjang, mendetail, dan penuh data",
-      "Singkat, padat, dan persuasif/menarik perhatian",
-      "Menggunakan istilah ilmiah yang kompleks",
-      "Formal dan penuh tanda baca"
-    ],
-    jawaban: 1,
-    pembahasan: "Kalimat poster harus singkat dan mudah diingat karena poster dibaca sekilas. Efektif = singkat + menarik + persuasif."
-  },
-  {
-    id: 26, kelas: 8, topik: "Poster & Slogan",
-    soal: "Perbedaan utama antara slogan dan iklan adalah...",
-    pilihan: [
-      "Slogan lebih panjang dari iklan",
-      "Slogan menekankan prinsip/moto, iklan menawarkan produk/jasa",
-      "Iklan tidak pernah menggunakan gambar",
-      "Keduanya tidak memiliki perbedaan"
-    ],
-    jawaban: 1,
-    pembahasan: "Slogan = kalimat pendek berisi prinsip/semboyan (misal: 'Bersih itu Sehat'). Iklan = mempromosikan produk/jasa tertentu."
-  },
-  {
-    id: 27, kelas: 8, topik: "Aspek Kebahasaan",
-    soal: "Kalimat 'Buanglah sampah pada tempatnya!' dalam poster menggunakan gaya bahasa...",
-    pilihan: ["Integratif", "Persuasif", "Imperatif", "Informatif"],
-    jawaban: 2,
-    pembahasan: "Imperatif = kalimat perintah (ditandai '!'). Persuasif = ajakan halus. Informatif = menyampaikan informasi."
-  },
-  {
-    id: 28, kelas: 8, topik: "Pidato Persuasif",
-    soal: "Ciri khas pidato PERSUASIF yang membedakannya dari pidato informatif terletak pada...",
-    pilihan: [
-      "Selalu menggunakan banyak data dan angka statistik",
-      "Adanya 'panggilan untuk bertindak' (call to action) di bagian akhir",
-      "Bahasa yang sangat formal dan kaku",
-      "Harus disampaikan oleh pejabat pemerintah"
-    ],
-    jawaban: 1,
-    pembahasan: "🔑 Strategi Pidato: Rahasianya ada di bagian AKHIR. Pidato persuasif SELALU memiliki 'panggilan untuk bertindak'. Jika tidak ada ajakan = hanya informatif."
-  },
-  {
-    id: 29, kelas: 8, topik: "Teks Observasi",
-    soal: "Aspek kebahasaan dalam teks observasi/laporan yang PALING UTAMA adalah...",
-    pilihan: [
-      "Rima dan irama yang indah",
-      "Verba relasional, kata definisi (yaitu, adalah, merupakan)",
-      "Dialog tokoh yang menarik",
-      "Pantun dan ungkapan"
-    ],
-    jawaban: 1,
-    pembahasan: "Teks observasi menggunakan: verba relasional (adalah/merupakan), kata kerja material, dan kata perluasan (yaitu, yakni)."
-  },
-  {
-    id: 30, kelas: 8, topik: "Unsur Fisik Puisi",
-    soal: "Unsur fisik puisi yang berkaitan dengan pemilihan kata yang tepat, indah, dan bermakna disebut...",
-    pilihan: ["Imaji", "Rima", "Diksi", "Ritme"],
-    jawaban: 2,
-    pembahasan: "Diksi = pilihan kata. Dalam puisi, diksi sangat penting karena setiap kata dipilih secara cermat untuk efek estetika dan makna."
-  },
+            // ===== KELAS 7: FAKTA, BERITA, SURAT =====
+            {
+                id: 11, kelas: 7, topik: "Fakta vs Opini",
+                soal: "Manakah kalimat yang merupakan FAKTA murni dalam sebuah berita?",
+                pilihan: [
+                    "Gempa ini sangat mengerikan bagi warga setempat",
+                    "Semoga para korban segera mendapatkan pertolongan",
+                    "Gempa berkekuatan 6,2 SR terjadi pukul 03.45 WIB di Cianjur",
+                    "Kejadian ini merupakan musibah yang amat menyedihkan"
+                ],
+                jawaban: 2,
+                pembahasan: "🔑 Filter Fakta: Cari ANGKA, JAM (WIB), dan NAMA TEMPAT. Kata 'sangat', 'mengerikan', 'semoga' adalah opini yang menyamar."
+            },
+            {
+                id: 12, kelas: 7, topik: "Fakta vs Opini",
+                soal: "Kata atau frasa berikut yang menjadi penanda OPINI dalam sebuah berita adalah...",
+                pilihan: ["Pukul 14.00 WIB", "Di Jalan Sudirman No. 5", "'Sangat' dan 'semoga'", "150 korban jiwa"],
+                jawaban: 2,
+                pembahasan: "Kata 'sangat', 'semoga', 'mengerikan' adalah penanda opini karena mengandung subjektivitas penulis."
+            },
+            {
+                id: 13, kelas: 7, topik: "Surat Resmi",
+                soal: "Penulisan tempat dan tanggal pada surat resmi yang BENAR adalah...",
+                pilihan: [
+                    "Jakarta 1 Januari 2025",
+                    "Jakarta, 1 Januari 2025",
+                    "Jakarta: 1 Januari 2025",
+                    "Jakarta - 1 Januari 2025"
+                ],
+                jawaban: 1,
+                pembahasan: "🔑 Tanda baca adalah harga mati: Dalam surat resmi, KOMA setelah nama kota adalah wajib. 'Jakarta, 1 Januari 2025'"
+            },
+            {
+                id: 14, kelas: 7, topik: "Surat Resmi",
+                soal: "Kop surat dalam surat resmi berfungsi sebagai...",
+                pilihan: [
+                    "Tempat menulis nomor dan tanggal surat",
+                    "Identitas resmi lembaga/instansi pengirim",
+                    "Bagian penutup surat resmi",
+                    "Tempat tanda tangan pejabat"
+                ],
+                jawaban: 1,
+                pembahasan: "🔑 Hierarki Surat: Kop surat adalah 'wajah' instansi. Logo dan alamat lengkap di paling atas = identitas lembaga."
+            },
+            {
+                id: 15, kelas: 7, topik: "Struktur Berita",
+                soal: "Bagian terpenting dalam berita yang memuat pokok informasi (5W+1H) secara ringkas disebut...",
+                pilihan: ["Judul berita", "Teras berita (lead)", "Isi berita", "Penutup berita"],
+                jawaban: 1,
+                pembahasan: "Teras berita (lead) adalah bagian pembuka yang memuat inti berita: Who, What, When, Where, Why, How."
+            },
+            {
+                id: 16, kelas: 7, topik: "Surat Resmi",
+                soal: "Surat yang menggunakan bahasa baku, memiliki kop surat, nomor surat, dan cap/stempel resmi adalah jenis...",
+                pilihan: ["Surat pribadi", "Surat tidak resmi", "Surat resmi/dinas", "Surat elektronik"],
+                jawaban: 2,
+                pembahasan: "Surat resmi/dinas memiliki ciri: kop surat, nomor surat, bahasa baku, dan cap stempel instansi."
+            },
+            {
+                id: 17, kelas: 7, topik: "Konflik Batin",
+                soal: "Konflik batin dalam cerpen ditandai oleh...",
+                pilihan: [
+                    "Pertengkaran fisik antara dua tokoh",
+                    "Tokoh yang berhadapan dengan bencana alam",
+                    "Perasaan ragu, bimbang, atau gelisah dalam diri tokoh sendiri",
+                    "Dialog panjang antara tokoh utama dan tokoh pembantu"
+                ],
+                jawaban: 2,
+                pembahasan: "Konflik batin (internal conflict) terjadi di dalam diri tokoh itu sendiri, bukan dengan pihak luar."
+            },
+            {
+                id: 18, kelas: 7, topik: "Latar Cerita",
+                soal: "Kalimat mana yang menunjukkan latar TEMPAT dalam sebuah cerpen?",
+                pilihan: [
+                    "Saat fajar mulai menyingsing",
+                    "Di tepi sungai Musi yang berair deras",
+                    "Suasana haru menyelimuti seluruh ruangan",
+                    "Tahun 1965 yang penuh gejolak"
+                ],
+                jawaban: 1,
+                pembahasan: "Latar tempat merujuk pada lokasi fisik kejadian. 'Di tepi sungai Musi' adalah nama tempat yang spesifik."
+            },
+            {
+                id: 19, kelas: 7, topik: "Reorientasi",
+                soal: "Bagian struktur dongeng yang berisi puncak penyelesaian masalah (resolusi) disebut...",
+                pilihan: ["Orientasi", "Komplikasi", "Reorientasi", "Koda"],
+                jawaban: 2,
+                pembahasan: "Reorientasi adalah bagian penyelesaian masalah, puncak dari rangkaian konflik dalam cerita."
+            },
+            {
+                id: 20, kelas: 7, topik: "Amanat",
+                soal: "Pesan moral yang ingin disampaikan pengarang kepada pembaca melalui sebuah karya sastra disebut...",
+                pilihan: ["Tema", "Alur", "Amanat", "Latar"],
+                jawaban: 2,
+                pembahasan: "Amanat adalah pesan moral atau pelajaran hidup yang ingin disampaikan pengarang, bisa tersurat atau tersirat."
+            },
 
-  // ===== KELAS 8: PUISI, PIDATO, ARTIKEL =====
-  {
-    id: 31, kelas: 8, topik: "Imaji Puisi",
-    soal: "'Kurasakan angin sepoi menyentuh lembut kulitku di tepi pantai.' Kalimat ini mengandung imaji...",
-    pilihan: ["Imaji visual (penglihatan)", "Imaji auditori (pendengaran)", "Imaji taktil (perabaan/sentuhan)", "Imaji olfaktori (penciuman)"],
-    jawaban: 2,
-    pembahasan: "Imaji taktil berkaitan dengan indra PERABAAN. 'Menyentuh lembut kulitku' = sensasi sentuhan = imaji taktil."
-  },
-  {
-    id: 32, kelas: 8, topik: "Artikel Ilmiah Populer",
-    soal: "Artikel ilmiah populer berbeda dari artikel ilmiah biasa karena...",
-    pilihan: [
-      "Tidak memerlukan data pendukung sama sekali",
-      "Menggunakan bahasa yang lebih mudah dipahami masyarakat umum",
-      "Tidak perlu mencantumkan referensi atau sumber",
-      "Selalu lebih pendek dari artikel ilmiah biasa"
-    ],
-    jawaban: 1,
-    pembahasan: "Artikel ilmiah populer tetap berbasis data/penelitian, tetapi bahasanya disederhanakan agar bisa dipahami pembaca awam."
-  },
-  {
-    id: 33, kelas: 8, topik: "Resensi",
-    soal: "Dalam resensi, kalimat 'Alur ceritanya menyegarkan mata dan sangat lekat dengan keseharian' menunjukkan...",
-    pilihan: ["Kelemahan buku yang ditutupi", "Keunggulan buku yang disampaikan", "Sinopsis atau ringkasan cerita", "Identitas buku"],
-    jawaban: 1,
-    pembahasan: "🔑 Strategi Resensi: Frasa seperti 'menyegarkan', 'lekat dengan keseharian' = pujian = KEUNGGULAN. Kata 'namun/sayangnya' = masuk wilayah KELEMAHAN."
-  },
-  {
-    id: 34, kelas: 8, topik: "Resensi",
-    soal: "Kalimat 'Namun, terdapat beberapa bagian cerita yang terasa bertele-tele dan membosankan' dalam resensi menunjukkan...",
-    pilihan: ["Keunggulan buku", "Kelemahan buku", "Saran untuk pembaca", "Sinopsis cerita"],
-    jawaban: 1,
-    pembahasan: "🔑 Sinyal Kelemahan: Jika kalimat menggunakan kata 'namun', 'sayangnya', 'terlalu', atau 'kurang' = kamu sudah masuk wilayah KELEMAHAN."
-  },
-  {
-    id: 35, kelas: 8, topik: "Pidato",
-    soal: "Pidato yang bertujuan menyampaikan informasi tanpa mengajak pendengar untuk berbuat sesuatu disebut pidato...",
-    pilihan: ["Persuasif", "Reaktif", "Informatif", "Imperatif"],
-    jawaban: 2,
-    pembahasan: "Pidato informatif hanya menyampaikan informasi/pengetahuan. Tidak ada 'call to action' di bagian akhir."
-  },
+            // ===== KELAS 8: TEKS OBSERVASI & KEBAHASAAN =====
+            {
+                id: 21, kelas: 8, topik: "Teks Observasi",
+                soal: "Kalimat utama dalam teks observasi umumnya terletak di...",
+                pilihan: [
+                    "Selalu di tengah paragraf",
+                    "Selalu di akhir paragraf saja",
+                    "Di awal atau akhir paragraf (deduktif/induktif)",
+                    "Di mana saja secara acak"
+                ],
+                jawaban: 2,
+                pembahasan: "Kalimat utama bisa di awal (paragraf deduktif) atau di akhir (paragraf induktif). Kalimat penjelas mendukung kalimat utama."
+            },
+            {
+                id: 22, kelas: 8, topik: "Verba Relasional",
+                soal: "Manakah di bawah ini yang termasuk VERBA RELASIONAL?",
+                pilihan: ["Berlari", "Memukul", "Adalah", "Menulis"],
+                jawaban: 2,
+                pembahasan: "🔑 Verba Relasional berfungsi seperti tanda '='. Jika kata tersebut bisa diganti dengan 'adalah' atau 'ialah', itu verba relasional."
+            },
+            {
+                id: 23, kelas: 8, topik: "Verba Relasional",
+                soal: "Cara termudah mengenali verba relasional dalam sebuah kalimat adalah...",
+                pilihan: [
+                    "Kata tersebut menyatakan kegiatan fisik",
+                    "Kata tersebut bisa diganti dengan 'adalah' atau 'ialah'",
+                    "Kata tersebut selalu diikuti objek langsung",
+                    "Kata tersebut hanya muncul di teks ilmiah"
+                ],
+                jawaban: 1,
+                pembahasan: "🔑 Tes mudah: Jika kamu bisa mengganti kata kerja tersebut dengan 'adalah' dan kalimatnya tetap masuk akal = verba relasional."
+            },
+            {
+                id: 24, kelas: 8, topik: "Kausalitas",
+                soal: "'Hujan terjadi karena air menguap ke atmosfer, mengembun, lalu turun kembali.' Kata yang menunjukkan hubungan SEBAB-AKIBAT adalah...",
+                pilihan: ["Terjadi", "Menguap", "Karena", "Mengembun"],
+                jawaban: 2,
+                pembahasan: "🔑 Kausalitas: Kata 'karena', 'akibatnya', 'sehingga' adalah penanda sebab-akibat. Fenomena alam adalah RANTAI KEJADIAN, bukan sihir."
+            },
+            {
+                id: 25, kelas: 8, topik: "Poster & Iklan",
+                soal: "Kalimat poster yang baik dan efektif harus bersifat...",
+                pilihan: [
+                    "Panjang, mendetail, dan penuh data",
+                    "Singkat, padat, dan persuasif/menarik perhatian",
+                    "Menggunakan istilah ilmiah yang kompleks",
+                    "Formal dan penuh tanda baca"
+                ],
+                jawaban: 1,
+                pembahasan: "Kalimat poster harus singkat dan mudah diingat karena poster dibaca sekilas. Efektif = singkat + menarik + persuasif."
+            },
+            {
+                id: 26, kelas: 8, topik: "Poster & Slogan",
+                soal: "Perbedaan utama antara slogan dan iklan adalah...",
+                pilihan: [
+                    "Slogan lebih panjang dari iklan",
+                    "Slogan menekankan prinsip/moto, iklan menawarkan produk/jasa",
+                    "Iklan tidak pernah menggunakan gambar",
+                    "Keduanya tidak memiliki perbedaan"
+                ],
+                jawaban: 1,
+                pembahasan: "Slogan = kalimat pendek berisi prinsip/semboyan (misal: 'Bersih itu Sehat'). Iklan = mempromosikan produk/jasa tertentu."
+            },
+            {
+                id: 27, kelas: 8, topik: "Aspek Kebahasaan",
+                soal: "Kalimat 'Buanglah sampah pada tempatnya!' dalam poster menggunakan gaya bahasa...",
+                pilihan: ["Integratif", "Persuasif", "Imperatif", "Informatif"],
+                jawaban: 2,
+                pembahasan: "Imperatif = kalimat perintah (ditandai '!'). Persuasif = ajakan halus. Informatif = menyampaikan informasi."
+            },
+            {
+                id: 28, kelas: 8, topik: "Pidato Persuasif",
+                soal: "Ciri khas pidato PERSUASIF yang membedakannya dari pidato informatif terletak pada...",
+                pilihan: [
+                    "Selalu menggunakan banyak data dan angka statistik",
+                    "Adanya 'panggilan untuk bertindak' (call to action) di bagian akhir",
+                    "Bahasa yang sangat formal dan kaku",
+                    "Harus disampaikan oleh pejabat pemerintah"
+                ],
+                jawaban: 1,
+                pembahasan: "🔑 Strategi Pidato: Rahasianya ada di bagian AKHIR. Pidato persuasif SELALU memiliki 'panggilan untuk bertindak'. Jika tidak ada ajakan = hanya informatif."
+            },
+            {
+                id: 29, kelas: 8, topik: "Teks Observasi",
+                soal: "Aspek kebahasaan dalam teks observasi/laporan yang PALING UTAMA adalah...",
+                pilihan: [
+                    "Rima dan irama yang indah",
+                    "Verba relasional, kata definisi (yaitu, adalah, merupakan)",
+                    "Dialog tokoh yang menarik",
+                    "Pantun dan ungkapan"
+                ],
+                jawaban: 1,
+                pembahasan: "Teks observasi menggunakan: verba relasional (adalah/merupakan), kata kerja material, dan kata perluasan (yaitu, yakni)."
+            },
+            {
+                id: 30, kelas: 8, topik: "Unsur Fisik Puisi",
+                soal: "Unsur fisik puisi yang berkaitan dengan pemilihan kata yang tepat, indah, dan bermakna disebut...",
+                pilihan: ["Imaji", "Rima", "Diksi", "Ritme"],
+                jawaban: 2,
+                pembahasan: "Diksi = pilihan kata. Dalam puisi, diksi sangat penting karena setiap kata dipilih secara cermat untuk efek estetika dan makna."
+            },
 
-  // ===== KELAS 9: PROSEDUR, EKSPLANASI, KATA SERAPAN =====
-  {
-    id: 36, kelas: 9, topik: "Teks Prosedur",
-    soal: "Dalam mengurutkan langkah prosedur yang teracak, langkah pertama yang harus dicari adalah...",
-    pilihan: [
-      "Langkah yang paling mudah dilakukan",
-      "Langkah yang paling menarik dibaca",
-      "Kata kerja perintah yang paling awal dilakukan secara fisik",
-      "Langkah yang paling akhir dikerjakan"
-    ],
-    jawaban: 2,
-    pembahasan: "🔑 Logika Prosedur: Cari kata kerja PERINTAH yang paling awal secara fisik (misal: memasang baterai/membuka penutup = langkah pertama)."
-  },
-  {
-    id: 37, kelas: 9, topik: "Data & Tabel",
-    soal: "Data tabel: Penjualan 2022 = 300 unit, 2023 = 500 unit, 2024 = 750 unit. Interpretasi yang TEPAT adalah...",
-    pilihan: [
-      "Penjualan cenderung stagnan",
-      "Penjualan mengalami penurunan",
-      "Penjualan terus meningkat setiap tahun",
-      "Penjualan tidak bisa diprediksi"
-    ],
-    jawaban: 2,
-    pembahasan: "🔑 Akurasi Data: Lihat ANGKA TERAKHIR. 300→500→750 = selalu bertambah = 'meningkat'. Jangan terjebak hanya melihat grafik tanpa angka."
-  },
-  {
-    id: 38, kelas: 9, topik: "Teks Eksplanasi",
-    soal: "Ciri khas yang paling membedakan teks eksplanasi dari teks lainnya adalah...",
-    pilihan: [
-      "Mengisahkan perjalanan seseorang secara kronologis",
-      "Menjelaskan PROSES terjadinya suatu fenomena alam/sosial",
-      "Membujuk pembaca untuk melakukan sesuatu",
-      "Mendeskripsikan penampilan fisik seseorang"
-    ],
-    jawaban: 1,
-    pembahasan: "Teks eksplanasi menjelaskan PROSES/MEKANISME terjadinya fenomena. Strukturnya: Pernyataan Umum → Deretan Penjelas → Interpretasi."
-  },
-  {
-    id: 39, kelas: 9, topik: "Kausalitas Eksplanasi",
-    soal: "Kata 'sehingga' dalam teks eksplanasi berfungsi untuk menunjukkan hubungan...",
-    pilihan: ["Perbandingan dua hal", "Akibat dari suatu kejadian", "Urutan waktu", "Tempat kejadian"],
-    jawaban: 1,
-    pembahasan: "Kata 'sehingga' = penanda AKIBAT. Bersama 'karena' (sebab) dan 'akibatnya', ini adalah penanda kausalitas utama."
-  },
-  {
-    id: 40, kelas: 9, topik: "Kata Serapan",
-    soal: "Kata 'manajemen' dalam Bahasa Indonesia merupakan kata serapan dari bahasa...",
-    pilihan: ["Belanda", "Arab", "Inggris (management)", "Portugis"],
-    jawaban: 2,
-    pembahasan: "Kata serapan dari Inggris: manajemen (management), komputer (computer), televisi (television), dan lainnya."
-  },
-  {
-    id: 41, kelas: 9, topik: "Kata Serapan",
-    soal: "Manakah yang merupakan kata serapan dari bahasa ARAB?",
-    pilihan: ["Kabar", "Sepatu", "Meja", "Garpu"],
-    jawaban: 0,
-    pembahasan: "Kata serapan dari Arab: kabar, ilmu, akal, maaf, kitab, zakat. Sepatu (Portugis), Meja (Portugis), Garpu (Portugis)."
-  },
-  {
-    id: 42, kelas: 9, topik: "Kata Serapan",
-    soal: "Kata 'polisi' dalam Bahasa Indonesia berasal dari bahasa...",
-    pilihan: ["Inggris (police)", "Belanda (politie)", "Arab", "Portugis"],
-    jawaban: 1,
-    pembahasan: "Kata serapan dari Belanda: polisi (politie), gratis (gratis), wortel (wortel), bangku (bank). Belanda pernah menjajah Indonesia 350 tahun."
-  },
-  {
-    id: 43, kelas: 9, topik: "Struktur Eksplanasi",
-    soal: "Struktur teks eksplanasi yang BENAR dan berurutan adalah...",
-    pilihan: [
-      "Orientasi → Komplikasi → Resolusi",
-      "Pernyataan Umum → Deretan Penjelas → Interpretasi",
-      "Pembukaan → Isi → Penutup",
-      "Tesis → Argumentasi → Penegasan ulang"
-    ],
-    jawaban: 1,
-    pembahasan: "Teks eksplanasi: (1) Pernyataan Umum = pengenalan fenomena, (2) Deretan Penjelas = urutan proses, (3) Interpretasi = simpulan/makna."
-  },
-  {
-    id: 44, kelas: 9, topik: "Teks Deskripsi",
-    soal: "Tujuan utama teks deskripsi adalah...",
-    pilihan: [
-      "Meyakinkan pembaca untuk setuju dengan pendapat penulis",
-      "Menceritakan urutan kejadian secara kronologis",
-      "Menggambarkan objek secara rinci sehingga pembaca seolah melihat/merasakan langsung",
-      "Menjelaskan proses terjadinya suatu fenomena"
-    ],
-    jawaban: 2,
-    pembahasan: "Teks deskripsi bertujuan membuat pembaca SEOLAH-OLAH mengalami sendiri objek yang dideskripsikan melalui penggunaan indra."
-  },
-  {
-    id: 45, kelas: 9, topik: "Resensi/Rekon",
-    soal: "Komponen LENGKAP yang harus ada dalam resensi buku yang baik adalah...",
-    pilihan: [
-      "Hanya sinopsis cerita saja",
-      "Identitas buku, sinopsis, keunggulan, kelemahan, dan rekomendasi",
-      "Hanya kritik dan kelemahan buku",
-      "Hanya pujian terhadap buku"
-    ],
-    jawaban: 1,
-    pembahasan: "Resensi yang lengkap: Identitas buku + Sinopsis singkat + Keunggulan + Kelemahan + Rekomendasi (layak/tidak layak baca)."
-  },
+            // ===== KELAS 8: PUISI, PIDATO, ARTIKEL =====
+            {
+                id: 31, kelas: 8, topik: "Imaji Puisi",
+                soal: "'Kurasakan angin sepoi menyentuh lembut kulitku di tepi pantai.' Kalimat ini mengandung imaji...",
+                pilihan: ["Imaji visual (penglihatan)", "Imaji auditori (pendengaran)", "Imaji taktil (perabaan/sentuhan)", "Imaji olfaktori (penciuman)"],
+                jawaban: 2,
+                pembahasan: "Imaji taktil berkaitan dengan indra PERABAAN. 'Menyentuh lembut kulitku' = sensasi sentuhan = imaji taktil."
+            },
+            {
+                id: 32, kelas: 8, topik: "Artikel Ilmiah Populer",
+                soal: "Artikel ilmiah populer berbeda dari artikel ilmiah biasa karena...",
+                pilihan: [
+                    "Tidak memerlukan data pendukung sama sekali",
+                    "Menggunakan bahasa yang lebih mudah dipahami masyarakat umum",
+                    "Tidak perlu mencantumkan referensi atau sumber",
+                    "Selalu lebih pendek dari artikel ilmiah biasa"
+                ],
+                jawaban: 1,
+                pembahasan: "Artikel ilmiah populer tetap berbasis data/penelitian, tetapi bahasanya disederhanakan agar bisa dipahami pembaca awam."
+            },
+            {
+                id: 33, kelas: 8, topik: "Resensi",
+                soal: "Dalam resensi, kalimat 'Alur ceritanya menyegarkan mata dan sangat lekat dengan keseharian' menunjukkan...",
+                pilihan: ["Kelemahan buku yang ditutupi", "Keunggulan buku yang disampaikan", "Sinopsis atau ringkasan cerita", "Identitas buku"],
+                jawaban: 1,
+                pembahasan: "🔑 Strategi Resensi: Frasa seperti 'menyegarkan', 'lekat dengan keseharian' = pujian = KEUNGGULAN. Kata 'namun/sayangnya' = masuk wilayah KELEMAHAN."
+            },
+            {
+                id: 34, kelas: 8, topik: "Resensi",
+                soal: "Kalimat 'Namun, terdapat beberapa bagian cerita yang terasa bertele-tele dan membosankan' dalam resensi menunjukkan...",
+                pilihan: ["Keunggulan buku", "Kelemahan buku", "Saran untuk pembaca", "Sinopsis cerita"],
+                jawaban: 1,
+                pembahasan: "🔑 Sinyal Kelemahan: Jika kalimat menggunakan kata 'namun', 'sayangnya', 'terlalu', atau 'kurang' = kamu sudah masuk wilayah KELEMAHAN."
+            },
+            {
+                id: 35, kelas: 8, topik: "Pidato",
+                soal: "Pidato yang bertujuan menyampaikan informasi tanpa mengajak pendengar untuk berbuat sesuatu disebut pidato...",
+                pilihan: ["Persuasif", "Reaktif", "Informatif", "Imperatif"],
+                jawaban: 2,
+                pembahasan: "Pidato informatif hanya menyampaikan informasi/pengetahuan. Tidak ada 'call to action' di bagian akhir."
+            },
 
-  // ===== GABUNGAN & PENERAPAN =====
-  {
-    id: 46, kelas: 8, topik: "Teks Prosedur",
-    soal: "Teks prosedur menggunakan kata kerja jenis apa yang dominan?",
-    pilihan: [
-      "Kata kerja pasif dan deskriptif",
-      "Kata kerja aktif berupa perintah (imperatif)",
-      "Kata kerja relasional",
-      "Kata kerja emosional"
-    ],
-    jawaban: 1,
-    pembahasan: "Teks prosedur menggunakan KATA KERJA IMPERATIF (perintah): masukkan, tekan, tambahkan, aduk, dll. Ini membedakannya dari teks lain."
-  },
-  {
-    id: 47, kelas: 8, topik: "Fakta vs Opini",
-    soal: "Kalimat 'Semoga kejadian ini menjadi pelajaran bagi kita semua' adalah contoh...",
-    pilihan: ["Fakta objektif", "Opini/Pendapat subjektif", "Kalimat deskripsi", "Kalimat eksplanasi"],
-    jawaban: 1,
-    pembahasan: "🔑 Kata 'semoga' adalah PENANDA OPINI. Fakta harus bisa diverifikasi. 'Semoga' adalah harapan = subjektif = opini."
-  },
-  {
-    id: 48, kelas: 9, topik: "Verba Relasional",
-    soal: "Kalimat 'Air adalah senyawa kimia yang terdiri dari hidrogen dan oksigen' menggunakan verba jenis...",
-    pilihan: ["Verba material", "Verba mental", "Verba relasional", "Verba behavioral"],
-    jawaban: 2,
-    pembahasan: "Kata 'adalah' = verba relasional. Kalimat ini menyatakan hubungan definisi antara 'air' dan 'senyawa kimia'."
-  },
-  {
-    id: 49, kelas: 7, topik: "Unsur Fisik Puisi",
-    soal: "Manakah yang termasuk UNSUR FISIK puisi (bukan unsur batin)?",
-    pilihan: ["Amanat", "Tema puisi", "Diksi dan imaji", "Perasaan penyair"],
-    jawaban: 2,
-    pembahasan: "Unsur fisik puisi: diksi, imaji, majas, rima, ritme. Unsur batin puisi: tema, rasa/feeling, nada, amanat."
-  },
-  {
-    id: 50, kelas: 9, topik: "Kesesuaian Isi",
-    soal: "Dalam soal melengkapi berita atau mengisi data, jawaban yang PALING BENAR adalah yang...",
-    pilihan: [
-      "Memiliki bahasa paling bagus dan puitis",
-      "Paling panjang dan mendetail",
-      "Informasinya tidak menambah atau mengurangi data asli",
-      "Mengandung pendapat pribadi penulis"
-    ],
-    jawaban: 2,
-    pembahasan: "🔑 Kunci Kesesuaian: Jawaban benar bukan yang paling bagus bahasanya, tetapi yang INFORMASINYA SESUAI: tidak lebih, tidak kurang dari data asli."
-  }
-];
+            // ===== KELAS 9: PROSEDUR, EKSPLANASI, KATA SERAPAN =====
+            {
+                id: 36, kelas: 9, topik: "Teks Prosedur",
+                soal: "Dalam mengurutkan langkah prosedur yang teracak, langkah pertama yang harus dicari adalah...",
+                pilihan: [
+                    "Langkah yang paling mudah dilakukan",
+                    "Langkah yang paling menarik dibaca",
+                    "Kata kerja perintah yang paling awal dilakukan secara fisik",
+                    "Langkah yang paling akhir dikerjakan"
+                ],
+                jawaban: 2,
+                pembahasan: "🔑 Logika Prosedur: Cari kata kerja PERINTAH yang paling awal secara fisik (misal: memasang baterai/membuka penutup = langkah pertama)."
+            },
+            {
+                id: 37, kelas: 9, topik: "Data & Tabel",
+                soal: "Data tabel: Penjualan 2022 = 300 unit, 2023 = 500 unit, 2024 = 750 unit. Interpretasi yang TEPAT adalah...",
+                pilihan: [
+                    "Penjualan cenderung stagnan",
+                    "Penjualan mengalami penurunan",
+                    "Penjualan terus meningkat setiap tahun",
+                    "Penjualan tidak bisa diprediksi"
+                ],
+                jawaban: 2,
+                pembahasan: "🔑 Akurasi Data: Lihat ANGKA TERAKHIR. 300→500→750 = selalu bertambah = 'meningkat'. Jangan terjebak hanya melihat grafik tanpa angka."
+            },
+            {
+                id: 38, kelas: 9, topik: "Teks Eksplanasi",
+                soal: "Ciri khas yang paling membedakan teks eksplanasi dari teks lainnya adalah...",
+                pilihan: [
+                    "Mengisahkan perjalanan seseorang secara kronologis",
+                    "Menjelaskan PROSES terjadinya suatu fenomena alam/sosial",
+                    "Membujuk pembaca untuk melakukan sesuatu",
+                    "Mendeskripsikan penampilan fisik seseorang"
+                ],
+                jawaban: 1,
+                pembahasan: "Teks eksplanasi menjelaskan PROSES/MEKANISME terjadinya fenomena. Strukturnya: Pernyataan Umum → Deretan Penjelas → Interpretasi."
+            },
+            {
+                id: 39, kelas: 9, topik: "Kausalitas Eksplanasi",
+                soal: "Kata 'sehingga' dalam teks eksplanasi berfungsi untuk menunjukkan hubungan...",
+                pilihan: ["Perbandingan dua hal", "Akibat dari suatu kejadian", "Urutan waktu", "Tempat kejadian"],
+                jawaban: 1,
+                pembahasan: "Kata 'sehingga' = penanda AKIBAT. Bersama 'karena' (sebab) dan 'akibatnya', ini adalah penanda kausalitas utama."
+            },
+            {
+                id: 40, kelas: 9, topik: "Kata Serapan",
+                soal: "Kata 'manajemen' dalam Bahasa Indonesia merupakan kata serapan dari bahasa...",
+                pilihan: ["Belanda", "Arab", "Inggris (management)", "Portugis"],
+                jawaban: 2,
+                pembahasan: "Kata serapan dari Inggris: manajemen (management), komputer (computer), televisi (television), dan lainnya."
+            },
+            {
+                id: 41, kelas: 9, topik: "Kata Serapan",
+                soal: "Manakah yang merupakan kata serapan dari bahasa ARAB?",
+                pilihan: ["Kabar", "Sepatu", "Meja", "Garpu"],
+                jawaban: 0,
+                pembahasan: "Kata serapan dari Arab: kabar, ilmu, akal, maaf, kitab, zakat. Sepatu (Portugis), Meja (Portugis), Garpu (Portugis)."
+            },
+            {
+                id: 42, kelas: 9, topik: "Kata Serapan",
+                soal: "Kata 'polisi' dalam Bahasa Indonesia berasal dari bahasa...",
+                pilihan: ["Inggris (police)", "Belanda (politie)", "Arab", "Portugis"],
+                jawaban: 1,
+                pembahasan: "Kata serapan dari Belanda: polisi (politie), gratis (gratis), wortel (wortel), bangku (bank). Belanda pernah menjajah Indonesia 350 tahun."
+            },
+            {
+                id: 43, kelas: 9, topik: "Struktur Eksplanasi",
+                soal: "Struktur teks eksplanasi yang BENAR dan berurutan adalah...",
+                pilihan: [
+                    "Orientasi → Komplikasi → Resolusi",
+                    "Pernyataan Umum → Deretan Penjelas → Interpretasi",
+                    "Pembukaan → Isi → Penutup",
+                    "Tesis → Argumentasi → Penegasan ulang"
+                ],
+                jawaban: 1,
+                pembahasan: "Teks eksplanasi: (1) Pernyataan Umum = pengenalan fenomena, (2) Deretan Penjelas = urutan proses, (3) Interpretasi = simpulan/makna."
+            },
+            {
+                id: 44, kelas: 9, topik: "Teks Deskripsi",
+                soal: "Tujuan utama teks deskripsi adalah...",
+                pilihan: [
+                    "Meyakinkan pembaca untuk setuju dengan pendapat penulis",
+                    "Menceritakan urutan kejadian secara kronologis",
+                    "Menggambarkan objek secara rinci sehingga pembaca seolah melihat/merasakan langsung",
+                    "Menjelaskan proses terjadinya suatu fenomena"
+                ],
+                jawaban: 2,
+                pembahasan: "Teks deskripsi bertujuan membuat pembaca SEOLAH-OLAH mengalami sendiri objek yang dideskripsikan melalui penggunaan indra."
+            },
+            {
+                id: 45, kelas: 9, topik: "Resensi/Rekon",
+                soal: "Komponen LENGKAP yang harus ada dalam resensi buku yang baik adalah...",
+                pilihan: [
+                    "Hanya sinopsis cerita saja",
+                    "Identitas buku, sinopsis, keunggulan, kelemahan, dan rekomendasi",
+                    "Hanya kritik dan kelemahan buku",
+                    "Hanya pujian terhadap buku"
+                ],
+                jawaban: 1,
+                pembahasan: "Resensi yang lengkap: Identitas buku + Sinopsis singkat + Keunggulan + Kelemahan + Rekomendasi (layak/tidak layak baca)."
+            },
 
-const KELAS_INFO = { 7: { color: "#e85d26", label: "Kelas 7" }, 8: { color: "#1a7a5e", label: "Kelas 8" }, 9: { color: "#6b3fa0", label: "Kelas 9" } };
+            // ===== GABUNGAN & PENERAPAN =====
+            {
+                id: 46, kelas: 8, topik: "Teks Prosedur",
+                soal: "Teks prosedur menggunakan kata kerja jenis apa yang dominan?",
+                pilihan: [
+                    "Kata kerja pasif dan deskriptif",
+                    "Kata kerja aktif berupa perintah (imperatif)",
+                    "Kata kerja relasional",
+                    "Kata kerja emosional"
+                ],
+                jawaban: 1,
+                pembahasan: "Teks prosedur menggunakan KATA KERJA IMPERATIF (perintah): masukkan, tekan, tambahkan, aduk, dll. Ini membedakannya dari teks lain."
+            },
+            {
+                id: 47, kelas: 8, topik: "Fakta vs Opini",
+                soal: "Kalimat 'Semoga kejadian ini menjadi pelajaran bagi kita semua' adalah contoh...",
+                pilihan: ["Fakta objektif", "Opini/Pendapat subjektif", "Kalimat deskripsi", "Kalimat eksplanasi"],
+                jawaban: 1,
+                pembahasan: "🔑 Kata 'semoga' adalah PENANDA OPINI. Fakta harus bisa diverifikasi. 'Semoga' adalah harapan = subjektif = opini."
+            },
+            {
+                id: 48, kelas: 9, topik: "Verba Relasional",
+                soal: "Kalimat 'Air adalah senyawa kimia yang terdiri dari hidrogen dan oksigen' menggunakan verba jenis...",
+                pilihan: ["Verba material", "Verba mental", "Verba relasional", "Verba behavioral"],
+                jawaban: 2,
+                pembahasan: "Kata 'adalah' = verba relasional. Kalimat ini menyatakan hubungan definisi antara 'air' dan 'senyawa kimia'."
+            },
+            {
+                id: 49, kelas: 7, topik: "Unsur Fisik Puisi",
+                soal: "Manakah yang termasuk UNSUR FISIK puisi (bukan unsur batin)?",
+                pilihan: ["Amanat", "Tema puisi", "Diksi dan imaji", "Perasaan penyair"],
+                jawaban: 2,
+                pembahasan: "Unsur fisik puisi: diksi, imaji, majas, rima, ritme. Unsur batin puisi: tema, rasa/feeling, nada, amanat."
+            },
+            {
+                id: 50, kelas: 9, topik: "Kesesuaian Isi",
+                soal: "Dalam soal melengkapi berita atau mengisi data, jawaban yang PALING BENAR adalah yang...",
+                pilihan: [
+                    "Memiliki bahasa paling bagus dan puitis",
+                    "Paling panjang dan mendetail",
+                    "Informasinya tidak menambah atau mengurangi data asli",
+                    "Mengandung pendapat pribadi penulis"
+                ],
+                jawaban: 2,
+                pembahasan: "🔑 Kunci Kesesuaian: Jawaban benar bukan yang paling bagus bahasanya, tetapi yang INFORMASINYA SESUAI: tidak lebih, tidak kurang dari data asli."
+            }
+        ];
 
-export default function QuizBahasaIndonesia() {
-  const [phase, setPhase] = useState("home"); // home | quiz | result
-  const [current, setCurrent] = useState(0);
-  const [selected, setSelected] = useState(null);
-  const [answers, setAnswers] = useState({});
-  const [showPembahasan, setShowPembahasan] = useState(false);
-  const [music, setMusic] = useState(null);
-  const [musicName, setMusicName] = useState("");
-  const [playing, setPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.5);
-  const [reviewMode, setReviewMode] = useState(false);
-  const [reviewIdx, setReviewIdx] = useState(0);
-  const audioRef = useRef(null);
-  const fileInputRef = useRef(null);
+        const KELAS_INFO = { 7: { color: "#e85d26", label: "Kelas 7" }, 8: { color: "#1a7a5e", label: "Kelas 8" }, 9: { color: "#6b3fa0", label: "Kelas 9" } };
 
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume;
-    }
-  }, [volume]);
+        function QuizBahasaIndonesia() {
+            const [phase, setPhase] = useState("home"); 
+            const [current, setCurrent] = useState(0);
+            const [selected, setSelected] = useState(null);
+            const [answers, setAnswers] = useState({});
+            const [showPembahasan, setShowPembahasan] = useState(false);
+            const [music, setMusic] = useState(null);
+            const [musicName, setMusicName] = useState("");
+            const [playing, setPlaying] = useState(false);
+            const [volume, setVolume] = useState(0.5);
+            const [reviewMode, setReviewMode] = useState(false);
+            const [reviewIdx, setReviewIdx] = useState(0);
+            const audioRef = useRef(null);
+            const fileInputRef = useRef(null);
 
-  const handleMusicUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    setMusic(url);
-    setMusicName(file.name);
-    setPlaying(false);
-  };
-
-  const togglePlay = () => {
-    if (!audioRef.current) return;
-    if (playing) { audioRef.current.pause(); } else { audioRef.current.play(); }
-    setPlaying(!playing);
-  };
-
-  const q = QUESTIONS[current];
-
-  const handleSelect = (i) => {
-    if (selected !== null) return;
-    setSelected(i);
-    setAnswers(prev => ({ ...prev, [current]: i }));
-    setShowPembahasan(true);
-  };
-
-  const next = () => {
-    setSelected(null);
-    setShowPembahasan(false);
-    if (current < QUESTIONS.length - 1) { setCurrent(c => c + 1); }
-    else { setPhase("result"); }
-  };
-
-  const prev = () => {
-    if (current > 0) {
-      setSelected(answers[current - 1] ?? null);
-      setShowPembahasan(answers[current - 1] !== undefined);
-      setCurrent(c => c - 1);
-    }
-  };
-
-  const startQuiz = () => {
-    setCurrent(0); setSelected(null); setAnswers({}); setShowPembahasan(false); setPhase("quiz");
-  };
-
-  const score = Object.entries(answers).filter(([idx, ans]) => QUESTIONS[parseInt(idx)].jawaban === ans).length;
-  const pct = Math.round((score / QUESTIONS.length) * 100);
-
-  const grade = pct >= 90 ? { label: "Sempurna! 🏆", color: "#f59e0b" }
-    : pct >= 80 ? { label: "Sangat Baik! 🌟", color: "#10b981" }
-    : pct >= 70 ? { label: "Baik! 👍", color: "#3b82f6" }
-    : pct >= 60 ? { label: "Cukup 📚", color: "#8b5cf6" }
-    : { label: "Perlu Belajar Lagi 💪", color: "#ef4444" };
-
-  const MusicPlayer = () => (
-    <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "rgba(10,10,20,0.97)", backdropFilter: "blur(16px)", borderTop: "1px solid rgba(255,255,255,0.08)", padding: "10px 24px", display: "flex", alignItems: "center", gap: 16, zIndex: 100 }}>
-      {music && <audio ref={audioRef} src={music} loop onEnded={() => setPlaying(false)} />}
-      <button onClick={() => fileInputRef.current?.click()} style={{ background: "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 8, color: "#fff", padding: "7px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit" }}>
-        🎵 Upload Musik
-      </button>
-      <input ref={fileInputRef} type="file" accept="audio/*" onChange={handleMusicUpload} style={{ display: "none" }} />
-      {music && (
-        <>
-          <button onClick={togglePlay} style={{ background: playing ? "rgba(232,93,38,0.3)" : "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "50%", width: 36, height: 36, color: "#fff", cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            {playing ? "⏸" : "▶"}
-          </button>
-          <span style={{ color: "rgba(255,255,255,0.6)", fontSize: 12, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{musicName}</span>
-          <input type="range" min={0} max={1} step={0.01} value={volume} onChange={e => setVolume(Number(e.target.value))} style={{ width: 80, accentColor: "#e85d26" }} />
-          <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 11 }}>🔊</span>
-        </>
-      )}
-      {!music && <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 12 }}>Upload file musik untuk menemanimu belajar ✨</span>}
-    </div>
-  );
-
-  // === HOME ===
-  if (phase === "home") return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(145deg,#0d0d1a 0%,#1a0a05 50%,#0a1a0d 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 20px 80px", fontFamily: "'Georgia', serif" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600&display=swap');
-        * { box-sizing: border-box; }
-        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(232,93,38,0.3) !important; }
-        .btn-main:hover { transform: scale(1.03); filter: brightness(1.1); }
-        .opt:hover { background: rgba(255,255,255,0.08) !important; border-color: rgba(255,255,255,0.3) !important; }
-      `}</style>
-
-      {/* Decorative circles */}
-      <div style={{ position: "fixed", top: -100, right: -100, width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(232,93,38,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
-      <div style={{ position: "fixed", bottom: -80, left: -80, width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(26,122,94,0.1) 0%, transparent 70%)", pointerEvents: "none" }} />
-
-      <div style={{ textAlign: "center", maxWidth: 680 }}>
-        <div style={{ fontSize: 64, marginBottom: 8 }}>📖</div>
-        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(36px,6vw,64px)", fontWeight: 900, color: "#fff", margin: "0 0 8px", lineHeight: 1.1, letterSpacing: "-1px" }}>
-          Quiz Bahasa
-          <span style={{ display: "block", background: "linear-gradient(90deg,#e85d26,#f59e0b)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Indonesia</span>
-        </h1>
-        <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 16, fontFamily: "'Source Sans 3',sans-serif", marginBottom: 40 }}>50 Soal Pilihan Ganda · Kelas 7 – 9 · Dengan Kunci & Pembahasan</p>
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, marginBottom: 40 }}>
-          {[
-            { icon: "📚", num: "7", label: "Dongeng & Fabel", clr: "#e85d26", sub: "20 soal" },
-            { icon: "🗞️", num: "8", label: "Observasi & Pidato", clr: "#1a7a5e", sub: "15 soal" },
-            { icon: "🔬", num: "9", label: "Eksplanasi & Resensi", clr: "#6b3fa0", sub: "15 soal" }
-          ].map(({ icon, num, label, clr, sub }) => (
-            <div key={num} className="card-hover" style={{ background: "rgba(255,255,255,0.04)", border: `1px solid rgba(255,255,255,0.08)`, borderRadius: 16, padding: "20px 12px", transition: "all 0.3s", cursor: "default" }}>
-              <div style={{ fontSize: 28 }}>{icon}</div>
-              <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 28, fontWeight: 900, color: clr }}>Kelas {num}</div>
-              <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 12, fontFamily: "'Source Sans 3',sans-serif", marginTop: 4 }}>{label}</div>
-              <div style={{ color: clr, fontSize: 12, fontWeight: 700, marginTop: 4, fontFamily: "'Source Sans 3',sans-serif" }}>{sub}</div>
-            </div>
-          ))}
-        </div>
-
-        <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "20px 24px", marginBottom: 40, textAlign: "left" }}>
-          <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 14, fontFamily: "'Source Sans 3',sans-serif", margin: 0, lineHeight: 1.7 }}>
-            💡 <strong style={{ color: "#f59e0b" }}>Tips:</strong> Setiap soal dilengkapi <strong>pembahasan rahasia</strong> dan kunci logika soal. Setelah memilih jawaban, baca pembahasan untuk memahami pola soal yang sering muncul.
-          </p>
-        </div>
-
-        <button className="btn-main" onClick={startQuiz} style={{ background: "linear-gradient(135deg,#e85d26 0%,#f59e0b 100%)", border: "none", borderRadius: 16, color: "#fff", padding: "18px 56px", fontSize: 20, fontWeight: 700, cursor: "pointer", transition: "all 0.25s", fontFamily: "'Playfair Display',serif", letterSpacing: "0.5px", boxShadow: "0 8px 32px rgba(232,93,38,0.4)" }}>
-          Mulai Quiz →
-        </button>
-      </div>
-      <MusicPlayer />
-    </div>
-  );
-
-  // === QUIZ ===
-  if (phase === "quiz") {
-    const kinfo = KELAS_INFO[q.kelas];
-    const prog = ((current + 1) / QUESTIONS.length) * 100;
-    const answered = Object.keys(answers).length;
-
-    return (
-      <div style={{ minHeight: "100vh", background: "linear-gradient(160deg,#0d0d1a 0%,#1a0d08 60%,#0a100d 100%)", padding: "24px 16px 100px", fontFamily: "'Source Sans 3',Georgia,sans-serif" }}>
-        <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600&display=swap');
-          * { box-sizing: border-box; }
-          .opt { transition: all 0.2s; cursor: pointer; }
-          .opt:hover { background: rgba(255,255,255,0.07) !important; }
-          .btn-nav:hover { filter: brightness(1.15); transform: translateY(-1px); }
-        `}</style>
-
-        <div style={{ maxWidth: 720, margin: "0 auto" }}>
-          {/* Header */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ background: kinfo.color, color: "#fff", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>{kinfo.label}</span>
-              <span style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.6)", borderRadius: 8, padding: "4px 10px", fontSize: 12 }}>{q.topik}</span>
-            </div>
-            <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 13 }}>{answered}/{QUESTIONS.length} dijawab</span>
-          </div>
-
-          {/* Progress Bar */}
-          <div style={{ background: "rgba(255,255,255,0.07)", borderRadius: 99, height: 6, marginBottom: 24 }}>
-            <div style={{ width: `${prog}%`, height: "100%", borderRadius: 99, background: `linear-gradient(90deg,${kinfo.color},#f59e0b)`, transition: "width 0.4s ease" }} />
-          </div>
-
-          {/* Question Card */}
-          <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "32px 28px", marginBottom: 16 }}>
-            <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 13, marginBottom: 12, fontWeight: 600, letterSpacing: 1 }}>SOAL {current + 1} / 50</div>
-            <p style={{ color: "#fff", fontSize: "clamp(15px,2.5vw,18px)", lineHeight: 1.7, margin: "0 0 28px", fontFamily: "'Playfair Display',serif" }}>{q.soal}</p>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {q.pilihan.map((p, i) => {
-                const isCorrect = i === q.jawaban;
-                const isSelected = selected === i;
-                const revealed = selected !== null;
-                let bg = "rgba(255,255,255,0.04)";
-                let border = "1px solid rgba(255,255,255,0.1)";
-                let txtColor = "rgba(255,255,255,0.8)";
-                if (revealed) {
-                  if (isCorrect) { bg = "rgba(16,185,129,0.15)"; border = "1px solid #10b981"; txtColor = "#6ee7b7"; }
-                  else if (isSelected) { bg = "rgba(239,68,68,0.15)"; border = "1px solid #ef4444"; txtColor = "#fca5a5"; }
+            useEffect(() => {
+                if (audioRef.current) {
+                    audioRef.current.volume = volume;
                 }
-                return (
-                  <div key={i} className={revealed ? "" : "opt"} onClick={() => handleSelect(i)}
-                    style={{ background: bg, border, borderRadius: 12, padding: "14px 18px", display: "flex", alignItems: "flex-start", gap: 12, cursor: revealed ? "default" : "pointer" }}>
-                    <span style={{ minWidth: 28, height: 28, borderRadius: "50%", background: revealed && isCorrect ? "#10b981" : revealed && isSelected ? "#ef4444" : "rgba(255,255,255,0.1)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
-                      {revealed && isCorrect ? "✓" : revealed && isSelected && !isCorrect ? "✗" : String.fromCharCode(65 + i)}
-                    </span>
-                    <span style={{ color: txtColor, fontSize: 15, lineHeight: 1.5, paddingTop: 2 }}>{p}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+            }, [volume]);
 
-          {/* Pembahasan */}
-          {showPembahasan && (
-            <div style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.25)", borderRadius: 16, padding: "20px 22px", marginBottom: 16, animation: "fadeIn 0.3s ease" }}>
-              <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}`}</style>
-              <div style={{ color: "#f59e0b", fontWeight: 700, fontSize: 13, marginBottom: 8, letterSpacing: 0.5 }}>💡 PEMBAHASAN</div>
-              <p style={{ color: "rgba(255,255,255,0.8)", fontSize: 14, lineHeight: 1.7, margin: 0 }}>{q.pembahasan}</p>
-            </div>
-          )}
+            const handleMusicUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const url = URL.createObjectURL(file);
+                setMusic(url);
+                setMusicName(file.name);
+                setPlaying(false);
+            };
 
-          {/* Navigation */}
-          <div style={{ display: "flex", gap: 12, justifyContent: "space-between" }}>
-            <button className="btn-nav" onClick={prev} disabled={current === 0}
-              style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 12, color: current === 0 ? "rgba(255,255,255,0.2)" : "#fff", padding: "13px 24px", fontSize: 15, fontWeight: 600, cursor: current === 0 ? "not-allowed" : "pointer", transition: "all 0.2s", fontFamily: "inherit" }}>
-              ← Sebelumnya
-            </button>
-            {selected !== null && (
-              <button className="btn-nav" onClick={next}
-                style={{ background: current === QUESTIONS.length - 1 ? "linear-gradient(135deg,#6b3fa0,#e85d26)" : "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: "13px 28px", fontSize: 15, fontWeight: 700, cursor: "pointer", transition: "all 0.2s", fontFamily: "inherit", boxShadow: "0 4px 20px rgba(232,93,38,0.3)" }}>
-                {current === QUESTIONS.length - 1 ? "🏁 Lihat Hasil" : "Selanjutnya →"}
-              </button>
-            )}
-          </div>
-        </div>
-        <MusicPlayer />
-      </div>
-    );
-  }
+            const togglePlay = () => {
+                if (!audioRef.current) return;
+                if (playing) { audioRef.current.pause(); } else { audioRef.current.play(); }
+                setPlaying(!playing);
+            };
 
-  // === RESULT ===
-  if (phase === "result") {
-    const byKelas = [7, 8, 9].map(k => {
-      const qs = QUESTIONS.filter((_, i) => QUESTIONS[i].kelas === k);
-      const correct = qs.filter((q2, localIdx) => {
-        const globalIdx = QUESTIONS.indexOf(q2);
-        return answers[globalIdx] === q2.jawaban;
-      }).length;
-      return { kelas: k, total: qs.length, correct };
-    });
+            const q = QUESTIONS[current];
 
-    const reviewQ = QUESTIONS[reviewIdx];
+            const handleSelect = (i) => {
+                if (selected !== null) return;
+                setSelected(i);
+                setAnswers(prev => ({ ...prev, [current]: i }));
+                setShowPembahasan(true);
+            };
 
-    if (reviewMode) {
-      const kinfo = KELAS_INFO[reviewQ.kelas];
-      const userAns = answers[reviewIdx];
-      const isCorrect = userAns === reviewQ.jawaban;
-      return (
-        <div style={{ minHeight: "100vh", background: "linear-gradient(160deg,#0d0d1a,#1a0d08)", padding: "24px 16px 100px", fontFamily: "'Source Sans 3',Georgia,sans-serif" }}>
-          <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600&display=swap');*{box-sizing:border-box}`}</style>
-          <div style={{ maxWidth: 720, margin: "0 auto" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-              <button onClick={() => setReviewMode(false)} style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, color: "#fff", padding: "8px 16px", cursor: "pointer", fontSize: 14, fontFamily: "inherit" }}>← Kembali</button>
-              <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 14 }}>Review Soal {reviewIdx + 1} / 50</span>
-              <span style={{ marginLeft: "auto", background: isCorrect ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)", border: `1px solid ${isCorrect ? "#10b981" : "#ef4444"}`, color: isCorrect ? "#6ee7b7" : "#fca5a5", borderRadius: 8, padding: "4px 12px", fontSize: 13, fontWeight: 700 }}>
-                {isCorrect ? "✓ Benar" : "✗ Salah"}
-              </span>
-            </div>
+            const next = () => {
+                setSelected(null);
+                setShowPembahasan(false);
+                if (current < QUESTIONS.length - 1) { setCurrent(c => c + 1); }
+                else { setPhase("result"); }
+            };
 
-            <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "28px", marginBottom: 16 }}>
-              <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-                <span style={{ background: kinfo.color, color: "#fff", borderRadius: 8, padding: "3px 10px", fontSize: 12, fontWeight: 700 }}>{kinfo.label}</span>
-                <span style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", borderRadius: 8, padding: "3px 10px", fontSize: 12 }}>{reviewQ.topik}</span>
-              </div>
-              <p style={{ color: "#fff", fontSize: 17, lineHeight: 1.7, fontFamily: "'Playfair Display',serif", marginBottom: 24 }}>{reviewQ.soal}</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {reviewQ.pilihan.map((p, i) => {
-                  const isAns = i === reviewQ.jawaban;
-                  const isUser = userAns === i;
-                  let bg = "rgba(255,255,255,0.03)", border = "1px solid rgba(255,255,255,0.08)", clr = "rgba(255,255,255,0.6)";
-                  if (isAns) { bg = "rgba(16,185,129,0.12)"; border = "1px solid #10b981"; clr = "#6ee7b7"; }
-                  else if (isUser) { bg = "rgba(239,68,68,0.12)"; border = "1px solid #ef4444"; clr = "#fca5a5"; }
-                  return (
-                    <div key={i} style={{ background: bg, border, borderRadius: 12, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ minWidth: 26, height: 26, borderRadius: "50%", background: isAns ? "#10b981" : isUser ? "#ef4444" : "rgba(255,255,255,0.08)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
-                        {isAns ? "✓" : isUser ? "✗" : String.fromCharCode(65 + i)}
-                      </span>
-                      <span style={{ color: clr, fontSize: 14 }}>{p}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            <div style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.25)", borderRadius: 16, padding: "18px 20px", marginBottom: 20 }}>
-              <div style={{ color: "#f59e0b", fontWeight: 700, fontSize: 12, marginBottom: 6 }}>💡 PEMBAHASAN</div>
-              <p style={{ color: "rgba(255,255,255,0.8)", fontSize: 14, lineHeight: 1.7, margin: 0 }}>{reviewQ.pembahasan}</p>
-            </div>
-            <div style={{ display: "flex", gap: 12 }}>
-              <button onClick={() => setReviewIdx(i => Math.max(0, i - 1))} disabled={reviewIdx === 0} style={{ flex: 1, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: reviewIdx === 0 ? "rgba(255,255,255,0.2)" : "#fff", padding: 13, cursor: reviewIdx === 0 ? "not-allowed" : "pointer", fontFamily: "inherit", fontSize: 14 }}>← Prev</button>
-              <button onClick={() => setReviewIdx(i => Math.min(49, i + 1))} disabled={reviewIdx === 49} style={{ flex: 1, background: "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: 13, cursor: reviewIdx === 49 ? "not-allowed" : "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 700 }}>Next →</button>
-            </div>
-          </div>
-          <MusicPlayer />
-        </div>
-      );
-    }
+            const prev = () => {
+                if (current > 0) {
+                    setSelected(answers[current - 1] ?? null);
+                    setShowPembahasan(answers[current - 1] !== undefined);
+                    setCurrent(c => c - 1);
+                }
+            };
 
-    return (
-      <div style={{ minHeight: "100vh", background: "linear-gradient(160deg,#0d0d1a,#1a0d08,#0a100d)", padding: "40px 16px 100px", fontFamily: "'Source Sans 3',Georgia,sans-serif" }}>
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600&display=swap');*{box-sizing:border-box}.wrong-item:hover{background:rgba(239,68,68,0.1)!important}`}</style>
-        <div style={{ maxWidth: 680, margin: "0 auto", textAlign: "center" }}>
-          <div style={{ fontSize: 72, marginBottom: 8 }}>
-            {pct >= 80 ? "🏆" : pct >= 60 ? "📚" : "💪"}
-          </div>
-          <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(28px,5vw,48px)", color: "#fff", margin: "0 0 8px" }}>Hasil Quiz</h2>
-          <div style={{ fontSize: "clamp(48px,10vw,80px)", fontWeight: 900, fontFamily: "'Playfair Display',serif", color: grade.color, lineHeight: 1 }}>{pct}%</div>
-          <div style={{ color: grade.color, fontSize: 20, fontWeight: 700, margin: "8px 0 4px" }}>{grade.label}</div>
-          <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: 36 }}>{score} dari {QUESTIONS.length} soal benar</p>
+            const startQuiz = () => {
+                setCurrent(0); setSelected(null); setAnswers({}); setShowPembahasan(false); setPhase("quiz");
+            };
 
-          {/* Per-kelas breakdown */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 32 }}>
-            {byKelas.map(({ kelas, total, correct }) => {
-              const kinfo = KELAS_INFO[kelas];
-              const p = Math.round((correct / total) * 100);
-              return (
-                <div key={kelas} style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${kinfo.color}33`, borderRadius: 16, padding: "18px 12px" }}>
-                  <div style={{ color: kinfo.color, fontWeight: 900, fontFamily: "'Playfair Display',serif", fontSize: 28 }}>{p}%</div>
-                  <div style={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>Kelas {kelas}</div>
-                  <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>{correct}/{total} benar</div>
+            const score = Object.entries(answers).filter(([idx, ans]) => QUESTIONS[parseInt(idx)].jawaban === ans).length;
+            const pct = Math.round((score / QUESTIONS.length) * 100);
+
+            const grade = pct >= 90 ? { label: "Sempurna! 🏆", color: "#f59e0b" }
+                : pct >= 80 ? { label: "Sangat Baik! 🌟", color: "#10b981" }
+                : pct >= 70 ? { label: "Baik! 👍", color: "#3b82f6" }
+                : pct >= 60 ? { label: "Cukup 📚", color: "#8b5cf6" }
+                : { label: "Perlu Belajar Lagi 💪", color: "#ef4444" };
+
+            const MusicPlayer = () => (
+                <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "rgba(10,10,20,0.97)", backdropFilter: "blur(16px)", borderTop: "1px solid rgba(255,255,255,0.08)", padding: "10px 24px", display: "flex", alignItems: "center", gap: 16, zIndex: 100 }}>
+                    {music && <audio ref={audioRef} src={music} loop onEnded={() => setPlaying(false)} />}
+                    <button onClick={() => fileInputRef.current?.click()} style={{ background: "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 8, color: "#fff", padding: "7px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit" }}>
+                        🎵 Upload Musik
+                    </button>
+                    <input ref={fileInputRef} type="file" accept="audio/*" onChange={handleMusicUpload} style={{ display: "none" }} />
+                    {music && (
+                        <>
+                            <button onClick={togglePlay} style={{ background: playing ? "rgba(232,93,38,0.3)" : "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "50%", width: 36, height: 36, color: "#fff", cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                {playing ? "⏸" : "▶"}
+                            </button>
+                            <span style={{ color: "rgba(255,255,255,0.6)", fontSize: 12, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{musicName}</span>
+                            <input type="range" min={0} max={1} step={0.01} value={volume} onChange={e => setVolume(Number(e.target.value))} style={{ width: 80, accentColor: "#e85d26" }} />
+                            <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 11 }}>🔊</span>
+                        </>
+                    )}
+                    {!music && <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 12 }}>Upload file musik untuk menemanimu belajar ✨</span>}
                 </div>
-              );
-            })}
-          </div>
+            );
 
-          {/* Wrong answers list */}
-          {Object.entries(answers).filter(([i, a]) => QUESTIONS[parseInt(i)].jawaban !== a).length > 0 && (
-            <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, padding: "20px", marginBottom: 24, textAlign: "left" }}>
-              <div style={{ color: "#ef4444", fontWeight: 700, fontSize: 14, marginBottom: 12 }}>❌ Soal yang Perlu Dipelajari Lagi:</div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {Object.entries(answers).filter(([i, a]) => QUESTIONS[parseInt(i)].jawaban !== a).map(([i]) => (
-                  <button key={i} onClick={() => { setReviewIdx(parseInt(i)); setReviewMode(true); }}
-                    style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 8, color: "#fca5a5", padding: "6px 14px", cursor: "pointer", fontSize: 13, fontFamily: "inherit", fontWeight: 600 }}>
-                    No. {parseInt(i) + 1}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+            // === HOME ===
+            if (phase === "home") return (
+                <div style={{ minHeight: "100vh", background: "linear-gradient(145deg,#0d0d1a 0%,#1a0a05 50%,#0a1a0d 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 20px 80px", fontFamily: "'Georgia', serif" }}>
+                    <style>{`
+                        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600&display=swap');
+                        * { box-sizing: border-box; }
+                        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(232,93,38,0.3) !important; }
+                        .btn-main:hover { transform: scale(1.03); filter: brightness(1.1); }
+                        .opt:hover { background: rgba(255,255,255,0.08) !important; border-color: rgba(255,255,255,0.3) !important; }
+                    `}</style>
 
-          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-            <button onClick={() => { setReviewIdx(0); setReviewMode(true); }}
-              style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 12, color: "#fff", padding: "13px 24px", cursor: "pointer", fontSize: 15, fontFamily: "inherit", fontWeight: 600 }}>
-              📖 Review Semua Soal
-            </button>
-            <button onClick={startQuiz}
-              style={{ background: "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: "13px 28px", cursor: "pointer", fontSize: 15, fontWeight: 700, fontFamily: "inherit", boxShadow: "0 4px 20px rgba(232,93,38,0.35)" }}>
-              🔄 Ulangi Quiz
-            </button>
-          </div>
-        </div>
-        <MusicPlayer />
-      </div>
-    );
-  }
-}
+                    <div style={{ position: "fixed", top: -100, right: -100, width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(232,93,38,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
+                    <div style={{ position: "fixed", bottom: -80, left: -80, width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(26,122,94,0.1) 0%, transparent 70%)", pointerEvents: "none" }} />
+
+                    <div style={{ textAlign: "center", maxWidth: 680 }}>
+                        <div style={{ fontSize: 64, marginBottom: 8 }}>📖</div>
+                        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(36px,6vw,64px)", fontWeight: 900, color: "#fff", margin: "0 0 8px", lineHeight: 1.1, letterSpacing: "-1px" }}>
+                            Quiz Bahasa
+                            <span style={{ display: "block", background: "linear-gradient(90deg,#e85d26,#f59e0b)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Indonesia</span>
+                        </h1>
+                        <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 16, fontFamily: "'Source Sans 3',sans-serif", marginBottom: 40 }}>50 Soal Pilihan Ganda · Kelas 7 – 9 · Dengan Kunci & Pembahasan</p>
+
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, marginBottom: 40 }}>
+                            {[
+                                { icon: "📚", num: "7", label: "Dongeng & Fabel", clr: "#e85d26", sub: "20 soal" },
+                                { icon: "🗞️", num: "8", label: "Observasi & Pidato", clr: "#1a7a5e", sub: "15 soal" },
+                                { icon: "🔬", num: "9", label: "Eksplanasi & Resensi", clr: "#6b3fa0", sub: "15 soal" }
+                            ].map(({ icon, num, label, clr, sub }) => (
+                                <div key={num} className="card-hover" style={{ background: "rgba(255,255,255,0.04)", border: `1px solid rgba(255,255,255,0.08)`, borderRadius: 16, padding: "20px 12px", transition: "all 0.3s", cursor: "default" }}>
+                                    <div style={{ fontSize: 28 }}>{icon}</div>
+                                    <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 28, fontWeight: 900, color: clr }}>Kelas {num}</div>
+                                    <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 12, fontFamily: "'Source Sans 3',sans-serif", marginTop: 4 }}>{label}</div>
+                                    <div style={{ color: clr, fontSize: 12, fontWeight: 700, marginTop: 4, fontFamily: "'Source Sans 3',sans-serif" }}>{sub}</div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "20px 24px", marginBottom: 40, textAlign: "left" }}>
+                            <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 14, fontFamily: "'Source Sans 3',sans-serif", margin: 0, lineHeight: 1.7 }}>
+                                💡 <strong style={{ color: "#f59e0b" }}>Tips:</strong> Setiap soal dilengkapi <strong>pembahasan rahasia</strong> dan kunci logika soal. Setelah memilih jawaban, baca pembahasan untuk memahami pola soal yang sering muncul.
+                            </p>
+                        </div>
+
+                        <button className="btn-main" onClick={startQuiz} style={{ background: "linear-gradient(135deg,#e85d26 0%,#f59e0b 100%)", border: "none", borderRadius: 16, color: "#fff", padding: "18px 56px", fontSize: 20, fontWeight: 700, cursor: "pointer", transition: "all 0.25s", fontFamily: "'Playfair Display',serif", letterSpacing: "0.5px", boxShadow: "0 8px 32px rgba(232,93,38,0.4)" }}>
+                            Mulai Quiz →
+                        </button>
+                    </div>
+                    <MusicPlayer />
+                </div>
+            );
+
+            // === QUIZ ===
+            if (phase === "quiz") {
+                const kinfo = KELAS_INFO[q.kelas];
+                const prog = ((current + 1) / QUESTIONS.length) * 100;
+                const answered = Object.keys(answers).length;
+
+                return (
+                    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg,#0d0d1a 0%,#1a0d08 60%,#0a100d 100%)", padding: "24px 16px 100px", fontFamily: "'Source Sans 3',Georgia,sans-serif" }}>
+                        <style>{`
+                            @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600&display=swap');
+                            * { box-sizing: border-box; }
+                            .opt { transition: all 0.2s; cursor: pointer; }
+                            .opt:hover { background: rgba(255,255,255,0.07) !important; }
+                            .btn-nav:hover { filter: brightness(1.15); transform: translateY(-1px); }
+                        `}</style>
+
+                        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                    <span style={{ background: kinfo.color, color: "#fff", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>{kinfo.label}</span>
+                                    <span style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.6)", borderRadius: 8, padding: "4px 10px", fontSize: 12 }}>{q.topik}</span>
+                                </div>
+                                <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 13 }}>{answered}/{QUESTIONS.length} dijawab</span>
+                            </div>
+
+                            <div style={{ background: "rgba(255,255,255,0.07)", borderRadius: 99, height: 6, marginBottom: 24 }}>
+                                <div style={{ width: `${prog}%`, height: "100%", borderRadius: 99, background: `linear-gradient(90deg,${kinfo.color},#f59e0b)`, transition: "width 0.4s ease" }} />
+                            </div>
+
+                            <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "32px 28px", marginBottom: 16 }}>
+                                <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 13, marginBottom: 12, fontWeight: 600, letterSpacing: 1 }}>SOAL {current + 1} / 50</div>
+                                <p style={{ color: "#fff", fontSize: "clamp(15px,2.5vw,18px)", lineHeight: 1.7, margin: "0 0 28px", fontFamily: "'Playfair Display',serif" }}>{q.soal}</p>
+
+                                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                                    {q.pilihan.map((p, i) => {
+                                        const isCorrect = i === q.jawaban;
+                                        const isSelected = selected === i;
+                                        const revealed = selected !== null;
+                                        let bg = "rgba(255,255,255,0.04)";
+                                        let border = "1px solid rgba(255,255,255,0.1)";
+                                        let txtColor = "rgba(255,255,255,0.8)";
+                                        if (revealed) {
+                                            if (isCorrect) { bg = "rgba(16,185,129,0.15)"; border = "1px solid #10b981"; txtColor = "#6ee7b7"; }
+                                            else if (isSelected) { bg = "rgba(239,68,68,0.15)"; border = "1px solid #ef4444"; txtColor = "#fca5a5"; }
+                                        }
+                                        return (
+                                            <div key={i} className={revealed ? "" : "opt"} onClick={() => handleSelect(i)}
+                                                style={{ background: bg, border, borderRadius: 12, padding: "14px 18px", display: "flex", alignItems: "flex-start", gap: 12, cursor: revealed ? "default" : "pointer" }}>
+                                                <span style={{ minWidth: 28, height: 28, borderRadius: "50%", background: revealed && isCorrect ? "#10b981" : revealed && isSelected ? "#ef4444" : "rgba(255,255,255,0.1)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
+                                                    {revealed && isCorrect ? "✓" : revealed && isSelected && !isCorrect ? "✗" : String.fromCharCode(65 + i)}
+                                                </span>
+                                                <span style={{ color: txtColor, fontSize: 15, lineHeight: 1.5, paddingTop: 2 }}>{p}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {showPembahasan && (
+                                <div style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.25)", borderRadius: 16, padding: "20px 22px", marginBottom: 16, animation: "fadeIn 0.3s ease" }}>
+                                    <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}`}</style>
+                                    <div style={{ color: "#f59e0b", fontWeight: 700, fontSize: 13, marginBottom: 8, letterSpacing: 0.5 }}>💡 PEMBAHASAN</div>
+                                    <p style={{ color: "rgba(255,255,255,0.8)", fontSize: 14, lineHeight: 1.7, margin: 0 }}>{q.pembahasan}</p>
+                                </div>
+                            )}
+
+                            <div style={{ display: "flex", gap: 12, justifyContent: "space-between" }}>
+                                <button className="btn-nav" onClick={prev} disabled={current === 0}
+                                    style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 12, color: current === 0 ? "rgba(255,255,255,0.2)" : "#fff", padding: "13px 24px", fontSize: 15, fontWeight: 600, cursor: current === 0 ? "not-allowed" : "pointer", transition: "all 0.2s", fontFamily: "inherit" }}>
+                                    ← Sebelumnya
+                                </button>
+                                {selected !== null && (
+                                    <button className="btn-nav" onClick={next}
+                                        style={{ background: current === QUESTIONS.length - 1 ? "linear-gradient(135deg,#6b3fa0,#e85d26)" : "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: "13px 28px", fontSize: 15, fontWeight: 700, cursor: "pointer", transition: "all 0.2s", fontFamily: "inherit", boxShadow: "0 4px 20px rgba(232,93,38,0.3)" }}>
+                                        {current === QUESTIONS.length - 1 ? "🏁 Lihat Hasil" : "Selanjutnya →"}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        <MusicPlayer />
+                    </div>
+                );
+            }
+
+            // === RESULT ===
+            if (phase === "result") {
+                const byKelas = [7, 8, 9].map(k => {
+                    const qs = QUESTIONS.filter((_, i) => QUESTIONS[i].kelas === k);
+                    const correct = qs.filter((q2, localIdx) => {
+                        const globalIdx = QUESTIONS.indexOf(q2);
+                        return answers[globalIdx] === q2.jawaban;
+                    }).length;
+                    return { kelas: k, total: qs.length, correct };
+                });
+
+                const reviewQ = QUESTIONS[reviewIdx];
+
+                if (reviewMode) {
+                    const kinfo = KELAS_INFO[reviewQ.kelas];
+                    const userAns = answers[reviewIdx];
+                    const isCorrect = userAns === reviewQ.jawaban;
+                    return (
+                        <div style={{ minHeight: "100vh", background: "linear-gradient(160deg,#0d0d1a,#1a0d08)", padding: "24px 16px 100px", fontFamily: "'Source Sans 3',Georgia,sans-serif" }}>
+                            <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600&display=swap');*{box-sizing:border-box}`}</style>
+                            <div style={{ maxWidth: 720, margin: "0 auto" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+                                    <button onClick={() => setReviewMode(false)} style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, color: "#fff", padding: "8px 16px", cursor: "pointer", fontSize: 14, fontFamily: "inherit" }}>← Kembali</button>
+                                    <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 14 }}>Review Soal {reviewIdx + 1} / 50</span>
+                                    <span style={{ marginLeft: "auto", background: isCorrect ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)", border: `1px solid ${isCorrect ? "#10b981" : "#ef4444"}`, color: isCorrect ? "#6ee7b7" : "#fca5a5", borderRadius: 8, padding: "4px 12px", fontSize: 13, fontWeight: 700 }}>
+                                        {isCorrect ? "✓ Benar" : "✗ Salah"}
+                                    </span>
+                                </div>
+
+                                <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "28px", marginBottom: 16 }}>
+                                    <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+                                        <span style={{ background: kinfo.color, color: "#fff", borderRadius: 8, padding: "3px 10px", fontSize: 12, fontWeight: 700 }}>{kinfo.label}</span>
+                                        <span style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", borderRadius: 8, padding: "3px 10px", fontSize: 12 }}>{reviewQ.topik}</span>
+                                    </div>
+                                    <p style={{ color: "#fff", fontSize: 17, lineHeight: 1.7, fontFamily: "'Playfair Display',serif", marginBottom: 24 }}>{reviewQ.soal}</p>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                                        {reviewQ.pilihan.map((p, i) => {
+                                            const isAns = i === reviewQ.jawaban;
+                                            const isUser = userAns === i;
+                                            let bg = "rgba(255,255,255,0.03)", border = "1px solid rgba(255,255,255,0.08)", clr = "rgba(255,255,255,0.6)";
+                                            if (isAns) { bg = "rgba(16,185,129,0.12)"; border = "1px solid #10b981"; clr = "#6ee7b7"; }
+                                            else if (isUser) { bg = "rgba(239,68,68,0.12)"; border = "1px solid #ef4444"; clr = "#fca5a5"; }
+                                            return (
+                                                <div key={i} style={{ background: bg, border, borderRadius: 12, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}>
+                                                    <span style={{ minWidth: 26, height: 26, borderRadius: "50%", background: isAns ? "#10b981" : isUser ? "#ef4444" : "rgba(255,255,255,0.08)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
+                                                        {isAns ? "✓" : isUser ? "✗" : String.fromCharCode(65 + i)}
+                                                    </span>
+                                                    <span style={{ color: clr, fontSize: 14 }}>{p}</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                                <div style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.25)", borderRadius: 16, padding: "18px 20px", marginBottom: 20 }}>
+                                    <div style={{ color: "#f59e0b", fontWeight: 700, fontSize: 12, marginBottom: 6 }}>💡 PEMBAHASAN</div>
+                                    <p style={{ color: "rgba(255,255,255,0.8)", fontSize: 14, lineHeight: 1.7, margin: 0 }}>{reviewQ.pembahasan}</p>
+                                </div>
+                                <div style={{ display: "flex", gap: 12 }}>
+                                    <button onClick={() => setReviewIdx(i => Math.max(0, i - 1))} disabled={reviewIdx === 0} style={{ flex: 1, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: reviewIdx === 0 ? "rgba(255,255,255,0.2)" : "#fff", padding: 13, cursor: reviewIdx === 0 ? "not-allowed" : "pointer", fontFamily: "inherit", fontSize: 14 }}>← Prev</button>
+                                    <button onClick={() => setReviewIdx(i => Math.min(49, i + 1))} disabled={reviewIdx === 49} style={{ flex: 1, background: "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: 13, cursor: reviewIdx === 49 ? "not-allowed" : "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 700 }}>Next →</button>
+                                </div>
+                            </div>
+                            <MusicPlayer />
+                        </div>
+                    );
+                }
+
+                return (
+                    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg,#0d0d1a,#1a0d08,#0a100d)", padding: "40px 16px 100px", fontFamily: "'Source Sans 3',Georgia,sans-serif" }}>
+                        <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600&display=swap');*{box-sizing:border-box}.wrong-item:hover{background:rgba(239,68,68,0.1)!important}`}</style>
+                        <div style={{ maxWidth: 680, margin: "0 auto", textAlign: "center" }}>
+                            <div style={{ fontSize: 72, marginBottom: 8 }}>
+                                {pct >= 80 ? "🏆" : pct >= 60 ? "📚" : "💪"}
+                            </div>
+                            <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(28px,5vw,48px)", color: "#fff", margin: "0 0 8px" }}>Hasil Quiz</h2>
+                            <div style={{ fontSize: "clamp(48px,10vw,80px)", fontWeight: 900, fontFamily: "'Playfair Display',serif", color: grade.color, lineHeight: 1 }}>{pct}%</div>
+                            <div style={{ color: grade.color, fontSize: 20, fontWeight: 700, margin: "8px 0 4px" }}>{grade.label}</div>
+                            <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: 36 }}>{score} dari {QUESTIONS.length} soal benar</p>
+
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 32 }}>
+                                {byKelas.map(({ kelas, total, correct }) => {
+                                    const kinfo = KELAS_INFO[kelas];
+                                    const p = Math.round((correct / total) * 100);
+                                    return (
+                                        <div key={kelas} style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${kinfo.color}33`, borderRadius: 16, padding: "18px 12px" }}>
+                                            <div style={{ color: kinfo.color, fontWeight: 900, fontFamily: "'Playfair Display',serif", fontSize: 28 }}>{p}%</div>
+                                            <div style={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>Kelas {kelas}</div>
+                                            <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>{correct}/{total} benar</div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            {Object.entries(answers).filter(([i, a]) => QUESTIONS[parseInt(i)].jawaban !== a).length > 0 && (
+                                <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, padding: "20px", marginBottom: 24, textAlign: "left" }}>
+                                    <div style={{ color: "#ef4444", fontWeight: 700, fontSize: 14, marginBottom: 12 }}>❌ Soal yang Perlu Dipelajari Lagi:</div>
+                                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                                        {Object.entries(answers).filter(([i, a]) => QUESTIONS[parseInt(i)].jawaban !== a).map(([i]) => (
+                                            <button key={i} onClick={() => { setReviewIdx(parseInt(i)); setReviewMode(true); }}
+                                                style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 8, color: "#fca5a5", padding: "6px 14px", cursor: "pointer", fontSize: 13, fontFamily: "inherit", fontWeight: 600 }}>
+                                                No. {parseInt(i) + 1}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+                                <button onClick={() => { setReviewIdx(0); setReviewMode(true); }}
+                                    style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 12, color: "#fff", padding: "13px 24px", cursor: "pointer", fontSize: 15, fontFamily: "inherit", fontWeight: 600 }}>
+                                    📖 Review Semua Soal
+                                </button>
+                                <button onClick={startQuiz}
+                                    style={{ background: "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: "13px 28px", cursor: "pointer", fontSize: 15, fontWeight: 700, fontFamily: "inherit", boxShadow: "0 4px 20px rgba(232,93,38,0.35)" }}>
+                                    🔄 Ulangi Quiz
+                                </button>
+                            </div>
+                        </div>
+                        <MusicPlayer />
+                    </div>
+                );
+            }
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<QuizBahasaIndonesia />);
+    </script>
+</body>
+</html>
