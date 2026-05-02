@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
@@ -90,7 +91,6 @@
         
         <!-- Header -->
         <header class="text-center mb-10">
-            <!-- Ditambahkan py-2 dan leading-normal agar tidak terpotong -->
             <h1 class="text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-indigo-400 mb-4 drop-shadow-sm py-2 leading-normal">
                 QwertzLearning
             </h1>
@@ -187,6 +187,16 @@
                     </div>
                 </a>
 
+                <a href="/bindo" class="group relative flex items-center justify-between p-5 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-600/20 border border-emerald-500/30 hover:from-emerald-500/30 hover:to-teal-600/30 transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-emerald-500/20">
+                    <div class="flex flex-col">
+                        <span class="font-semibold text-lg text-emerald-300 group-hover:text-emerald-200 transition-colors">Bahasa Indonesia</span>
+                        <span class="text-xs text-emerald-500/80 mt-1">Siap dikerjakan</span>
+                    </div>
+                    <div class="bg-emerald-500/20 p-2 rounded-full group-hover:bg-emerald-500/40 transition-colors">
+                        <i data-lucide="unlock" class="w-5 h-5 text-emerald-400"></i>
+                    </div>
+                </a>
+
                 <a href="/pjok" class="group relative flex items-center justify-between p-5 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-600/20 border border-emerald-500/30 hover:from-emerald-500/30 hover:to-teal-600/30 transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-emerald-500/20">
                     <div class="flex flex-col">
                         <span class="font-semibold text-lg text-emerald-300 group-hover:text-emerald-200 transition-colors">PJOK</span>
@@ -208,14 +218,6 @@
                 </a>
 
                 <!-- === LOCKED === -->
-                <button onclick="showLockedToast()" class="w-full text-left group relative flex items-center justify-between p-5 rounded-2xl glass border-white/5 hover:bg-white/5 transition-all duration-300 cursor-not-allowed opacity-80">
-                    <div class="flex flex-col">
-                        <span class="font-medium text-lg text-slate-400">Bahasa Indonesia</span>
-                        <span class="text-xs text-slate-500 mt-1">Terkunci</span>
-                    </div>
-                    <i data-lucide="lock" class="w-5 h-5 text-slate-500"></i>
-                </button>
-
                 <button onclick="showLockedToast()" class="w-full text-left group relative flex items-center justify-between p-5 rounded-2xl glass border-white/5 hover:bg-white/5 transition-all duration-300 cursor-not-allowed opacity-80">
                     <div class="flex flex-col">
                         <span class="font-medium text-lg text-slate-400">Matematika</span>
@@ -267,7 +269,7 @@
 
     </main>
 
-    <!-- Toast Notification Container (Diubah layoutnya agar tidak terpotong) -->
+    <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed bottom-6 left-0 right-0 z-50 flex flex-col items-center gap-2 pointer-events-none px-4"></div>
 
     <script>
@@ -283,7 +285,7 @@
             const toast = document.createElement('div');
             toast.className = 'toast-enter bg-rose-500/95 backdrop-blur-md text-white px-5 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl shadow-lg shadow-rose-500/20 flex items-center gap-3 border border-rose-400/30 text-sm font-medium w-full max-w-sm md:max-w-md';
             
-            // Icon lock and message (Diubah menggunakan leading-relaxed agar break wrap dengan baik)
+            // Icon lock and message
             toast.innerHTML = `
                 <i data-lucide="lock-keyhole" class="w-5 h-5 shrink-0"></i>
                 <span class="leading-relaxed">Quiz belum di buat, Silahkan Chat Admin untuk meminta quiz.</span>
@@ -297,7 +299,7 @@
             container.appendChild(toast);
             lucide.createIcons(); // Render ulang ikon di dalam toast
 
-            // Hilangkan setelah 3.5 detik (sedikit lebih lama karena teksnya panjang)
+            // Hilangkan setelah 3.5 detik
             clearTimeout(toastTimeout);
             toastTimeout = setTimeout(() => {
                 toast.classList.remove('toast-enter');
@@ -312,3 +314,5 @@
     </script>
 </body>
 </html>
+
+```
