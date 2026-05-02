@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Quiz UI - Glassmorphism</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(-45deg, #1e3c72, #2a5298, #6dd5ed, #2193b0);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .glass-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .glass-btn:active {
+            transform: translateY(0);
+        }
+
+        .correct {
+            background: rgba(46, 204, 113, 0.7) !important;
+            border-color: rgba(46, 204, 113, 1) !important;
+            color: white;
+        }
+
+        .incorrect {
+            background: rgba(231, 76, 60, 0.7) !important;
+            border-color: rgba(231, 76, 60, 1) !important;
+            color: white;
+        }
+
+        .hidden-screen {
+            display: none !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom Scrollbar for Evaluation */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <audio id="bgMusic" loop></audio>
+
+    <div id="startScreen" class="glass-panel w-full max-w-2xl p-8 sm:p-12 text-center fade-in">
+        <h1 class="text-4xl sm:text-5xl font-bold mb-4 drop-shadow-lg">Ujian Bahasa & Logika</h1>
+        <p class="text-lg text-gray-200 mb-8">Uji kemampuan logikamu dalam Bahasa Indonesia. Pilih jawaban yang paling tepat!</p>
+        
+        <div class="mb-8 p-4 bg-white/5 rounded-xl border border-white/10">
+            <label class="block text-sm font-semibold mb-2">🎶 Tambahkan Musik Latar (Opsional, dari Local File)</label>
+            <input type="file" id="musicUpload" accept="audio/*" class="block w-full text-sm text-gray-300
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-full file:border-0
+                file:text-sm file:font-semibold
+                file:bg-white/20 file:text-white
+                hover:file:bg-white/30 transition cursor-pointer">
+        </div>
+
+        <button onclick="startQuiz()" class="glass-btn w-full py-4 text-xl font-bold rounded-xl shadow-lg">Mulai Kuis 🚀</button>
+    </div>
+
+    <div id="quizScreen" class="glass-panel w-full max-w-3xl p-6 sm:p-10 hidden-screen flex-col">
+        <div class="flex justify-between items-center mb-6 border-b border-white/20 pb-4">
+            <span id="questionCounter" class="text-lg font-semibold bg-white/20 px-4 py-1 rounded-full">Soal 1 / 50</span>
+            <span class="text-sm">Quizizz Style</span>
+        </div>
+        
+        <div class="min-h-[150px] flex items-center mb-8">
+            <h2 id="questionText" class="text-xl sm:text-2xl font-semibold leading-relaxed drop-shadow-md"></h2>
+        </div>
+
+        <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            </div>
+    </div>
+
+    <div id="resultScreen" class="glass-panel w-full max-w-4xl p-6 sm:p-10 hidden-screen flex-col max-h-[90vh]">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-2">Kuis Selesai! 🎉</h1>
+            <p class="text-xl">Skor Akhir Kamu: <span id="finalScore" class="font-bold text-3xl text-yellow-300 drop-shadow-md">0</span> / 100</p>
+        </div>
+
+        <h3 class="text-2xl font-semibold mb-4 border-b border-white/20 pb-2">Evaluasi Jawaban</h3>
+        <div id="evaluationContainer" class="overflow-y-auto flex-1 pr-2 space-y-4 mb-6">
+            </div>
+
+        <button onclick="location.reload()" class="glass-btn w-full py-4 text-xl font-bold rounded-xl shadow-lg mt-auto">Main Lagi 🔄</button>
+    </div>
+
+    <script>
+        // Database Soal
+        const questions = [
+            // Bagian 1
+            { q: "Dalam sebuah fabel, Kancil berhasil meyakinkan Buaya untuk berbaris agar bisa dihitung, padahal Kancil hanya ingin menyeberang sungai. Sifat Kancil yang tepat menurut logika soal bahasa adalah...", options: ["A. Cerdas", "B. Licik", "C. Bijaksana", "D. Inovatif"], answer: 1 },
+            { q: "\"Si Kucing merebut ikan yang sedang dijaga oleh Anjing karena merasa ia yang lebih dulu menemukannya.\" Konflik utama cerita tersebut adalah...", options: ["A. Kebencian lama antara anjing dan kucing", "B. Perbedaan jenis makanan", "C. Perebutan hak milik", "D. Ketidakadilan majikan"], answer: 2 },
+            { q: "\"Matahari tetap bersinar terik, seolah tak peduli dengan tangisan pemulung tua di pinggir jalan itu.\" Simbol matahari dalam kalimat tersebut bermakna...", options: ["A. Benda langit yang panas", "B. Harapan yang sirna", "C. Roda kehidupan yang terus berjalan", "D. Kekejaman alam semesta"], answer: 2 },
+            { q: "Jika tokoh utama menggunakan kelebihannya untuk menipu tokoh lain demi keuntungan pribadi, penulis sedang membangun watak...", options: ["A. Protagonis yang tangguh", "B. Antagonis yang cerdas", "C. Karakter yang licik", "D. Tokoh figuran"], answer: 2 },
+            { q: "Perbedaan antara \"apa yang dikatakan\" tokoh dan \"apa yang terjadi\" dalam cerita sering digunakan untuk menentukan...", options: ["A. Latar tempat", "B. Amanat tersirat", "C. Alur maju", "D. Nama pengarang"], answer: 1 },
+            { q: "(Soal Analogi) Cerdas : Membantu = Licik : ....", options: ["A. Merugikan", "B. Pintar", "C. Belajar", "D. Berhasil"], answer: 0 },
+            { q: "Simbol \"Hujan di malam hari\" dalam cerpen seringkali melambangkan...", options: ["A. Keberuntungan", "B. Kesedihan atau perenungan", "C. Kebersihan jiwa", "D. Kecepatan waktu"], answer: 1 },
+            { q: "Konflik batin tokoh biasanya ditandai dengan...", options: ["A. Perkelahian fisik", "B. Perdebatan dua tokoh", "C. Pertentangan dengan pikiran sendiri", "D. Perbedaan pendapat soal harta"], answer: 2 },
+            
+            // Bagian 2
+            { q: "Manakah kalimat berikut yang merupakan fakta murni?", options: ["A. Banjir setinggi 1 meter merendam Jalan Sudirman pada pukul 08.00 WIB.", "B. Banjir yang sangat mengerikan itu terjadi pagi tadi.", "C. Semoga pemerintah segera menangani masalah banjir ini.", "D. Warga merasa sedih karena harta bendanya hanyut."], answer: 0 },
+            { q: "Kata yang menjadi indikator bahwa sebuah kalimat adalah opini adalah...", options: ["A. Berlokasi", "B. Sangat", "C. Terjadi", "D. Pukul"], answer: 1 },
+            { q: "\"Kebakaran melanda pasar tradisional pada malam hari.\" Agar menjadi informasi yang akurat sesuai data asli, hal yang paling penting adalah...", options: ["A. Menambahkan kata-kata puitis", "B. Menyertakan waktu dan lokasi yang tepat", "C. Menjelaskan perasaan para pedagang", "D. Memberikan prediksi masa depan"], answer: 1 },
+            { q: "Dalam teks eksplanasi, penggunaan data angka berfungsi untuk...", options: ["A. Menghibur pembaca", "B. Memberikan kesan estetis", "C. Menguatkan fakta fenomena", "D. Memperpanjang tulisan"], answer: 2 },
+            { q: "Manakah yang termasuk kalimat berita tanpa \"penyamaran opini\"?", options: ["A. Timnas bermain dengan sangat luar biasa tadi malam.", "B. Pertandingan berakhir dengan skor 2-0 di Stadion GBK.", "C. Seharusnya pelatih mengganti pemain lebih awal.", "D. Suasana stadion sangat mencekam saat penalti."], answer: 1 },
+            { q: "\"Gunung Merapi meletus, mengeluarkan awan panas yang menakutkan.\" Kata yang harus dihapus agar kalimat ini menjadi fakta objektif adalah...", options: ["A. Meletus", "B. Merapi", "C. Menakutkan", "D. Awan panas"], answer: 2 },
+            { q: "Fakta dalam teks berita biasanya menjawab pertanyaan...", options: ["A. Mengapa dan Bagaimana", "B. Apa, Di mana, Kapan", "C. Siapa dan Mengapa", "D. Bagaimana dan Siapa"], answer: 1 },
+            
+            // Bagian 3
+            { q: "Manakah yang merupakan Verba Relasional?", options: ["A. Menanam", "B. Adalah", "C. Pergi", "D. Memasak"], answer: 1 },
+            { q: "Kalimat: \"Pelangi adalah fenomena optik yang terjadi karena pembiasan cahaya.\" Kata \"adalah\" berfungsi sebagai...", options: ["A. Verba aktif", "B. Verba relasional", "C. Konjungsi temporal", "D. Kata keterangan"], answer: 1 },
+            { q: "\"Hujan deras terus menerus sehingga terjadi banjir.\" Kata yang dicetak tebal menunjukkan hubungan...", options: ["A. Identitas", "B. Kronologi", "C. Kausalitas (Sebab-Akibat)", "D. Pemilihan"], answer: 2 },
+            { q: "Manakah kalimat yang mengandung konjungsi kausalitas?", options: ["A. Ibu pergi ke pasar lalu memasak.", "B. Ayah bekerja agar kami bisa sekolah.", "C. Jalanan licin karena hujan lebat.", "D. Kakak belajar dan adik bermain."], answer: 2 },
+            { q: "Fenomena alam dalam teks eksplanasi dijelaskan sebagai...", options: ["A. Keajaiban sihir", "B. Rantai kejadian yang logis", "C. Opini masyarakat", "D. Cerita turun temurun"], answer: 1 },
+            { q: "\"Paus ialah mamalia laut.\" Kata \"ialah\" bisa diganti dengan kata...", options: ["A. Menjadi", "B. Merupakan", "C. Sebab", "D. Maka"], answer: 1 },
+            { q: "Struktur teks eksplanasi yang berisi urutan sebab-akibat disebut...", options: ["A. Pernyataan umum", "B. Deretan penjelas", "C. Interpretasi", "D. Koda"], answer: 1 },
+            { q: "\"Asap pabrik menyebabkan polusi udara.\" Kata \"menyebabkan\" termasuk dalam kategori...", options: ["A. Kata benda", "B. Verba kausalitas", "C. Verba identitas", "D. Kata sifat"], answer: 1 },
+            
+            // Bagian 4
+            { q: "Ciri utama pidato persuasif yang membedakannya dengan pidato informatif adalah adanya...", options: ["A. Salam pembuka", "B. Data statistik", "C. Call to Action (Ajakan bertindak)", "D. Ucapan syukur"], answer: 2 },
+            { q: "\"Marilah kita jaga kebersihan sungai agar lingkungan tetap sehat!\" Kalimat ini biasanya ditemukan di bagian...", options: ["A. Awal pidato", "B. Tengah pidato", "C. Akhir pidato", "D. Kop surat"], answer: 2 },
+            { q: "Dalam sebuah resensi, kalimat \"Buku ini sangat lekat dengan keseharian remaja saat ini\" menunjukkan...", options: ["A. Kelemahan buku", "B. Keunggulan buku", "C. Identitas penerbit", "D. Harga buku"], answer: 1 },
+            { q: "Jika dalam resensi muncul kata \"Namun, penggambaran karakternya terasa kurang kuat,\" maka penulis sedang menyampaikan...", options: ["A. Rekomendasi", "B. Keunggulan", "C. Kelemahan", "D. Sinopsis"], answer: 2 },
+            { q: "\"Buku ini menggunakan bahasa yang lugas sehingga menyegarkan mata pembaca.\" Kata \"menyegarkan mata\" adalah kode untuk...", options: ["A. Buku itu berwarna hijau", "B. Buku itu mudah dipahami/menarik", "C. Buku itu mengandung obat mata", "D. Buku itu sangat tebal"], answer: 1 },
+            { q: "Bagian pidato yang berisi ucapan terima kasih dan permohonan maaf disebut...", options: ["A. Pendahuluan", "B. Isi", "C. Penutup", "D. Inti"], answer: 2 },
+            { q: "Tujuan utama resensi adalah...", options: ["A. Menghina penulis buku", "B. Memberikan pertimbangan kepada calon pembaca", "C. Menyalin seluruh isi buku", "D. Mempromosikan toko buku"], answer: 1 },
+            { q: "Kalimat ajakan dalam pidato persuasif sering menggunakan kata...", options: ["A. Telah", "B. Hendaknya/Ayo", "C. Mungkin", "D. Adalah"], answer: 1 },
+            
+            // Bagian 5
+            { q: "Penulisan tempat dan tanggal surat yang benar adalah...", options: ["A. Jakarta, 12 Mei 2024", "B. Jakarta 12 Mei 2024", "C. Jakarta: 12 Mei 2024", "D. Jakarta-12-Mei-2024"], answer: 0 },
+            { q: "Bagian yang disebut sebagai \"wajah\" atau identitas mutlak sebuah lembaga dalam surat adalah...", options: ["A. Isi surat", "B. Tanda tangan", "C. Kop surat", "D. Salam penutup"], answer: 2 },
+            { q: "Di dalam Kop Surat, biasanya terdapat hal berikut, kecuali...", options: ["A. Nama instansi", "B. Logo", "C. Alamat lengkap", "D. Nama penerima surat"], answer: 3 },
+            { q: "Penulisan alamat surat yang benar adalah...", options: ["A. Yth. Bapak Kepala Sekolah SMP 1", "B. Kepada Yth: Bapak Kepala Sekolah SMP 1", "C. Yth, Bapak Kepala Sekolah SMP 1", "D. Kepada Yth. Bapak Kepala Sekolah SMP 1."], answer: 0 },
+            { q: "Penggunaan tanda koma (,) setelah nama kota dalam tanggal surat berfungsi untuk...", options: ["A. Menghias surat", "B. Memisahkan tempat dan waktu (Ketelitian Visual)", "C. Menandakan surat berakhir", "D. Menunjukkan gaya bahasa"], answer: 1 },
+            { q: "Surat resmi harus menggunakan bahasa yang...", options: ["A. Gaul dan santai", "B. Baku dan efektif", "C. Puitis dan panjang", "D. Singkat dan penuh teka-teki"], answer: 1 },
+            { q: "\"Segera setelah menerima surat ini, harap konfirmasi kehadiran Anda.\" Kalimat ini menunjukkan surat tersebut bersifat...", options: ["A. Pribadi", "B. Resmi/Dinas", "C. Kaleng", "D. Rahasia"], answer: 1 },
+            { q: "Salam pembuka yang paling umum dalam surat resmi adalah...", options: ["A. Halo apa kabar,", "B. Dengan hormat,", "C. Assalamualaikum kawan,", "D. Selamat pagi semua,"], answer: 1 },
+            
+            // Bagian 6
+            { q: "Dalam teks prosedur acak, langkah yang biasanya berada di urutan pertama adalah...", options: ["A. Membersihkan alat", "B. Menekan tombol \"off\"", "C. Mempersiapkan bahan atau membuka penutup baterai", "D. Menunggu hasil"], answer: 2 },
+            { q: "Berdasarkan tabel pertumbuhan penduduk: Tahun 2021 (2,1 juta), Tahun 2022 (2,3 juta), Tahun 2023 (2,5 juta). Kesimpulan yang tepat adalah...", options: ["A. Penduduk stagnan", "B. Penduduk meningkat", "C. Penduduk menurun", "D. Penduduk tidak stabil"], answer: 1 },
+            { q: "Kata kerja yang sering muncul di awal teks prosedur adalah kata kerja...", options: ["A. Deskriptif (Gambaran)", "B. Imperatif (Perintah)", "C. Relasional (Identitas)", "D. Pasif"], answer: 1 },
+            { q: "Jika sebuah grafik menunjukkan angka yang sama dari tahun ke tahun, maka kata kunci yang benar adalah...", options: ["A. Fluktuatif", "B. Menurun tajam", "C. Stagnan/Stabil", "D. Meningkat pesat"], answer: 2 },
+            { q: "Langkah terakhir dalam prosedur pembuatan makanan biasanya adalah...", options: ["A. Memotong bahan", "B. Menyalakan kompor", "C. Menyajikan makanan", "D. Membeli bumbu"], answer: 2 },
+            { q: "\"Setelah air mendidih, masukkan mi ke dalam panci.\" Kata \"setelah\" merupakan konjungsi...", options: ["A. Penyebab", "B. Tujuan", "C. Temporal (Waktu)", "D. Syarat"], answer: 2 },
+            { q: "Pada data tabel, jika angka tahun 2024 lebih kecil dari 2023, maka terjadi...", options: ["A. Kenaikan", "B. Penurunan", "C. Kemajuan", "D. Peningkatan"], answer: 1 },
+            { q: "Perbedaan utama teks prosedur dan teks lainnya adalah adanya...", options: ["A. Konflik tokoh", "B. Tahapan-tahapan sistematis", "C. Opini penulis", "D. Pantun penutup"], answer: 1 },
+            
+            // Bagian Campuran
+            { q: "\"Singa yang kuat itu membagi hasil buruan secara tidak adil.\" Menurut logika \"Karakter\", Singa bersifat...", options: ["A. Bijak", "B. Kuat", "C. Serakah/Licik", "D. Rajin"], answer: 2 },
+            { q: "\"Ibu kota Indonesia adalah Jakarta.\" Ini adalah contoh...", options: ["A. Opini", "B. Verba Relasional", "C. Majas", "D. Kausalitas"], answer: 1 },
+            { q: "Dalam pidato, bagian \"Mari kita mulai menanam pohon dari sekarang!\" disebut sebagai...", options: ["A. Fakta", "B. Call to Action", "C. Salam pembuka", "D. Ucapan syukur"], answer: 1 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let userAnswers = [];
+        let isAnswering = false;
+
+        // Music Logic
+        const musicUpload = document.getElementById('musicUpload');
+        const bgMusic = document.getElementById('bgMusic');
+        
+        musicUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                bgMusic.src = url;
+            }
+        });
+
+        function playMusic() {
+            if(bgMusic.src) {
+                bgMusic.volume = 0.5;
+                bgMusic.play().catch(e => console.log("Audio play failed:", e));
+            }
+        }
+
+        function startQuiz() {
+            playMusic();
+            document.getElementById('startScreen').classList.add('hidden-screen');
+            document.getElementById('quizScreen').classList.remove('hidden-screen');
+            document.getElementById('quizScreen').classList.add('flex');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            isAnswering = false;
+            const q = questions[currentQuestion];
+            document.getElementById('questionCounter').innerText = `Soal ${currentQuestion + 1} / ${questions.length}`;
+            
+            const qText = document.getElementById('questionText');
+            qText.innerText = q.q;
+            qText.parentElement.classList.remove('fade-in');
+            void qText.parentElement.offsetWidth; // trigger reflow
+            qText.parentElement.classList.add('fade-in');
+
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'glass-btn w-full p-4 rounded-xl text-left text-lg font-medium fade-in';
+                btn.style.animationDelay = `${index * 0.1}s`;
+                btn.innerText = opt;
+                btn.onclick = () => selectOption(btn, index);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectOption(btn, selectedIndex) {
+            if (isAnswering) return;
+            isAnswering = true;
+
+            const q = questions[currentQuestion];
+            const isCorrect = selectedIndex === q.answer;
+            
+            userAnswers.push({
+                question: q.q,
+                selected: q.options[selectedIndex],
+                correct: q.options[q.answer],
+                isCorrect: isCorrect
+            });
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                score++;
+            } else {
+                btn.classList.add('incorrect');
+                // Highlight correct answer
+                const allBtns = document.getElementById('optionsContainer').children;
+                allBtns[q.answer].classList.add('correct');
+            }
+
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion < questions.length) {
+                    loadQuestion();
+                } else {
+                    showResults();
+                }
+            }, 1200); // Jeda sebelum lanjut ke soal berikutnya ala Quizizz
+        }
+
+        function showResults() {
+            document.getElementById('quizScreen').classList.add('hidden-screen');
+            document.getElementById('quizScreen').classList.remove('flex');
+            
+            const resScreen = document.getElementById('resultScreen');
+            resScreen.classList.remove('hidden-screen');
+            resScreen.classList.add('flex', 'fade-in');
+
+            // Kalkulasi skor max 100
+            const finalScore = Math.round((score / questions.length) * 100);
+            document.getElementById('finalScore').innerText = finalScore;
+
+            const evalContainer = document.getElementById('evaluationContainer');
+            evalContainer.innerHTML = '';
+
+            userAnswers.forEach((ans, i) => {
+                const div = document.createElement('div');
+                div.className = `p-4 rounded-xl border ${ans.isCorrect ? 'bg-green-500/20 border-green-500/50' : 'bg-red-500/20 border-red-500/50'}`;
+                
+                div.innerHTML = `
+                    <p class="font-semibold text-sm mb-2">${i + 1}. ${ans.question}</p>
+                    <p class="text-sm">Jawabanmu: <span class="${ans.isCorrect ? 'text-green-300' : 'text-red-300'} font-bold">${ans.selected}</span></p>
+                    ${!ans.isCorrect ? `<p class="text-sm text-green-300">Jawaban Benar: <span class="font-bold">${ans.correct}</span></p>` : ''}
+                `;
+                evalContainer.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>
