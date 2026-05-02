@@ -1,0 +1,1836 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Informatika</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --neon-cyan: #00f5ff;
+    --neon-pink: #ff2d78;
+    --neon-purple: #bf5af2;
+    --neon-yellow: #ffd60a;
+    --neon-green: #30d158;
+    --dark-bg: #050a14;
+    --card-bg: #0d1520;
+    --card-border: #1a2840;
+    --text-primary: #e8f4fd;
+    --text-secondary: #7a9bb5;
+    --glow-cyan: 0 0 10px #00f5ff, 0 0 30px #00f5ff44, 0 0 60px #00f5ff22;
+    --glow-pink: 0 0 10px #ff2d78, 0 0 30px #ff2d7844, 0 0 60px #ff2d7822;
+    --glow-green: 0 0 10px #30d158, 0 0 30px #30d15844;
+    --glow-yellow: 0 0 10px #ffd60a, 0 0 30px #ffd60a44;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: var(--dark-bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── GRID BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── SCANLINE OVERLAY ── */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.15) 2px,
+      rgba(0,0,0,0.15) 4px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper { position: relative; z-index: 1; }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    padding: 40px 20px 20px;
+    position: relative;
+  }
+
+  .header-badge {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--neon-cyan);
+    border: 1px solid var(--neon-cyan);
+    padding: 4px 14px;
+    border-radius: 2px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    box-shadow: var(--glow-cyan);
+    animation: pulse-border 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-border {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  .header h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(28px, 6vw, 56px);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    line-height: 1.1;
+    background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-pink) 50%, var(--neon-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 20px rgba(0,245,255,0.4));
+    animation: title-glow 3s ease-in-out infinite alternate;
+  }
+
+  @keyframes title-glow {
+    from { filter: drop-shadow(0 0 10px rgba(0,245,255,0.4)); }
+    to { filter: drop-shadow(0 0 25px rgba(255,45,120,0.6)); }
+  }
+
+  .header-sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+    margin-top: 8px;
+  }
+
+  /* ── MUSIC PLAYER ── */
+  .music-player {
+    max-width: 500px;
+    margin: 20px auto;
+    background: linear-gradient(135deg, #0d1a2e, #0a1525);
+    border: 1px solid var(--neon-purple);
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: 0 0 20px rgba(191,90,242,0.2), inset 0 0 20px rgba(0,0,0,0.3);
+  }
+
+  .music-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--neon-purple);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .music-label::before {
+    content: '♪';
+    font-size: 14px;
+    animation: bounce-music 1s ease-in-out infinite alternate;
+  }
+
+  @keyframes bounce-music {
+    from { transform: translateY(0); }
+    to { transform: translateY(-3px); }
+  }
+
+  .music-track-name {
+    font-size: 13px;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .music-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .music-upload-btn {
+    background: linear-gradient(135deg, rgba(191,90,242,0.2), rgba(191,90,242,0.05));
+    border: 1px solid var(--neon-purple);
+    color: var(--neon-purple);
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+  }
+
+  .music-upload-btn:hover {
+    background: rgba(191,90,242,0.3);
+    box-shadow: 0 0 10px rgba(191,90,242,0.4);
+  }
+
+  #musicFile { display: none; }
+
+  .play-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--neon-purple), rgba(191,90,242,0.5));
+    border: none;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 0 12px rgba(191,90,242,0.5);
+    flex-shrink: 0;
+  }
+
+  .play-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(191,90,242,0.8);
+  }
+
+  .volume-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 100px;
+  }
+
+  .volume-icon { font-size: 14px; color: var(--text-secondary); }
+
+  input[type=range].vol-slider {
+    flex: 1;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: linear-gradient(to right, var(--neon-purple) 0%, #1a2840 0%);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type=range].vol-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--neon-purple);
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(191,90,242,0.8);
+    cursor: pointer;
+  }
+
+  /* ── START SCREEN ── */
+  #startScreen {
+    max-width: 700px;
+    margin: 30px auto;
+    padding: 0 20px 80px;
+    text-align: center;
+  }
+
+  .start-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .start-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--neon-cyan), var(--neon-pink), transparent);
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 30px 0;
+  }
+
+  .stat-item {
+    background: rgba(0,245,255,0.05);
+    border: 1px solid rgba(0,245,255,0.2);
+    border-radius: 10px;
+    padding: 16px 10px;
+    text-align: center;
+  }
+
+  .stat-number {
+    font-family: 'Orbitron', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--neon-cyan);
+    text-shadow: var(--glow-cyan);
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+    margin-top: 4px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .topic-list {
+    text-align: left;
+    margin: 20px 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .topic-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .topic-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--neon-cyan);
+    box-shadow: 0 0 6px var(--neon-cyan);
+    flex-shrink: 0;
+  }
+
+  .btn-start {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 16px 50px;
+    font-family: 'Orbitron', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--dark-bg);
+    background: linear-gradient(135deg, var(--neon-cyan), #0099bb);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--glow-cyan);
+    transition: all 0.3s;
+  }
+
+  .btn-start:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(0,245,255,0.8), 0 8px 20px rgba(0,0,0,0.4);
+  }
+
+  .btn-start::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -100%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: 0.4s;
+  }
+
+  .btn-start:hover::before { left: 100%; }
+
+  /* ── QUIZ SCREEN ── */
+  #quizScreen { display: none; max-width: 780px; margin: 0 auto; padding: 20px 20px 100px; }
+
+  .quiz-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .q-counter {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    color: var(--neon-cyan);
+    letter-spacing: 2px;
+  }
+
+  .score-display {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--neon-yellow);
+    padding: 5px 14px;
+    border: 1px solid rgba(255,214,10,0.4);
+    border-radius: 4px;
+    background: rgba(255,214,10,0.05);
+  }
+
+  .progress-container { margin-bottom: 28px; }
+
+  .progress-track {
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+    border-radius: 3px;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 0 10px rgba(0,245,255,0.5);
+    position: relative;
+  }
+
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: -3px;
+    width: 12px;
+    height: 12px;
+    background: var(--neon-cyan);
+    border-radius: 50%;
+    box-shadow: var(--glow-cyan);
+  }
+
+  .progress-text {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    letter-spacing: 1px;
+  }
+
+  /* ── QUESTION CARD ── */
+  .q-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 30px;
+    position: relative;
+    overflow: hidden;
+    animation: card-enter 0.4s cubic-bezier(0.4,0,0.2,1) forwards;
+  }
+
+  @keyframes card-enter {
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .q-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+  }
+
+  .q-category {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 3px;
+    margin-bottom: 16px;
+  }
+
+  .q-number-badge {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    float: right;
+    padding-top: 2px;
+  }
+
+  .q-text {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.6;
+    color: var(--text-primary);
+    margin-bottom: 28px;
+    clear: both;
+  }
+
+  /* ── OPTIONS ── */
+  .options { display: grid; gap: 12px; }
+
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    padding: 14px 18px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.25s;
+    color: var(--text-primary);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.4;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    background: rgba(0,245,255,0.07);
+    border-color: rgba(0,245,255,0.4);
+    transform: translateX(4px);
+    box-shadow: -3px 0 0 var(--neon-cyan);
+  }
+
+  .option-letter {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: all 0.25s;
+  }
+
+  .option-btn:hover:not(:disabled) .option-letter {
+    background: rgba(0,245,255,0.2);
+    border-color: var(--neon-cyan);
+    color: var(--neon-cyan);
+    box-shadow: 0 0 8px rgba(0,245,255,0.4);
+  }
+
+  .option-btn.correct {
+    background: rgba(48,209,88,0.12);
+    border-color: var(--neon-green);
+    box-shadow: -3px 0 0 var(--neon-green), 0 0 15px rgba(48,209,88,0.15);
+    animation: correct-pulse 0.5s ease;
+  }
+
+  @keyframes correct-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+  }
+
+  .option-btn.correct .option-letter {
+    background: var(--neon-green);
+    border-color: var(--neon-green);
+    color: var(--dark-bg);
+    box-shadow: var(--glow-green);
+  }
+
+  .option-btn.wrong {
+    background: rgba(255,45,120,0.1);
+    border-color: var(--neon-pink);
+    box-shadow: -3px 0 0 var(--neon-pink);
+    animation: wrong-shake 0.4s ease;
+  }
+
+  @keyframes wrong-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+
+  .option-btn.wrong .option-letter {
+    background: var(--neon-pink);
+    border-color: var(--neon-pink);
+    color: white;
+    box-shadow: var(--glow-pink);
+  }
+
+  .option-btn:disabled { cursor: not-allowed; }
+
+  /* ── EXPLANATION ── */
+  .explanation-box {
+    display: none;
+    margin-top: 20px;
+    padding: 18px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.7;
+    animation: explain-enter 0.4s ease forwards;
+    position: relative;
+    overflow: hidden;
+  }
+
+  @keyframes explain-enter {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .explanation-box.correct-exp {
+    background: rgba(48,209,88,0.08);
+    border: 1px solid rgba(48,209,88,0.3);
+    color: #a0ffba;
+  }
+
+  .explanation-box.wrong-exp {
+    background: rgba(255,45,120,0.08);
+    border: 1px solid rgba(255,45,120,0.3);
+    color: #ffaac5;
+  }
+
+  .exp-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .exp-icon { font-size: 16px; }
+
+  /* ── NEXT BTN ── */
+  .btn-next {
+    display: none;
+    margin-top: 20px;
+    width: 100%;
+    padding: 14px;
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, rgba(0,245,255,0.15), rgba(0,245,255,0.05));
+    border: 1px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-next:hover {
+    background: rgba(0,245,255,0.2);
+    box-shadow: var(--glow-cyan);
+    transform: translateY(-1px);
+  }
+
+  .btn-next::after {
+    content: ' ›';
+    font-size: 18px;
+  }
+
+  /* ── RESULT SCREEN ── */
+  #resultScreen { display: none; max-width: 780px; margin: 0 auto; padding: 20px 20px 100px; }
+
+  .result-hero {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 50px 30px;
+    text-align: center;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .result-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink), var(--neon-purple), var(--neon-cyan));
+    background-size: 200%;
+    animation: rainbow-slide 3s linear infinite;
+  }
+
+  @keyframes rainbow-slide {
+    to { background-position: 200%; }
+  }
+
+  .result-emoji { font-size: 64px; margin-bottom: 16px; filter: drop-shadow(0 0 10px rgba(255,214,10,0.6)); }
+
+  .result-grade {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(48px, 10vw, 80px);
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--neon-cyan), var(--neon-yellow));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 15px rgba(0,245,255,0.4));
+  }
+
+  .result-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+    font-family: 'Share Tech Mono', monospace;
+    margin-top: 4px;
+  }
+
+  .result-message {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 20px 0 10px;
+  }
+
+  .result-sub {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .result-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .rs-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 18px 12px;
+    text-align: center;
+  }
+
+  .rs-number {
+    font-family: 'Orbitron', monospace;
+    font-size: 26px;
+    font-weight: 700;
+  }
+
+  .rs-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+    margin-top: 4px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .review-section { margin-top: 10px; }
+
+  .review-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    color: var(--neon-cyan);
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--card-border);
+  }
+
+  .review-item {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    border-left: 3px solid transparent;
+  }
+
+  .review-item.r-correct { border-left-color: var(--neon-green); }
+  .review-item.r-wrong { border-left-color: var(--neon-pink); }
+
+  .ri-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .ri-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    padding-top: 2px;
+  }
+
+  .ri-q {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  .ri-answers {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding-left: 0;
+    font-size: 13px;
+  }
+
+  .ri-your { color: #ff8aaa; }
+  .ri-correct-ans { color: #88ffaa; }
+  .ri-explain { color: var(--text-secondary); font-style: italic; margin-top: 6px; line-height: 1.5; }
+
+  .btn-retry {
+    display: block;
+    width: 100%;
+    max-width: 300px;
+    margin: 30px auto 0;
+    padding: 14px 30px;
+    font-family: 'Orbitron', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-align: center;
+    background: linear-gradient(135deg, var(--neon-pink), rgba(255,45,120,0.6));
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    box-shadow: var(--glow-pink);
+    transition: all 0.3s;
+  }
+
+  .btn-retry:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(255,45,120,0.8);
+  }
+
+  /* ── COPYRIGHT ── */
+  .copyright {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 100;
+    background: linear-gradient(to top, rgba(5,10,20,0.98), rgba(5,10,20,0.85));
+    border-top: 1px solid rgba(0,245,255,0.15);
+    text-align: center;
+    padding: 10px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    backdrop-filter: blur(10px);
+  }
+
+  .copyright span {
+    color: var(--neon-cyan);
+    font-style: italic;
+  }
+
+  /* ── FLOATING PARTICLES ── */
+  .particles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: var(--neon-cyan);
+    border-radius: 50%;
+    animation: float-particle linear infinite;
+    opacity: 0;
+  }
+
+  @keyframes float-particle {
+    0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.3; }
+    100% { transform: translateY(-20px) translateX(30px); opacity: 0; }
+  }
+
+  /* ── CATEGORY COLORS ── */
+  .cat-ct { background: rgba(0,245,255,0.1); color: var(--neon-cyan); border: 1px solid rgba(0,245,255,0.3); }
+  .cat-excel { background: rgba(48,209,88,0.1); color: var(--neon-green); border: 1px solid rgba(48,209,88,0.3); }
+  .cat-browser { background: rgba(255,214,10,0.1); color: var(--neon-yellow); border: 1px solid rgba(255,214,10,0.3); }
+  .cat-ppt { background: rgba(255,100,0,0.1); color: #ff6400; border: 1px solid rgba(255,100,0,0.3); }
+  .cat-email { background: rgba(191,90,242,0.1); color: var(--neon-purple); border: 1px solid rgba(191,90,242,0.3); }
+  .cat-hw { background: rgba(255,45,120,0.1); color: var(--neon-pink); border: 1px solid rgba(255,45,120,0.3); }
+  .cat-sysnum { background: rgba(0,200,150,0.1); color: #00c896; border: 1px solid rgba(0,200,150,0.3); }
+  .cat-security { background: rgba(255,60,60,0.1); color: #ff4444; border: 1px solid rgba(255,60,60,0.3); }
+  .cat-network { background: rgba(100,150,255,0.1); color: #6496ff; border: 1px solid rgba(100,150,255,0.3); }
+  .cat-app { background: rgba(255,165,0,0.1); color: #ffa500; border: 1px solid rgba(255,165,0,0.3); }
+  .cat-digital { background: rgba(150,200,100,0.1); color: #96c864; border: 1px solid rgba(150,200,100,0.3); }
+  .cat-python { background: rgba(255,214,10,0.15); color: #ffdf50; border: 1px solid rgba(255,214,10,0.4); }
+
+  @media (max-width: 600px) {
+    .result-stats { grid-template-columns: repeat(2,1fr); }
+    .stats-grid { grid-template-columns: repeat(2,1fr); }
+    .topic-list { grid-template-columns: 1fr; }
+    .q-card { padding: 20px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PARTICLES -->
+<div class="particles" id="particles"></div>
+
+<div class="wrapper">
+
+<!-- ══════════════════════════════════════════════ HEADER -->
+<div class="header">
+  <div class="header-badge">SMP • INFORMATIKA • 2026</div>
+  <h1>Quiz Informatika</h1>
+  <p class="header-sub">[ UJIAN SEMESTER • 50 SOAL PILIHAN GANDA ]</p>
+</div>
+
+<!-- ══════════════════════════════════════════════ MUSIC PLAYER -->
+<div class="music-player">
+  <div class="music-label">MUSIC PLAYER</div>
+  <div class="music-track-name" id="trackName">— Pilih file musik lokal —</div>
+  <div class="music-controls">
+    <button class="music-upload-btn" onclick="document.getElementById('musicFile').click()">📂 Buka File</button>
+    <input type="file" id="musicFile" accept="audio/*" onchange="loadMusic(event)">
+    <button class="play-btn" id="playBtn" onclick="togglePlay()">▶</button>
+    <div class="volume-control">
+      <span class="volume-icon">🔊</span>
+      <input type="range" class="vol-slider" id="volSlider" min="0" max="100" value="60" oninput="setVolume(this.value)">
+    </div>
+  </div>
+  <audio id="audioPlayer" loop></audio>
+</div>
+
+<!-- ══════════════════════════════════════════════ START SCREEN -->
+<div id="startScreen">
+  <div class="start-card">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-number">50</div>
+        <div class="stat-label">SOAL</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" style="color:var(--neon-pink);text-shadow:var(--glow-pink)">14</div>
+        <div class="stat-label">TOPIK</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" style="color:var(--neon-yellow);text-shadow:var(--glow-yellow)">A–D</div>
+        <div class="stat-label">PILIHAN</div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;line-height:1.7;">
+      Quiz ini mencakup seluruh materi Informatika SMP. Soal diacak setiap sesi, 
+      jawaban mengecoh, dan setiap jawaban disertai penjelasan mendalam. Siapkan dirimu!
+    </p>
+
+    <div class="topic-list">
+      <div class="topic-item"><div class="topic-dot"></div> Berpikir Komputasional</div>
+      <div class="topic-item"><div class="topic-dot" style="background:#30d158;box-shadow:0 0 6px #30d158"></div> Excel / Spreadsheet</div>
+      <div class="topic-item"><div class="topic-dot" style="background:#ffd60a;box-shadow:0 0 6px #ffd60a"></div> Browser & Search Engine</div>
+      <div class="topic-item"><div class="topic-dot" style="background:#ff6400;box-shadow:0 0 6px #ff6400"></div> PowerPoint</div>
+      <div class="topic-item"><div class="topic-dot" style="background:#bf5af2;box-shadow:0 0 6px #bf5af2"></div> Email</div>
+      <div class="topic-item"><div class="topic-dot" style="background:#ff2d78;box-shadow:0 0 6px #ff2d78"></div> Perangkat Keras</div>
+      <div class="topic-item"><div class="topic-dot" style="background:#00c896;box-shadow:0 0 6px #00c896"></div> Sistem Bilangan</div>
+      <div class="topic-item"><div class="topic-dot" style="background:#ff4444;box-shadow:0 0 6px #ff4444"></div> Keamanan Data</div>
+      <div class="topic-item"><div class="topic-dot" style="background:#6496ff;box-shadow:0 0 6px #6496ff"></div> Jaringan & Cloud</div>
+      <div class="topic-item"><div class="topic-dot" style="background:#ffa500;box-shadow:0 0 6px #ffa500"></div> Aplikasi & Pemrograman</div>
+      <div class="topic-item"><div class="topic-dot" style="background:#96c864;box-shadow:0 0 6px #96c864"></div> Literasi Digital</div>
+      <div class="topic-item"><div class="topic-dot" style="background:#ffdf50;box-shadow:0 0 6px #ffdf50"></div> Python</div>
+    </div>
+
+    <button class="btn-start" onclick="startQuiz()">MULAI QUIZ</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ QUIZ SCREEN -->
+<div id="quizScreen">
+  <div class="quiz-header">
+    <div class="q-counter">SOAL <span id="qNum">1</span> / 50</div>
+    <div class="score-display">SKOR: <span id="scoreDisplay">0</span></div>
+  </div>
+
+  <div class="progress-container">
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <div class="progress-text">
+      <span id="progressPct">0%</span>
+      <span id="progressRemain">50 soal tersisa</span>
+    </div>
+  </div>
+
+  <div class="q-card" id="questionCard">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+      <span class="q-category" id="qCategory"></span>
+      <span class="q-number-badge" id="qNumBadge">#01</span>
+    </div>
+    <div class="q-text" id="questionText"></div>
+    <div class="options" id="optionsContainer"></div>
+    <div class="explanation-box" id="explanationBox"></div>
+    <button class="btn-next" id="nextBtn" onclick="nextQuestion()">SOAL BERIKUTNYA</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ RESULT SCREEN -->
+<div id="resultScreen">
+  <div class="result-hero">
+    <div class="result-emoji" id="resultEmoji">🏆</div>
+    <div class="result-grade" id="resultGrade">0</div>
+    <div class="result-label">NILAI AKHIR</div>
+    <div class="result-message" id="resultMessage"></div>
+    <div class="result-sub" id="resultSub"></div>
+  </div>
+
+  <div class="result-stats">
+    <div class="rs-card">
+      <div class="rs-number" style="color:var(--neon-cyan)" id="rTotal">50</div>
+      <div class="rs-label">TOTAL SOAL</div>
+    </div>
+    <div class="rs-card">
+      <div class="rs-number" style="color:var(--neon-green)" id="rCorrect">0</div>
+      <div class="rs-label">BENAR</div>
+    </div>
+    <div class="rs-card">
+      <div class="rs-number" style="color:var(--neon-pink)" id="rWrong">0</div>
+      <div class="rs-label">SALAH</div>
+    </div>
+    <div class="rs-card">
+      <div class="rs-number" style="color:var(--neon-yellow)" id="rScore">0</div>
+      <div class="rs-label">SKOR</div>
+    </div>
+  </div>
+
+  <div class="review-section">
+    <div class="review-title">▸ EVALUASI LENGKAP — SEMUA SOAL</div>
+    <div id="reviewContainer"></div>
+  </div>
+
+  <button class="btn-retry" onclick="restartQuiz()">↺ ULANGI QUIZ</button>
+</div>
+
+</div><!-- /wrapper -->
+
+<!-- COPYRIGHT -->
+<div class="copyright">
+  <span>_Qwertz_</span> © copyright 2026 &nbsp;|&nbsp; Quiz Informatika SMP
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  QUESTION BANK — 50 SOAL
+// ═══════════════════════════════════════════════════
+const ALL_QUESTIONS = [
+  // ── BERPIKIR KOMPUTASIONAL ──────────────────────
+  {
+    category: "Berpikir Komputasional",
+    catClass: "cat-ct",
+    q: "Seorang programmer memecah satu program besar menjadi beberapa fungsi kecil yang masing-masing menangani satu tugas. Konsep Computational Thinking yang paling tepat menggambarkan proses ini adalah...",
+    options: ["Pengenalan Pola — menemukan kemiripan antar fungsi", "Abstraksi — menyembunyikan detail implementasi", "Dekomposisi — memecah masalah besar menjadi bagian-bagian kecil", "Algoritma — mengurutkan langkah penyelesaian"],
+    answer: 2,
+    explain: "Dekomposisi adalah proses memecah masalah kompleks menjadi sub-masalah yang lebih kecil dan lebih mudah diselesaikan. Memecah program besar menjadi fungsi-fungsi kecil adalah contoh klasik dekomposisi."
+  },
+  {
+    category: "Berpikir Komputasional",
+    catClass: "cat-ct",
+    q: "Ketika membuat aplikasi, seorang developer sengaja mengabaikan detail warna tombol dan animasi, lalu fokus hanya pada logika pengolahan data. Prinsip Computational Thinking yang diterapkan adalah...",
+    options: ["Dekomposisi — memisahkan komponen UI dengan logika", "Pengenalan Pola — UI mengikuti pola yang sama di semua aplikasi", "Algoritma — urutan pemrosesan data harus benar", "Abstraksi — mengabaikan detail tidak penting dan fokus pada inti masalah"],
+    answer: 3,
+    explain: "Abstraksi berarti menyaring informasi yang tidak relevan dan hanya fokus pada aspek yang penting. Mengabaikan detail visual dan fokus pada logika bisnis adalah penerapan abstraksi."
+  },
+  {
+    category: "Berpikir Komputasional",
+    catClass: "cat-ct",
+    q: "Guru memperhatikan bahwa pola penyelesaian soal persamaan linear di pelajaran Matematika SAMA dengan cara menyelesaikan persamaan kesetimbangan di Fisika. Hal ini merupakan penerapan dari...",
+    options: ["Abstraksi — kedua soal disederhanakan menjadi satu bentuk", "Dekomposisi — soal dipecah menjadi lebih kecil", "Algoritma — ada urutan langkah yang sama di keduanya", "Pengenalan Pola — mencari kesamaan atau keteraturan lintas masalah"],
+    answer: 3,
+    explain: "Pengenalan Pola (Pattern Recognition) adalah kemampuan menemukan kesamaan, tren, atau pola di antara berbagai masalah. Mengenali bahwa dua soal dari mata pelajaran berbeda memiliki struktur serupa adalah contoh sempurna pengenalan pola."
+  },
+  {
+    category: "Berpikir Komputasional",
+    catClass: "cat-ct",
+    q: "Manakah yang BUKAN merupakan bagian dari empat pilar Computational Thinking?",
+    options: ["Abstraksi", "Enkripsi Data", "Dekomposisi", "Pengenalan Pola"],
+    answer: 1,
+    explain: "Empat pilar Computational Thinking adalah: Dekomposisi, Pengenalan Pola, Abstraksi, dan Algoritma. Enkripsi data adalah teknik keamanan informasi yang BUKAN bagian dari CT."
+  },
+  {
+    category: "Berpikir Komputasional",
+    catClass: "cat-ct",
+    q: "Langkah-langkah membuat mie instan: 1) Panaskan air, 2) Masukkan mie, 3) Masak 3 menit, 4) Tambahkan bumbu. Konsep Computational Thinking yang paling tepat untuk menggambarkan ini adalah...",
+    options: ["Dekomposisi", "Abstraksi", "Pengenalan Pola", "Algoritma"],
+    answer: 3,
+    explain: "Algoritma adalah urutan langkah-langkah yang logis, terstruktur, dan berurutan untuk menyelesaikan masalah. Resep mie instan yang harus dilakukan secara berurutan adalah contoh algoritma dalam kehidupan sehari-hari."
+  },
+
+  // ── EXCEL / SPREADSHEET ────────────────────────
+  {
+    category: "Excel / Spreadsheet",
+    catClass: "cat-excel",
+    q: "Seorang siswa ingin menghitung rata-rata nilai ulangan di sel B2 hingga B11. Formula Excel yang BENAR adalah...",
+    options: ["=MEAN(B2:B11)", "=AVG(B2:B11)", "=AVERAGE(B2:B11)", "=SUM(B2:B11)/10"],
+    answer: 2,
+    explain: "Fungsi yang tepat untuk rata-rata di Excel adalah =AVERAGE(). MEAN() dan AVG() tidak ada sebagai fungsi bawaan Excel. Meskipun =SUM(B2:B11)/10 menghasilkan nilai yang sama, penggunaan AVERAGE adalah cara yang baku dan benar."
+  },
+  {
+    category: "Excel / Spreadsheet",
+    catClass: "cat-excel",
+    q: "Penulisan sel ABSOLUT yang benar di Excel, di mana BAIK baris maupun kolom dikunci, adalah...",
+    options: ["A$1$", "$A1", "A$1", "$A$1"],
+    answer: 3,
+    explain: "Dalam sel absolut $A$1, tanda $ sebelum huruf kolom (A) mengunci kolom, dan tanda $ sebelum nomor baris (1) mengunci baris. Dengan demikian, saat rumus disalin ke sel lain, referensinya tidak berubah."
+  },
+  {
+    category: "Excel / Spreadsheet",
+    catClass: "cat-excel",
+    q: "Kapan perintah 'Save As' LEBIH TEPAT digunakan dibanding 'Save' di Microsoft Excel?",
+    options: ["Saat ingin menyimpan perubahan pada file yang sudah ada sebelumnya", "Saat pertama kali menyimpan file baru atau ingin menyimpan salinan dengan nama/format berbeda", "Save As dan Save memiliki fungsi yang identik", "Saat file berukuran besar dan perlu dikompres"],
+    answer: 1,
+    explain: "Save As digunakan saat: (1) pertama kali menyimpan file baru, (2) ingin menyimpan dengan nama berbeda, atau (3) mengubah format file. Save (Ctrl+S) digunakan untuk menyimpan perubahan pada file yang sudah pernah disimpan sebelumnya."
+  },
+  {
+    category: "Excel / Spreadsheet",
+    catClass: "cat-excel",
+    q: "Rumus IF yang tepat untuk: jika nilai di sel E7 lebih besar atau SAMA DENGAN 200 tampilkan 'Bonus', jika tidak tampilkan 'Tidak' adalah...",
+    options: ["=IF(E7=>200,\"Bonus\",\"Tidak\")", "=IF(E7>200,\"Bonus\",\"Tidak\")", "=IF(E7>=200,\"Bonus\",\"Tidak\")", "=IF(E7<=200,\"Bonus\",\"Tidak\")"],
+    answer: 2,
+    explain: "Operator 'lebih besar atau sama dengan' di Excel ditulis sebagai >= (bukan =>). Penulisan yang benar adalah =IF(E7>=200,\"Bonus\",\"Tidak\"). Tanda => tidak dikenal Excel dan akan menghasilkan error."
+  },
+  {
+    category: "Excel / Spreadsheet",
+    catClass: "cat-excel",
+    q: "Untuk menghitung JUMLAH DATA ANGKA (bukan menjumlahkan nilainya) di range A7:A11, fungsi yang tepat adalah...",
+    options: ["=SUM(A7:A11)", "=COUNTA(A7:A11)", "=COUNT(A7:A11)", "=SUMIF(A7:A11)"],
+    answer: 2,
+    explain: "COUNT menghitung banyaknya sel yang berisi angka. SUM menjumlahkan nilai angka. COUNTA menghitung sel yang tidak kosong (termasuk teks). Jika ingin menghitung jumlah data angka, gunakan COUNT."
+  },
+  {
+    category: "Excel / Spreadsheet",
+    catClass: "cat-excel",
+    q: "Di Microsoft Excel, menu untuk mengatur lebar kolom secara manual adalah...",
+    options: ["Insert >> Column >> Width", "Format >> Column >> AutoFit", "Home >> Format >> Column Width", "View >> Columns >> Set Width"],
+    answer: 2,
+    explain: "Di Microsoft Excel, pengaturan lebar kolom ada di tab Home, grup Cells, klik Format, lalu pilih Column Width. Ini memungkinkan kamu memasukkan lebar kolom secara spesifik dalam satuan karakter."
+  },
+  {
+    category: "Excel / Spreadsheet",
+    catClass: "cat-excel",
+    q: "Fungsi Excel untuk mencari NILAI TERTINGGI dari range E7:E11 adalah...",
+    options: ["=HIGH(E7:E11)", "=MAXIMUM(E7:E11)", "=TOP(E7:E11)", "=MAX(E7:E11)"],
+    answer: 3,
+    explain: "MAX adalah fungsi Excel untuk mencari nilai maksimum/tertinggi dari suatu range. HIGH(), MAXIMUM(), dan TOP() bukan fungsi yang valid di Excel."
+  },
+
+  // ── BROWSER & SEARCH ENGINE ────────────────────
+  {
+    category: "Browser & Search Engine",
+    catClass: "cat-browser",
+    q: "Perhatikan daftar berikut: Google Chrome, Bing, Mozilla Firefox, Yahoo, Microsoft Edge. Manakah yang merupakan SEARCH ENGINE (bukan browser)?",
+    options: ["Google Chrome dan Mozilla Firefox", "Microsoft Edge dan Google Chrome", "Bing dan Yahoo", "Mozilla Firefox dan Yahoo"],
+    answer: 2,
+    explain: "Browser (peramban web) adalah aplikasi untuk mengakses internet: Chrome, Firefox, Edge, Safari. Search Engine adalah mesin pencari berbasis web: Google, Bing, Yahoo, DuckDuckGo. Bing dan Yahoo adalah search engine, bukan browser."
+  },
+  {
+    category: "Browser & Search Engine",
+    catClass: "cat-browser",
+    q: "Logo browser yang digambarkan sebagai 'lingkaran berwarna-warni dengan bulatan tengah' adalah milik...",
+    options: ["Mozilla Firefox", "Microsoft Edge", "Safari", "Google Chrome"],
+    answer: 3,
+    explain: "Logo Google Chrome adalah lingkaran dengan empat warna (merah, kuning, hijau, biru) dengan lingkaran biru di tengahnya. Firefox adalah rubah berapi, Edge adalah huruf 'e' biru, Safari adalah kompas."
+  },
+  {
+    category: "Browser & Search Engine",
+    catClass: "cat-browser",
+    q: "URL adalah singkatan dari... dan digunakan untuk...",
+    options: ["Universal Resource Locator; mengkompres file web", "Uniform Resource Locator; menjadi alamat unik setiap halaman web", "Unified Resource Link; menghubungkan dua browser", "Uniform Resort Location; menemukan server terdekat"],
+    answer: 1,
+    explain: "URL (Uniform Resource Locator) adalah alamat unik yang digunakan untuk mengidentifikasi dan mengakses resource di internet. Contoh: https://www.sekolah.go.id adalah URL lengkap."
+  },
+  {
+    category: "Browser & Search Engine",
+    catClass: "cat-browser",
+    q: "Penulisan URL yang BENAR berdasarkan format standar protokol internet adalah...",
+    options: ["html://www.sekolahku.sch.id", "http://www@sekolahku.sch.id", "html:\\\\www.sekolahku.sch.id", "https://www.sekolahku.sch.id"],
+    answer: 3,
+    explain: "Format URL yang benar: [protokol]://[www].[domain].[ekstensi]. Protokol yang valid adalah http:// atau https://. Simbol @ dan backslash \\\\ tidak boleh ada di bagian protokol/domain URL."
+  },
+
+  // ── POWERPOINT ─────────────────────────────────
+  {
+    category: "PowerPoint",
+    catClass: "cat-ppt",
+    q: "Seorang siswa membuat presentasi dengan efek teks yang 'terbang masuk' dari kiri saat slide ditampilkan. Efek yang digunakan adalah...",
+    options: ["Transisi — karena melibatkan perpindahan elemen antar slide", "Slide Show Effect — fitur khusus mode presentasi", "Animasi — efek gerak yang diterapkan pada objek di dalam slide", "Template Effect — efek bawaan desain slide"],
+    answer: 2,
+    explain: "Animasi di PowerPoint adalah efek gerak yang diterapkan pada objek (teks, gambar, shape) di dalam satu slide — seperti muncul, bergerak, atau menghilang. Ini berbeda dengan Transisi yang hanya terjadi saat berpindah antar slide."
+  },
+  {
+    category: "PowerPoint",
+    catClass: "cat-ppt",
+    q: "Apa perbedaan MENDASAR antara Animasi dan Transisi di PowerPoint?",
+    options: ["Animasi untuk teks, Transisi khusus untuk gambar", "Transisi terjadi di awal, Animasi di akhir setiap slide", "Animasi adalah efek pada objek di dalam slide, Transisi adalah efek perpindahan antar slide", "Keduanya identik, hanya berbeda nama di menu"],
+    answer: 2,
+    explain: "Animasi = efek gerak pada OBJEK di dalam slide (teks bisa fly-in, gambar bisa bounce). Transisi = efek gerak saat BERPINDAH dari satu slide ke slide berikutnya (fade, wipe, push, dll). Keduanya berbeda konteks dan lokasi."
+  },
+  {
+    category: "PowerPoint",
+    catClass: "cat-ppt",
+    q: "Yang BUKAN merupakan jenis objek yang dapat disisipkan ke dalam slide PowerPoint adalah...",
+    options: ["File video MP4", "Tabel spreadsheet tertaut", "Query database SQL langsung", "Gambar dari file lokal"],
+    answer: 2,
+    explain: "PowerPoint mendukung penyisipan objek seperti teks, gambar, video, audio, tabel, grafik, dan SmartArt. Namun PowerPoint TIDAK bisa menjalankan query database SQL langsung — itu adalah fungsi aplikasi database seperti Microsoft Access."
+  },
+
+  // ── EMAIL ──────────────────────────────────────
+  {
+    category: "Email",
+    catClass: "cat-email",
+    q: "Ani mengirim email ke Budi (kolom TO) dan diam-diam meng-CC Cici tanpa sepengetahuan Budi. Fitur email yang digunakan Ani adalah...",
+    options: ["CC (Carbon Copy) — karena Budi tidak tahu", "TO — karena itu adalah penerima utama", "BCC (Blind Carbon Copy) — tembusan tersembunyi yang tidak terlihat penerima lain", "Forward — karena email diteruskan ke penerima kedua"],
+    answer: 2,
+    explain: "BCC (Blind Carbon Copy) adalah fitur yang memungkinkan pengirim menambahkan penerima secara tersembunyi. Penerima di kolom TO dan CC TIDAK BISA melihat siapa yang ada di kolom BCC. Berbeda dengan CC yang terlihat oleh semua penerima."
+  },
+  {
+    category: "Email",
+    catClass: "cat-email",
+    q: "Kamu sudah menulis draft email panjang untuk guru, tapi belum siap mengirimnya. Email tersebut otomatis tersimpan di folder...",
+    options: ["Inbox — karena kamu adalah pengirimnya", "Sent — karena sudah dibuat", "Spam — karena belum terverifikasi", "Drafts — tempat penyimpanan email yang belum dikirim"],
+    answer: 3,
+    explain: "Drafts adalah folder tempat menyimpan email yang sudah ditulis NAMUN belum dikirim. Kamu bisa membuka draft kapan saja untuk melanjutkan atau mengeditnya sebelum benar-benar dikirim."
+  },
+  {
+    category: "Email",
+    catClass: "cat-email",
+    q: "Guru mengirimkan pengumuman penting melalui email. Di folder manakah email tersebut pertama kali masuk?",
+    options: ["Drafts", "Sent", "Archive", "Inbox (Kotak Masuk)"],
+    answer: 3,
+    explain: "Inbox (Kotak Masuk) adalah folder utama yang menampilkan semua email yang masuk dari orang lain. Setiap email baru yang diterima pertama kali muncul di Inbox."
+  },
+  {
+    category: "Email",
+    catClass: "cat-email",
+    q: "Ibumu mendapat email promosi yang mencurigakan dari toko online yang tidak dikenal. Email tersebut kemungkinan besar masuk ke folder...",
+    options: ["Archive", "Starred", "Inbox", "Spam"],
+    answer: 3,
+    explain: "Spam adalah folder yang berisi email yang dianggap mencurigakan, iklan yang tidak diinginkan, atau berpotensi berbahaya. Sistem email secara otomatis memfilter email semacam ini ke folder Spam."
+  },
+  {
+    category: "Email",
+    catClass: "cat-email",
+    q: "Kamu ingin kotak masuk tetap rapi tanpa menghapus email-email lama yang mungkin masih diperlukan. Fitur email yang PALING TEPAT digunakan adalah...",
+    options: ["Delete — hapus semua email lama", "Starred — beri bintang di semua email lama", "Spam — pindahkan ke spam", "Archive — menyimpan email tanpa menghapus dan membersihkan Inbox"],
+    answer: 3,
+    explain: "Archive menyimpan email ke folder arsip sehingga tidak muncul di Inbox, namun emailnya TIDAK DIHAPUS dan masih bisa dicari kapan saja. Ini cara terbaik untuk membersihkan Inbox tanpa kehilangan data."
+  },
+  {
+    category: "Email",
+    catClass: "cat-email",
+    q: "Dalam pengiriman email, 'Subject' berfungsi sebagai...",
+    options: ["Nama pengirim email", "Isi/konten utama pesan email", "Judul atau topik singkat email yang dikirim", "Alamat email tujuan pengiriman"],
+    answer: 2,
+    explain: "Subject (Subjek) adalah judul atau topik singkat yang menggambarkan isi email. Subject membantu penerima mengetahui tentang apa email tersebut tanpa harus membuka isinya terlebih dahulu."
+  },
+
+  // ── PERANGKAT KERAS ────────────────────────────
+  {
+    category: "Perangkat Keras",
+    catClass: "cat-hw",
+    q: "Komponen manakah yang sering disebut 'otak komputer' karena bertanggung jawab memproses SEMUA instruksi dan kalkulasi?",
+    options: ["RAM (Random Access Memory)", "Motherboard", "Hard Disk Drive", "CPU (Central Processing Unit)"],
+    answer: 3,
+    explain: "CPU (Central Processing Unit) adalah komponen utama yang menjalankan instruksi program, melakukan perhitungan, dan mengkoordinasikan semua komponen komputer. CPU disebut 'otak komputer' karena perannya sebagai pusat pemrosesan."
+  },
+  {
+    category: "Perangkat Keras",
+    catClass: "cat-hw",
+    q: "Seorang atlet e-sports menggunakan kontroler khusus untuk bermain game. Berdasarkan kategori perangkat keras, kontroler tersebut adalah perangkat...",
+    options: ["Output — menghasilkan gerakan di layar", "Proses — memproses input dari tangan", "Penyimpanan — menyimpan konfigurasi tombol", "Input — menerima perintah dari pengguna dan mengirim ke komputer"],
+    answer: 3,
+    explain: "Perangkat Input adalah perangkat yang menerima masukan dari pengguna dan mengirimkannya ke komputer untuk diproses. Keyboard, mouse, joystick, gamepad, scanner, dan mikrofon semua termasuk perangkat input."
+  },
+  {
+    category: "Perangkat Keras",
+    catClass: "cat-hw",
+    q: "Motherboard termasuk ke dalam kategori perangkat keras...",
+    options: ["Input — menerima sinyal dari periferal", "Output — mengirim data ke monitor", "Penyimpanan — menyimpan konfigurasi BIOS", "Proses — menghubungkan dan mengkoordinasikan semua komponen"],
+    answer: 3,
+    explain: "Motherboard (papan induk) adalah komponen perangkat PROSES yang menghubungkan semua komponen komputer (CPU, RAM, storage, dll) dan memfasilitasi komunikasi antar komponen tersebut."
+  },
+  {
+    category: "Perangkat Keras",
+    catClass: "cat-hw",
+    q: "Manakah kelompok yang SELURUHNYA merupakan perangkat OUTPUT?",
+    options: ["Monitor, Keyboard, Speaker", "Monitor, Printer, Speaker", "CPU, Monitor, RAM", "Printer, Mouse, Joystick"],
+    answer: 1,
+    explain: "Perangkat output menghasilkan keluaran dari komputer ke pengguna: Monitor (visual), Printer (cetak), Speaker (suara), Projektor (visual besar). Keyboard dan mouse adalah input, CPU dan RAM adalah proses."
+  },
+
+  // ── SISTEM BILANGAN ────────────────────────────
+  {
+    category: "Sistem Bilangan",
+    catClass: "cat-sysnum",
+    q: "Bilangan desimal 13 dikonversi ke biner menghasilkan...",
+    options: ["1100", "1110", "1011", "1101"],
+    answer: 3,
+    explain: "Konversi 13 ke biner: 13÷2=6 sisa 1, 6÷2=3 sisa 0, 3÷2=1 sisa 1, 1÷2=0 sisa 1. Dibaca dari bawah ke atas: 1101. Verifikasi: 8+4+0+1 = 13 ✓"
+  },
+  {
+    category: "Sistem Bilangan",
+    catClass: "cat-sysnum",
+    q: "Angka yang TIDAK MUNGKIN terdapat dalam sistem bilangan oktal adalah...",
+    options: ["0", "7", "5", "9"],
+    answer: 3,
+    explain: "Sistem bilangan oktal (basis 8) hanya menggunakan digit 0, 1, 2, 3, 4, 5, 6, dan 7. Angka 8 dan 9 TIDAK ADA dalam oktal. Jika muncul angka 8 atau 9, itu bukan bilangan oktal yang valid."
+  },
+  {
+    category: "Sistem Bilangan",
+    catClass: "cat-sysnum",
+    q: "Huruf 'E' dalam sistem bilangan heksadesimal mewakili nilai desimal...",
+    options: ["13", "15", "14", "12"],
+    answer: 2,
+    explain: "Konversi heksadesimal: A=10, B=11, C=12, D=13, E=14, F=15. Jadi E = 14 dalam desimal. Ingat urutan: A(10) B(11) C(12) D(13) E(14) F(15)."
+  },
+  {
+    category: "Sistem Bilangan",
+    catClass: "cat-sysnum",
+    q: "Bilangan oktal 25 dikonversi ke desimal adalah...",
+    options: ["25", "21", "23", "29"],
+    answer: 1,
+    explain: "Oktal 25 = 2×8¹ + 5×8⁰ = 2×8 + 5×1 = 16 + 5 = 21. Bukan 25 karena itu nilai oktalnya, bukan desimalnya. Setiap digit dikali dengan 8 pangkat posisinya."
+  },
+  {
+    category: "Sistem Bilangan",
+    catClass: "cat-sysnum",
+    q: "Bilangan 255 (desimal) dalam heksadesimal adalah...",
+    options: ["EF", "F0", "FE", "FF"],
+    answer: 3,
+    explain: "255 ÷ 16 = 15 sisa 15. Digit pertama = 15 = F, digit kedua = 15 = F. Jadi 255 desimal = FF heksadesimal. Verifikasi: F×16 + F×1 = 240+15 = 255 ✓"
+  },
+  {
+    category: "Sistem Bilangan",
+    catClass: "cat-sysnum",
+    q: "Biner hanya menggunakan angka 0 dan 1 karena...",
+    options: ["Komputer hanya mengenal dua warna: hitam dan putih", "Standar internasional membatasi penggunaan angka biner", "Biner berbasis 2, sehingga hanya ada dua digit yang mungkin (0 dan 1)", "Memori komputer hanya bisa menyimpan dua jenis karakter"],
+    answer: 2,
+    explain: "Sistem bilangan biner menggunakan basis 2. Artinya setiap posisi hanya bisa bernilai 0 atau 1 (dua kemungkinan). Ini sesuai dengan cara kerja transistor digital: OFF (0) atau ON (1)."
+  },
+
+  // ── KEAMANAN DATA & INTERNET ───────────────────
+  {
+    category: "Keamanan Data & Internet",
+    catClass: "cat-security",
+    q: "Rudi mendapat email dari 'bank.co.id@gmail.com' yang memintanya mengklik link untuk 'memverifikasi akun' dan memasukkan password. Ini adalah contoh serangan...",
+    options: ["Ransomware — karena mencuri data", "Hoax — karena emailnya palsu", "Phishing — penipuan menyamar sebagai pihak tepercaya untuk mencuri data", "Cyber Bullying — karena mengancam pengguna"],
+    answer: 2,
+    explain: "Phishing adalah serangan siber di mana penyerang menyamar sebagai entitas tepercaya (bank, toko online, instansi) melalui email/link palsu untuk mengelabui korban agar memberikan data pribadi seperti password, nomor kartu kredit, dll."
+  },
+  {
+    category: "Keamanan Data & Internet",
+    catClass: "cat-security",
+    q: "Komputer Dina tiba-tiba tidak bisa diakses, semua filenya terenkripsi, dan muncul pesan 'Bayar 1 BTC untuk membuka kunci datamu'. Jenis malware yang menyerang Dina adalah...",
+    options: ["Virus — karena merusak file sistem", "Spyware — karena memata-matai aktivitas", "Phishing — karena meminta pembayaran", "Ransomware — malware yang mengunci data dan meminta tebusan"],
+    answer: 3,
+    explain: "Ransomware adalah malware yang mengenkripsi data korban sehingga tidak bisa diakses, kemudian meminta tebusan (ransom) biasanya dalam bentuk cryptocurrency untuk memberikan kunci dekripsi. Contoh: WannaCry, Petya."
+  },
+  {
+    category: "Keamanan Data & Internet",
+    catClass: "cat-security",
+    q: "Sebuah artikel viral menyatakan 'Minum air lemon setiap pagi bisa menyembuhkan kanker' tanpa mencantumkan sumber ilmiah apapun. Ini dikategorikan sebagai...",
+    options: ["Phishing — karena menipu pembaca", "Spam — karena dikirim ke banyak orang", "Cyber Bullying — karena menyerang penderita kanker", "Hoax — berita palsu tanpa sumber yang jelas dan kredibel"],
+    answer: 3,
+    explain: "Hoax adalah informasi atau berita palsu yang disebarkan (seringkali secara viral) tanpa sumber yang jelas, terpercaya, atau dapat diverifikasi. Hoax berbahaya karena bisa menyesatkan masyarakat."
+  },
+  {
+    category: "Keamanan Data & Internet",
+    catClass: "cat-security",
+    q: "Seorang siswa menerima komentar-komentar jahat, ancaman, dan hinaan secara terus-menerus di media sosial dari sekelompok temannya. Ini disebut...",
+    options: ["Spamming — karena pesannya berulang-ulang", "Phishing — karena mencuri rasa percaya diri", "Hoax — karena menyebarkan berita negatif", "Cyber Bullying — perundungan yang dilakukan di ranah digital"],
+    answer: 3,
+    explain: "Cyber Bullying adalah perundungan yang dilakukan melalui media digital (media sosial, pesan singkat, email, game online, dll). Ini termasuk penghinaan, ancaman, penyebaran foto/video tanpa izin, dan exclusion online."
+  },
+
+  // ── JARINGAN & CLOUD STORAGE ───────────────────
+  {
+    category: "Jaringan & Cloud Storage",
+    catClass: "cat-network",
+    q: "Jaringan komputer yang menghubungkan beberapa gedung perkantoran dalam SATU KOTA disebut...",
+    options: ["LAN (Local Area Network) — karena masih dalam satu wilayah", "WAN (Wide Area Network) — karena mencakup banyak gedung", "Internet — karena menggunakan koneksi global", "MAN (Metropolitan Area Network) — jaringan skala kota"],
+    answer: 3,
+    explain: "MAN (Metropolitan Area Network) adalah jaringan yang mencakup area setingkat kota atau metropolitan, biasanya menghubungkan beberapa gedung atau kantor cabang dalam satu kota. Skalanya lebih besar dari LAN tapi lebih kecil dari WAN."
+  },
+  {
+    category: "Jaringan & Cloud Storage",
+    catClass: "cat-network",
+    q: "Perbedaan utama antara LAN dan WAN adalah...",
+    options: ["LAN lebih cepat karena menggunakan fiber, WAN menggunakan kabel tembaga", "LAN dan WAN sama, hanya berbeda vendor", "LAN mencakup area kecil (ruangan/gedung), WAN mencakup area sangat luas (kota/negara/benua)", "WAN selalu lebih mahal dari LAN tanpa pengecualian"],
+    answer: 2,
+    explain: "LAN (Local Area Network) = jaringan skala kecil di satu lokasi (ruangan, gedung, sekolah). WAN (Wide Area Network) = jaringan skala besar yang menghubungkan banyak LAN melintasi kota, provinsi, atau negara. Internet adalah WAN terbesar."
+  },
+  {
+    category: "Jaringan & Cloud Storage",
+    catClass: "cat-network",
+    q: "Keunggulan UTAMA menggunakan cloud storage seperti Google Drive dibanding penyimpanan lokal (flashdisk) adalah...",
+    options: ["Kapasitas penyimpanan cloud lebih terbatas sehingga lebih terorganisir", "Harga cloud storage selalu lebih murah dari semua flashdisk", "File di cloud dapat diakses dari perangkat manapun selama ada koneksi internet", "Data di cloud lebih aman dari bencana alam manapun"],
+    answer: 2,
+    explain: "Keunggulan utama cloud storage adalah aksesibilitas universal — kamu bisa membuka, mengedit, dan berbagi file dari smartphone, laptop, komputer kantor, dll asalkan ada koneksi internet. Flashdisk dibatasi oleh keharusan membawa perangkat fisiknya."
+  },
+  {
+    category: "Jaringan & Cloud Storage",
+    catClass: "cat-network",
+    q: "Google Drive, Dropbox, dan iCloud adalah contoh dari...",
+    options: ["Search Engine", "Operating System", "Browser", "Cloud Storage — penyimpanan berbasis internet"],
+    answer: 3,
+    explain: "Cloud Storage adalah layanan penyimpanan data yang berlokasi di server internet (bukan di perangkat lokal). Contohnya: Google Drive, Dropbox, OneDrive, iCloud, Box. Data tersimpan di 'awan' (internet)."
+  },
+
+  // ── APLIKASI & PEMROGRAMAN ─────────────────────
+  {
+    category: "Aplikasi & Pemrograman",
+    catClass: "cat-app",
+    q: "Seorang konten kreator ingin mengedit video vlog-nya dengan transisi keren dan efek teks. Aplikasi yang paling tepat adalah...",
+    options: ["Microsoft Excel — untuk mengatur timeline video", "Canva — karena bisa membuat desain kreatif", "Microsoft PowerPoint — untuk membuat presentasi video", "CapCut atau Adobe Premiere — aplikasi khusus editing video"],
+    answer: 3,
+    explain: "CapCut dan Adobe Premiere adalah aplikasi khusus untuk mengedit video, lengkap dengan fitur trimming, transisi, efek, teks, musik, dan ekspor video. Canva memang bisa membuat video sederhana, tapi CapCut/Premiere jauh lebih powerful untuk video editing."
+  },
+  {
+    category: "Aplikasi & Pemrograman",
+    catClass: "cat-app",
+    q: "Canva dan Microsoft PowerPoint keduanya digolongkan sebagai...",
+    options: ["Aplikasi Pengolah Kata", "Aplikasi Perhitungan / Spreadsheet", "Aplikasi Editing Video", "Aplikasi Presentasi"],
+    answer: 3,
+    explain: "Canva dan PowerPoint adalah aplikasi presentasi yang digunakan untuk membuat slide, infografis, dan materi visual. Meskipun berbeda interface (Canva berbasis web, PowerPoint berbasis desktop), keduanya termasuk aplikasi presentasi."
+  },
+
+  // ── LITERASI DIGITAL ───────────────────────────
+  {
+    category: "Literasi Digital",
+    catClass: "cat-digital",
+    q: "Seorang pelajar selalu memeriksa kebenaran informasi dari berbagai sumber sebelum menyebarkannya, menggunakan media sosial dengan bijak, dan melindungi data pribadinya secara online. Kemampuan ini disebut...",
+    options: ["Kewarganegaraan Digital — karena mematuhi aturan digital", "Coding Literacy — karena memahami teknologi mendalam", "Kecerdasan Digital — kemampuan menggunakan teknologi secara bijak dan bertanggung jawab", "Media Awareness — kesadaran terhadap media massa"],
+    answer: 2,
+    explain: "Kecerdasan Digital (Digital Intelligence) adalah kemampuan seseorang untuk memahami, menggunakan, dan mengelola teknologi digital secara bijak, kritis, etis, dan bertanggung jawab demi kebaikan diri sendiri dan orang lain."
+  },
+  {
+    category: "Literasi Digital",
+    catClass: "cat-digital",
+    q: "Tata krama, norma, dan tanggung jawab dalam berinteraksi di dunia digital disebut...",
+    options: ["Kecerdasan Digital", "Digital Marketing", "Kewarganegaraan Digital — perilaku bertanggung jawab di dunia digital", "Cyber Ethics"],
+    answer: 2,
+    explain: "Kewarganegaraan Digital mencakup pemahaman dan penerapan norma, etika, hak, dan tanggung jawab saat berinteraksi di dunia digital — termasuk sopan santun online, privasi, hak cipta, dan berperilaku positif di internet."
+  },
+  {
+    category: "Literasi Digital",
+    catClass: "cat-digital",
+    q: "Membeli sepatu secara online melalui aplikasi Shopee atau Tokopedia disebut...",
+    options: ["E-banking", "E-learning — belajar via internet", "Belanja Online — transaksi jual beli melalui internet", "Digital Payment"],
+    answer: 2,
+    explain: "Belanja Online (e-commerce) adalah kegiatan transaksi jual beli barang atau jasa yang dilakukan melalui platform internet. Contoh platform: Shopee, Tokopedia, Lazada, Bukalapak, Amazon."
+  },
+
+  // ── PYTHON ─────────────────────────────────────
+  {
+    category: "Python",
+    catClass: "cat-python",
+    q: "Untuk mencetak kalimat 'Halo Dunia!' di Python, penulisan yang BENAR adalah...",
+    options: ["PRINT(\"Halo Dunia!\")", "Print(\"Halo Dunia!\")", "echo(\"Halo Dunia!\")", "print(\"Halo Dunia!\")"],
+    answer: 3,
+    explain: "Python bersifat case-sensitive (membedakan huruf besar-kecil). Fungsi cetak di Python ditulis print() dengan HURUF KECIL SEMUA. Print() atau PRINT() akan menghasilkan NameError. echo() adalah perintah di bahasa PHP, bukan Python."
+  },
+  {
+    category: "Python",
+    catClass: "cat-python",
+    q: "Hasil eksekusi kode Python: print(10 / 4) adalah...",
+    options: ["2 (hasil pembagian bulat)", "2.5 (float division)", "2,5 (koma desimal Indonesia)", "Error karena harus pakai //"],
+    answer: 1,
+    explain: "Di Python 3, operator / selalu menghasilkan FLOAT (bilangan desimal). 10/4 = 2.5 (bukan 2). Untuk pembagian bulat digunakan operator // (floor division), sedangkan titik, bukan koma, yang digunakan sebagai pemisah desimal."
+  },
+  {
+    category: "Python",
+    catClass: "cat-python",
+    q: "Manakah baris kode Python yang akan menghasilkan ERROR?",
+    options: ["print(\"Informatika\")", "print(100 - 25)", "print(\"5\" + \"3\")", "Print(\"Halo Sekolah\")"],
+    answer: 3,
+    explain: "Print(\"Halo Sekolah\") dengan P kapital akan menghasilkan NameError karena Python case-sensitive dan tidak mengenal fungsi 'Print'. Catatan: print(\"5\"+\"3\") menghasilkan \"53\" (string concatenation), bukan 8."
+  },
+  {
+    category: "Python",
+    catClass: "cat-python",
+    q: "Di Python, operator yang digunakan untuk perkalian dua bilangan adalah...",
+    options: ["x (huruf eks)", "× (simbol perkalian matematika)", "^ (caret/pangkat)", "* (asterisk/bintang)"],
+    answer: 3,
+    explain: "Python menggunakan * (asterisk) untuk perkalian. Operator lengkap: + (tambah), - (kurang), * (kali), / (bagi), // (bagi bulat), % (modulo/sisa bagi), ** (pangkat). Simbol × tidak ada di keyboard standar dan tidak digunakan di Python."
+  },
+  {
+    category: "Python",
+    catClass: "cat-python",
+    q: "print(\"Nilai:\", 3 * 8 - 4) akan menghasilkan output...",
+    options: ["Nilai: 20", "Nilai: 3 * 8 - 4 (dicetak apa adanya)", "Nilai: 28", "Error karena ada teks dan angka bersamaan"],
+    answer: 0,
+    explain: "Python mengevaluasi ekspresi matematika di dalam print(): 3 * 8 = 24, lalu 24 - 4 = 20. Output: Nilai: 20. Python dapat mencetak kombinasi string dan ekspresi numerik sekaligus, dipisah koma."
+  },
+
+  // ── SOAL CAMPURAN LANJUTAN ──────────────────────
+  {
+    category: "Excel / Spreadsheet",
+    catClass: "cat-excel",
+    q: "Fungsi untuk menyisipkan grafik (chart) di Microsoft Excel terdapat pada menu...",
+    options: ["Home >> Charts", "Format >> Insert Chart", "Insert >> Chart/Column", "File >> New Chart"],
+    answer: 2,
+    explain: "Di Microsoft Excel, untuk menyisipkan grafik/chart, kamu harus pergi ke tab Insert, kemudian pilih jenis chart yang diinginkan (Column, Bar, Pie, Line, dll) di grup Charts."
+  },
+  {
+    category: "Berpikir Komputasional",
+    catClass: "cat-ct",
+    q: "Seorang arsitek membuat blueprint rumah yang menunjukkan denah lantai tanpa menggambar detail pipa air, kabel listrik, dan dekorasi interior. Ini adalah penerapan...",
+    options: ["Dekomposisi — memisahkan bagian rumah", "Algoritma — urutan pembangunan", "Pengenalan Pola — semua rumah punya lantai", "Abstraksi — menyederhanakan detail dan fokus pada hal penting"],
+    answer: 3,
+    explain: "Abstraksi dalam konteks ini berarti memfokuskan representasi pada informasi yang dibutuhkan (struktur/denah lantai) sambil mengabaikan detail yang tidak relevan pada tahap perencanaan struktural (pipa, kabel, dekorasi)."
+  },
+  {
+    category: "Perangkat Keras",
+    catClass: "cat-hw",
+    q: "Saat bermain game, RAM komputer penuh sehingga game menjadi lag. Fungsi RAM yang paling tepat menjelaskan ini adalah...",
+    options: ["RAM menyimpan game secara permanen", "RAM sebagai perangkat output untuk grafis game", "RAM menyimpan data yang sedang aktif diproses CPU secara sementara — kapasitas terbatas menyebabkan lag", "RAM mengkonversi sinyal digital ke analog untuk speaker"],
+    answer: 2,
+    explain: "RAM (Random Access Memory) adalah memori kerja sementara yang menyimpan data dan instruksi yang sedang digunakan CPU. Saat game lag karena RAM penuh, CPU harus mengakses hard disk yang jauh lebih lambat sebagai memori virtual."
+  },
+  {
+    category: "Keamanan Data & Internet",
+    catClass: "cat-security",
+    q: "Langkah PALING EFEKTIF untuk melindungi akun online dari serangan Phishing adalah...",
+    options: ["Menggunakan password yang sama di semua akun agar mudah diingat", "Selalu mengklik link di email untuk memeriksa apakah aman", "Tidak pernah menggunakan internet sama sekali", "Selalu verifikasi keaslian pengirim email dan jangan klik link mencurigakan"],
+    answer: 3,
+    explain: "Perlindungan terbaik dari phishing: (1) periksa alamat email pengirim dengan teliti, (2) jangan klik link mencurigakan, (3) akses website bank/layanan langsung via browser (bukan via link email), (4) aktifkan autentikasi dua faktor."
+  },
+  {
+    category: "Jaringan & Cloud Storage",
+    catClass: "cat-network",
+    q: "Berdasarkan cakupan wilayah dari TERKECIL ke TERBESAR, urutan jaringan yang benar adalah...",
+    options: ["Internet → WAN → MAN → LAN", "MAN → LAN → WAN → Internet", "LAN → WAN → MAN → Internet", "LAN → MAN → WAN → Internet"],
+    answer: 3,
+    explain: "Urutan cakupan dari terkecil ke terbesar: LAN (ruangan/gedung/sekolah) → MAN (antar gedung dalam satu kota) → WAN (antar kota/provinsi/negara) → Internet (seluruh dunia/global). Ini adalah hierarki standar jaringan komputer."
+  },
+  {
+    category: "Python",
+    catClass: "cat-python",
+    q: "Perhatikan kode Python ini: print(type(7 / 2)). Apa output yang dihasilkan?",
+    options: ["<class 'int'>", "<class 'float'>", "<class 'number'>", "3.5"],
+    answer: 1,
+    explain: "Di Python 3, operator / (true division) selalu menghasilkan tipe data float, berapapun angkanya. 7/2 = 3.5 (float), sehingga type(7/2) = <class 'float'>. Untuk mendapat integer, gunakan // (floor division): 7//2 = 3."
+  },
+  {
+    category: "Sistem Bilangan",
+    catClass: "cat-sysnum",
+    q: "Sistem bilangan yang digunakan oleh komputer secara internal untuk semua operasinya adalah...",
+    options: ["Desimal — karena manusia menggunakan desimal", "Heksadesimal — karena lebih efisien dari oktal", "Biner — karena transistor hanya mengenal dua kondisi (on/off)", "Oktal — karena mempermudah konversi"],
+    answer: 2,
+    explain: "Komputer menggunakan sistem BINER secara internal karena komponen elektroniknya (transistor) hanya mengenal dua kondisi: menyala (1) dan mati (0). Semua data teks, gambar, suara, dll direpresentasikan sebagai rangkaian 0 dan 1."
+  }
+];
+
+// ═══════════════════════════════════════════════════
+//  QUIZ STATE
+// ═══════════════════════════════════════════════════
+let questions = [];
+let currentIdx = 0;
+let score = 0;
+let userAnswers = [];
+let answered = false;
+
+// ═══════════════════════════════════════════════════
+//  MUSIC PLAYER
+// ═══════════════════════════════════════════════════
+const audio = document.getElementById('audioPlayer');
+let playing = false;
+
+function loadMusic(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const url = URL.createObjectURL(file);
+  audio.src = url;
+  document.getElementById('trackName').textContent = file.name.replace(/\.[^/.]+$/, '');
+  audio.volume = document.getElementById('volSlider').value / 100;
+  audio.play();
+  playing = true;
+  document.getElementById('playBtn').textContent = '⏸';
+}
+
+function togglePlay() {
+  if (!audio.src) return;
+  if (playing) {
+    audio.pause();
+    document.getElementById('playBtn').textContent = '▶';
+    playing = false;
+  } else {
+    audio.play();
+    document.getElementById('playBtn').textContent = '⏸';
+    playing = true;
+  }
+}
+
+function setVolume(v) {
+  audio.volume = v / 100;
+  const slider = document.getElementById('volSlider');
+  const pct = (v / 100) * 100;
+  slider.style.background = `linear-gradient(to right, var(--neon-purple) ${pct}%, #1a2840 ${pct}%)`;
+}
+
+// Set initial slider gradient
+setVolume(60);
+
+// ═══════════════════════════════════════════════════
+//  FISHER-YATES SHUFFLE
+// ═══════════════════════════════════════════════════
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Shuffle options within a question
+function shuffleOptions(q) {
+  const indices = [0,1,2,3];
+  const shuffled = shuffle(indices);
+  const newOptions = shuffled.map(i => q.options[i]);
+  const newAnswer = shuffled.indexOf(q.answer);
+  return { ...q, options: newOptions, answer: newAnswer };
+}
+
+// ═══════════════════════════════════════════════════
+//  PARTICLES
+// ═══════════════════════════════════════════════════
+function createParticles() {
+  const container = document.getElementById('particles');
+  const colors = ['#00f5ff','#ff2d78','#bf5af2','#ffd60a','#30d158'];
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (8 + Math.random() * 12) + 's';
+    p.style.animationDelay = (Math.random() * 10) + 's';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.width = p.style.height = (1 + Math.random() * 2) + 'px';
+    container.appendChild(p);
+  }
+}
+createParticles();
+
+// ═══════════════════════════════════════════════════
+//  QUIZ LOGIC
+// ═══════════════════════════════════════════════════
+function startQuiz() {
+  questions = shuffle(ALL_QUESTIONS).map(shuffleOptions);
+  currentIdx = 0;
+  score = 0;
+  userAnswers = [];
+  answered = false;
+
+  document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('resultScreen').style.display = 'none';
+  document.getElementById('quizScreen').style.display = 'block';
+
+  renderQuestion();
+}
+
+function renderQuestion() {
+  answered = false;
+  const q = questions[currentIdx];
+  const total = questions.length;
+  const pct = (currentIdx / total) * 100;
+
+  document.getElementById('qNum').textContent = currentIdx + 1;
+  document.getElementById('scoreDisplay').textContent = score;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = Math.round(pct) + '%';
+  document.getElementById('progressRemain').textContent = (total - currentIdx) + ' soal tersisa';
+
+  // Rebuild card with animation
+  const card = document.getElementById('questionCard');
+  card.style.animation = 'none';
+  void card.offsetWidth;
+  card.style.animation = 'card-enter 0.4s cubic-bezier(0.4,0,0.2,1) forwards';
+
+  document.getElementById('qCategory').className = 'q-category ' + q.catClass;
+  document.getElementById('qCategory').textContent = q.category;
+  document.getElementById('qNumBadge').textContent = '#' + String(currentIdx + 1).padStart(2, '0');
+  document.getElementById('questionText').textContent = q.q;
+
+  const letters = ['A', 'B', 'C', 'D'];
+  const container = document.getElementById('optionsContainer');
+  container.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+
+  document.getElementById('explanationBox').style.display = 'none';
+  document.getElementById('explanationBox').innerHTML = '';
+  document.getElementById('nextBtn').style.display = 'none';
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+
+  const q = questions[currentIdx];
+  const buttons = document.querySelectorAll('.option-btn');
+  const isCorrect = idx === q.answer;
+  const letters = ['A', 'B', 'C', 'D'];
+
+  buttons.forEach(btn => btn.disabled = true);
+
+  if (isCorrect) {
+    buttons[idx].classList.add('correct');
+    score++;
+  } else {
+    buttons[idx].classList.add('wrong');
+    buttons[q.answer].classList.add('correct');
+  }
+
+  userAnswers.push({
+    qIdx: currentIdx,
+    selected: idx,
+    correct: q.answer,
+    isCorrect
+  });
+
+  // Show explanation
+  const expBox = document.getElementById('explanationBox');
+  expBox.className = 'explanation-box ' + (isCorrect ? 'correct-exp' : 'wrong-exp');
+  expBox.innerHTML = `
+    <div class="exp-title">
+      <span class="exp-icon">${isCorrect ? '✅' : '❌'}</span>
+      ${isCorrect ? 'JAWABAN BENAR!' : `JAWABAN SALAH — Jawaban benar: <strong>${letters[q.answer]}</strong>`}
+    </div>
+    <div>${q.explain}</div>
+  `;
+  expBox.style.display = 'block';
+
+  document.getElementById('scoreDisplay').textContent = score;
+
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.style.display = 'block';
+  nextBtn.textContent = currentIdx < questions.length - 1 ? 'SOAL BERIKUTNYA' : 'LIHAT HASIL';
+}
+
+function nextQuestion() {
+  currentIdx++;
+  if (currentIdx >= questions.length) {
+    showResult();
+  } else {
+    renderQuestion();
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  RESULT
+// ═══════════════════════════════════════════════════
+function showResult() {
+  document.getElementById('quizScreen').style.display = 'none';
+  document.getElementById('resultScreen').style.display = 'block';
+
+  const total = questions.length;
+  const correct = userAnswers.filter(a => a.isCorrect).length;
+  const wrong = total - correct;
+  const finalScore = Math.round((correct / total) * 100);
+
+  document.getElementById('rTotal').textContent = total;
+  document.getElementById('rCorrect').textContent = correct;
+  document.getElementById('rWrong').textContent = wrong;
+  document.getElementById('rScore').textContent = finalScore;
+  document.getElementById('resultGrade').textContent = finalScore;
+
+  let emoji, message, sub;
+  if (finalScore >= 90) {
+    emoji = '🏆'; message = 'LUAR BIASA! Kamu Ahlinya!';
+    sub = `Nilai ${finalScore}/100 — Kamu menguasai hampir seluruh materi Informatika dengan sempurna!`;
+  } else if (finalScore >= 80) {
+    emoji = '🌟'; message = 'SANGAT BAGUS!';
+    sub = `Nilai ${finalScore}/100 — Pemahaman materi sangat baik. Pelajari soal yang salah untuk menyempurnakan!`;
+  } else if (finalScore >= 70) {
+    emoji = '👍'; message = 'BAGUS! Terus Semangat!';
+    sub = `Nilai ${finalScore}/100 — Kamu sudah memahami sebagian besar materi. Perlu sedikit lagi latihan!`;
+  } else if (finalScore >= 60) {
+    emoji = '💪'; message = 'CUKUP BAIK, Terus Belajar!';
+    sub = `Nilai ${finalScore}/100 — Masih banyak materi yang perlu diperdalam. Review evaluasi di bawah!`;
+  } else {
+    emoji = '📚'; message = 'PERLU BELAJAR LEBIH GIAT!';
+    sub = `Nilai ${finalScore}/100 — Jangan menyerah! Pelajari materi dari awal dan coba lagi!`;
+  }
+
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultMessage').textContent = message;
+  document.getElementById('resultSub').textContent = sub;
+
+  // Build review
+  const letters = ['A', 'B', 'C', 'D'];
+  const reviewContainer = document.getElementById('reviewContainer');
+  reviewContainer.innerHTML = '';
+
+  userAnswers.forEach((ans, i) => {
+    const q = questions[ans.qIdx];
+    const div = document.createElement('div');
+    div.className = 'review-item ' + (ans.isCorrect ? 'r-correct' : 'r-wrong');
+    div.innerHTML = `
+      <div class="ri-header">
+        <span class="ri-num">Soal #${String(i+1).padStart(2,'0')}</span>
+        <span class="ri-q">${q.q}</span>
+      </div>
+      <div class="ri-answers">
+        ${!ans.isCorrect ? `<div class="ri-your">✗ Jawabanmu: <strong>${letters[ans.selected]}. ${q.options[ans.selected]}</strong></div>` : ''}
+        <div class="ri-correct-ans">✓ Jawaban benar: <strong>${letters[ans.correct]}. ${q.options[ans.correct]}</strong></div>
+        <div class="ri-explain">💡 ${q.explain}</div>
+      </div>
+    `;
+    reviewContainer.appendChild(div);
+  });
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restartQuiz() {
+  document.getElementById('resultScreen').style.display = 'none';
+  document.getElementById('startScreen').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
