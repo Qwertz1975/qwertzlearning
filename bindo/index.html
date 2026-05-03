@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Bahasa Indonesia - MehanGG</title>
+    <title>Quiz Bahasa Indonesia</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -494,6 +494,7 @@
 
         function QuizBahasaIndonesia() {
             const [phase, setPhase] = useState("home"); 
+            const [quizQuestions, setQuizQuestions] = useState(QUESTIONS);
             const [current, setCurrent] = useState(0);
             const [selected, setSelected] = useState(null);
             const [answers, setAnswers] = useState({});
@@ -528,7 +529,7 @@
                 setPlaying(!playing);
             };
 
-            const q = QUESTIONS[current];
+            const q = quizQuestions[current];
 
             const handleSelect = (i) => {
                 if (selected !== null) return;
@@ -540,7 +541,7 @@
             const next = () => {
                 setSelected(null);
                 setShowPembahasan(false);
-                if (current < QUESTIONS.length - 1) { setCurrent(c => c + 1); }
+                if (current < quizQuestions.length - 1) { setCurrent(c => c + 1); }
                 else { setPhase("result"); }
             };
 
@@ -553,11 +554,22 @@
             };
 
             const startQuiz = () => {
-                setCurrent(0); setSelected(null); setAnswers({}); setShowPembahasan(false); setPhase("quiz");
+                // Shuffle logic using Fisher-Yates
+                let shuffled = [...QUESTIONS];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                setQuizQuestions(shuffled);
+                setCurrent(0); 
+                setSelected(null); 
+                setAnswers({}); 
+                setShowPembahasan(false); 
+                setPhase("quiz");
             };
 
-            const score = Object.entries(answers).filter(([idx, ans]) => QUESTIONS[parseInt(idx)].jawaban === ans).length;
-            const pct = Math.round((score / QUESTIONS.length) * 100);
+            const score = Object.entries(answers).filter(([idx, ans]) => quizQuestions[parseInt(idx)].jawaban === ans).length;
+            const pct = Math.round((score / quizQuestions.length) * 100);
 
             const grade = pct >= 90 ? { label: "Sempurna! 🏆", color: "#f59e0b" }
                 : pct >= 80 ? { label: "Sangat Baik! 🌟", color: "#10b981" }
@@ -625,7 +637,7 @@
 
                         <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "20px 24px", marginBottom: 40, textAlign: "left" }}>
                             <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 14, fontFamily: "'Source Sans 3',sans-serif", margin: 0, lineHeight: 1.7 }}>
-                                💡 <strong style={{ color: "#f59e0b" }}>Tips:</strong> Setiap soal dilengkapi <strong>pembahasan rahasia</strong> dan kunci logika soal. Setelah memilih jawaban, baca pembahasan untuk memahami pola soal yang sering muncul.
+                                💡 <strong style={{ color: "#f59e0b" }}>Tips:</strong> Setiap soal dilengkapi <strong>pembahasan rahasia</strong> dan kunci logika soal. Posisi soal akan diacak setiap kali kamu memulai quiz!
                             </p>
                         </div>
 
@@ -640,7 +652,7 @@
             // === QUIZ ===
             if (phase === "quiz") {
                 const kinfo = KELAS_INFO[q.kelas];
-                const prog = ((current + 1) / QUESTIONS.length) * 100;
+                const prog = ((current + 1) / quizQuestions.length) * 100;
                 const answered = Object.keys(answers).length;
 
                 return (
@@ -659,7 +671,7 @@
                                     <span style={{ background: kinfo.color, color: "#fff", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>{kinfo.label}</span>
                                     <span style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.6)", borderRadius: 8, padding: "4px 10px", fontSize: 12 }}>{q.topik}</span>
                                 </div>
-                                <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 13 }}>{answered}/{QUESTIONS.length} dijawab</span>
+                                <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 13 }}>{answered}/{quizQuestions.length} dijawab</span>
                             </div>
 
                             <div style={{ background: "rgba(255,255,255,0.07)", borderRadius: 99, height: 6, marginBottom: 24 }}>
@@ -667,7 +679,7 @@
                             </div>
 
                             <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "32px 28px", marginBottom: 16 }}>
-                                <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 13, marginBottom: 12, fontWeight: 600, letterSpacing: 1 }}>SOAL {current + 1} / 50</div>
+                                <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 13, marginBottom: 12, fontWeight: 600, letterSpacing: 1 }}>SOAL {current + 1} / {quizQuestions.length}</div>
                                 <p style={{ color: "#fff", fontSize: "clamp(15px,2.5vw,18px)", lineHeight: 1.7, margin: "0 0 28px", fontFamily: "'Playfair Display',serif" }}>{q.soal}</p>
 
                                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -710,8 +722,8 @@
                                 </button>
                                 {selected !== null && (
                                     <button className="btn-nav" onClick={next}
-                                        style={{ background: current === QUESTIONS.length - 1 ? "linear-gradient(135deg,#6b3fa0,#e85d26)" : "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: "13px 28px", fontSize: 15, fontWeight: 700, cursor: "pointer", transition: "all 0.2s", fontFamily: "inherit", boxShadow: "0 4px 20px rgba(232,93,38,0.3)" }}>
-                                        {current === QUESTIONS.length - 1 ? "🏁 Lihat Hasil" : "Selanjutnya →"}
+                                        style={{ background: current === quizQuestions.length - 1 ? "linear-gradient(135deg,#6b3fa0,#e85d26)" : "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: "13px 28px", fontSize: 15, fontWeight: 700, cursor: "pointer", transition: "all 0.2s", fontFamily: "inherit", boxShadow: "0 4px 20px rgba(232,93,38,0.3)" }}>
+                                        {current === quizQuestions.length - 1 ? "🏁 Lihat Hasil" : "Selanjutnya →"}
                                     </button>
                                 )}
                             </div>
@@ -724,15 +736,15 @@
             // === RESULT ===
             if (phase === "result") {
                 const byKelas = [7, 8, 9].map(k => {
-                    const qs = QUESTIONS.filter((_, i) => QUESTIONS[i].kelas === k);
-                    const correct = qs.filter((q2, localIdx) => {
-                        const globalIdx = QUESTIONS.indexOf(q2);
+                    const qs = quizQuestions.filter((q) => q.kelas === k);
+                    const correct = qs.filter((q2) => {
+                        const globalIdx = quizQuestions.indexOf(q2);
                         return answers[globalIdx] === q2.jawaban;
                     }).length;
                     return { kelas: k, total: qs.length, correct };
                 });
 
-                const reviewQ = QUESTIONS[reviewIdx];
+                const reviewQ = quizQuestions[reviewIdx];
 
                 if (reviewMode) {
                     const kinfo = KELAS_INFO[reviewQ.kelas];
@@ -744,7 +756,7 @@
                             <div style={{ maxWidth: 720, margin: "0 auto" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
                                     <button onClick={() => setReviewMode(false)} style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, color: "#fff", padding: "8px 16px", cursor: "pointer", fontSize: 14, fontFamily: "inherit" }}>← Kembali</button>
-                                    <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 14 }}>Review Soal {reviewIdx + 1} / 50</span>
+                                    <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 14 }}>Review Soal {reviewIdx + 1} / {quizQuestions.length}</span>
                                     <span style={{ marginLeft: "auto", background: isCorrect ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)", border: `1px solid ${isCorrect ? "#10b981" : "#ef4444"}`, color: isCorrect ? "#6ee7b7" : "#fca5a5", borderRadius: 8, padding: "4px 12px", fontSize: 13, fontWeight: 700 }}>
                                         {isCorrect ? "✓ Benar" : "✗ Salah"}
                                     </span>
@@ -780,7 +792,7 @@
                                 </div>
                                 <div style={{ display: "flex", gap: 12 }}>
                                     <button onClick={() => setReviewIdx(i => Math.max(0, i - 1))} disabled={reviewIdx === 0} style={{ flex: 1, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: reviewIdx === 0 ? "rgba(255,255,255,0.2)" : "#fff", padding: 13, cursor: reviewIdx === 0 ? "not-allowed" : "pointer", fontFamily: "inherit", fontSize: 14 }}>← Prev</button>
-                                    <button onClick={() => setReviewIdx(i => Math.min(49, i + 1))} disabled={reviewIdx === 49} style={{ flex: 1, background: "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: 13, cursor: reviewIdx === 49 ? "not-allowed" : "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 700 }}>Next →</button>
+                                    <button onClick={() => setReviewIdx(i => Math.min(quizQuestions.length - 1, i + 1))} disabled={reviewIdx === quizQuestions.length - 1} style={{ flex: 1, background: "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: 13, cursor: reviewIdx === quizQuestions.length - 1 ? "not-allowed" : "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 700 }}>Next →</button>
                                 </div>
                             </div>
                             <MusicPlayer />
@@ -798,12 +810,12 @@
                             <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(28px,5vw,48px)", color: "#fff", margin: "0 0 8px" }}>Hasil Quiz</h2>
                             <div style={{ fontSize: "clamp(48px,10vw,80px)", fontWeight: 900, fontFamily: "'Playfair Display',serif", color: grade.color, lineHeight: 1 }}>{pct}%</div>
                             <div style={{ color: grade.color, fontSize: 20, fontWeight: 700, margin: "8px 0 4px" }}>{grade.label}</div>
-                            <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: 36 }}>{score} dari {QUESTIONS.length} soal benar</p>
+                            <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: 36 }}>{score} dari {quizQuestions.length} soal benar</p>
 
                             <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 32 }}>
                                 {byKelas.map(({ kelas, total, correct }) => {
                                     const kinfo = KELAS_INFO[kelas];
-                                    const p = Math.round((correct / total) * 100);
+                                    const p = total > 0 ? Math.round((correct / total) * 100) : 0;
                                     return (
                                         <div key={kelas} style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${kinfo.color}33`, borderRadius: 16, padding: "18px 12px" }}>
                                             <div style={{ color: kinfo.color, fontWeight: 900, fontFamily: "'Playfair Display',serif", fontSize: 28 }}>{p}%</div>
@@ -814,11 +826,11 @@
                                 })}
                             </div>
 
-                            {Object.entries(answers).filter(([i, a]) => QUESTIONS[parseInt(i)].jawaban !== a).length > 0 && (
+                            {Object.entries(answers).filter(([i, a]) => quizQuestions[parseInt(i)].jawaban !== a).length > 0 && (
                                 <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, padding: "20px", marginBottom: 24, textAlign: "left" }}>
                                     <div style={{ color: "#ef4444", fontWeight: 700, fontSize: 14, marginBottom: 12 }}>❌ Soal yang Perlu Dipelajari Lagi:</div>
                                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                                        {Object.entries(answers).filter(([i, a]) => QUESTIONS[parseInt(i)].jawaban !== a).map(([i]) => (
+                                        {Object.entries(answers).filter(([i, a]) => quizQuestions[parseInt(i)].jawaban !== a).map(([i]) => (
                                             <button key={i} onClick={() => { setReviewIdx(parseInt(i)); setReviewMode(true); }}
                                                 style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 8, color: "#fca5a5", padding: "6px 14px", cursor: "pointer", fontSize: 13, fontFamily: "inherit", fontWeight: 600 }}>
                                                 No. {parseInt(i) + 1}
