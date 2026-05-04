@@ -236,15 +236,18 @@
                     </div>
                 </a>
 
-                <!-- === LOCKED === -->
-                <button onclick="showLockedToast()" class="w-full text-left group relative flex items-center justify-between p-5 rounded-2xl glass border-white/5 hover:bg-white/5 transition-all duration-300 cursor-not-allowed opacity-80">
+                <!-- === KHUSUS: MATEMATIKA (WARNING/KUNING) === -->
+                <button onclick="showMathErrorToast()" class="group relative flex items-center justify-between p-5 rounded-2xl bg-gradient-to-br from-amber-500/20 to-yellow-600/20 border border-amber-500/30 hover:from-amber-500/30 hover:to-yellow-600/30 transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-amber-500/20">
                     <div class="flex flex-col">
-                        <span class="font-medium text-lg text-slate-400">Matematika</span>
-                        <span class="text-xs text-slate-500 mt-1">Terkunci</span>
+                        <span class="font-semibold text-lg text-amber-300 group-hover:text-amber-200 transition-colors">Matematika</span>
+                        <span class="text-xs text-amber-500/80 mt-1 italic font-medium">Bermasalah</span>
                     </div>
-                    <i data-lucide="lock" class="w-5 h-5 text-slate-500"></i>
+                    <div class="bg-amber-500/20 p-2 rounded-full group-hover:bg-amber-500/40 transition-colors">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-400"></i>
+                    </div>
                 </button>
 
+                <!-- === LOCKED === -->
                 <button onclick="showLockedToast()" class="w-full text-left group relative flex items-center justify-between p-5 rounded-2xl glass border-white/5 hover:bg-white/5 transition-all duration-300 cursor-not-allowed opacity-80">
                     <div class="flex flex-col">
                         <span class="font-medium text-lg text-slate-400">Bahasa Inggris</span>
@@ -279,30 +282,25 @@
         // Inisialisasi ikon Lucide
         lucide.createIcons();
 
-        // Fungsi Notifikasi Status Locked
         let toastTimeout;
-        function showLockedToast() {
+
+        // Fungsi bantu untuk menampilkan toast
+        function showToast(content, bgColorClass, borderColorClass) {
             const container = document.getElementById('toast-container');
-            
-            // Create toast element
-            const toast = document.createElement('div');
-            toast.className = 'toast-enter bg-rose-500/95 backdrop-blur-md text-white px-5 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl shadow-lg shadow-rose-500/20 flex items-center gap-3 border border-rose-400/30 text-sm font-medium w-full max-w-sm md:max-w-md';
-            
-            // Icon lock and message
-            toast.innerHTML = `
-                <i data-lucide="lock-keyhole" class="w-5 h-5 shrink-0"></i>
-                <span class="leading-relaxed">Quiz belum di buat, Silahkan Chat Admin untuk meminta quiz.</span>
-            `;
             
             // Hapus toast sebelumnya jika ada
             if(container.firstChild) {
                 container.innerHTML = '';
             }
 
+            const toast = document.createElement('div');
+            toast.className = `toast-enter ${bgColorClass} backdrop-blur-md text-white px-5 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl shadow-lg flex items-center gap-3 border ${borderColorClass} text-sm font-medium w-full max-w-sm md:max-w-md`;
+            
+            toast.innerHTML = content;
+            
             container.appendChild(toast);
-            lucide.createIcons(); // Render ulang ikon di dalam toast
+            lucide.createIcons();
 
-            // Hilangkan setelah 3.5 detik
             clearTimeout(toastTimeout);
             toastTimeout = setTimeout(() => {
                 toast.classList.remove('toast-enter');
@@ -312,7 +310,27 @@
                         container.removeChild(toast);
                     }
                 }, 300);
-            }, 3500);
+            }, 4000);
+        }
+
+        // Notifikasi untuk Matematika (Gagal)
+        function showMathErrorToast() {
+            showToast(
+                `<i data-lucide="alert-circle" class="w-5 h-5 shrink-0 text-amber-200"></i>
+                 <span class="leading-relaxed">Quiz Matematika gagal di buat, silahkan belajar menggunakan kisi-kisi</span>`,
+                'bg-amber-600/95',
+                'border-amber-400/30'
+            );
+        }
+
+        // Notifikasi Umum status Locked
+        function showLockedToast() {
+            showToast(
+                `<i data-lucide="lock-keyhole" class="w-5 h-5 shrink-0 text-rose-200"></i>
+                 <span class="leading-relaxed">Quiz belum di buat, Silahkan Chat Admin untuk meminta quiz.</span>`,
+                'bg-rose-500/95',
+                'border-rose-400/30'
+            );
         }
     </script>
 </body>
