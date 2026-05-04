@@ -402,6 +402,7 @@
             const [volume, setVolume] = useState(0.5);
             const [reviewMode, setReviewMode] = useState(false);
             const [reviewIdx, setReviewIdx] = useState(0);
+            const [shuffledQuestions, setShuffledQuestions] = useState([]);
             const audioRef = useRef(null);
             const fileInputRef = useRef(null);
 
@@ -426,7 +427,17 @@
                 setPlaying(!playing);
             };
 
-            const q = QUESTIONS[current];
+            // Fungsi Acak Soal (Fisher-Yates Shuffle)
+            const shuffleArray = (array) => {
+                let shuffled = [...array];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
+            };
+
+            const q = shuffledQuestions[current];
 
             const handleSelect = (i) => {
                 if (selected !== null) return;
@@ -438,7 +449,7 @@
             const next = () => {
                 setSelected(null);
                 setShowPembahasan(false);
-                if (current < QUESTIONS.length - 1) { setCurrent(c => c + 1); }
+                if (current < shuffledQuestions.length - 1) { setCurrent(c => c + 1); }
                 else { setPhase("result"); }
             };
 
@@ -451,10 +462,11 @@
             };
 
             const startQuiz = () => {
+                setShuffledQuestions(shuffleArray(QUESTIONS));
                 setCurrent(0); setSelected(null); setAnswers({}); setShowPembahasan(false); setPhase("quiz");
             };
 
-            const score = Object.entries(answers).filter(([idx, ans]) => QUESTIONS[parseInt(idx)].jawaban === ans).length;
+            const score = Object.entries(answers).filter(([idx, ans]) => shuffledQuestions[parseInt(idx)].jawaban === ans).length;
             const pct = Math.round((score / QUESTIONS.length) * 100);
 
             const grade = pct >= 90 ? { label: "Maestro! 🎶", color: "#f59e0b" }
@@ -504,7 +516,7 @@
                             Quiz Ujian Sekolah
                             <span style={{ display: "block", background: "linear-gradient(90deg,#e85d26,#f59e0b)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Seni Musik</span>
                         </h1>
-                        <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 16, fontFamily: "'Source Sans 3',sans-serif", marginBottom: 40 }}>50 Soal Pilihan Ganda · Teknik Vokal · Alat Musik · Genre Musik</p>
+                        <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 16, fontFamily: "'Source Sans 3',sans-serif", marginBottom: 40 }}>50 Soal Pilihan Ganda · Acak Soal · Teknik Vokal · Alat Musik · Genre</p>
 
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, marginBottom: 40 }}>
                             {[
@@ -532,7 +544,7 @@
             // === QUIZ ===
             if (phase === "quiz") {
                 const kinfo = KELAS_INFO[q.kelas];
-                const prog = ((current + 1) / QUESTIONS.length) * 100;
+                const prog = ((current + 1) / shuffledQuestions.length) * 100;
                 const answered = Object.keys(answers).length;
 
                 return (
@@ -543,7 +555,7 @@
                                     <span style={{ background: kinfo.color, color: "#fff", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>{kinfo.label}</span>
                                     <span style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.6)", borderRadius: 8, padding: "4px 10px", fontSize: 12 }}>{q.topik}</span>
                                 </div>
-                                <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 13 }}>{answered}/{QUESTIONS.length} dijawab</span>
+                                <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 13 }}>{answered}/{shuffledQuestions.length} dijawab</span>
                             </div>
 
                             <div style={{ background: "rgba(255,255,255,0.07)", borderRadius: 99, height: 6, marginBottom: 24 }}>
@@ -593,8 +605,8 @@
                                 </button>
                                 {selected !== null && (
                                     <button className="btn-nav" onClick={next}
-                                        style={{ background: current === QUESTIONS.length - 1 ? "linear-gradient(135deg,#6b3fa0,#e85d26)" : "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: "13px 28px", fontSize: 15, fontWeight: 700, cursor: "pointer", transition: "all 0.2s", fontFamily: "inherit", boxShadow: "0 4px 20px rgba(232,93,38,0.3)" }}>
-                                        {current === QUESTIONS.length - 1 ? "🏁 Lihat Hasil" : "Selanjutnya →"}
+                                        style={{ background: current === shuffledQuestions.length - 1 ? "linear-gradient(135deg,#6b3fa0,#e85d26)" : "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: "13px 28px", fontSize: 15, fontWeight: 700, cursor: "pointer", transition: "all 0.2s", fontFamily: "inherit", boxShadow: "0 4px 20px rgba(232,93,38,0.3)" }}>
+                                        {current === shuffledQuestions.length - 1 ? "🏁 Lihat Hasil" : "Selanjutnya →"}
                                     </button>
                                 )}
                             </div>
@@ -607,16 +619,16 @@
             // === RESULT ===
             if (phase === "result") {
                 const byKelas = [7, 8, 9].map(k => {
-                    const qs = QUESTIONS.filter((_, i) => QUESTIONS[i].kelas === k);
+                    const qs = shuffledQuestions.filter((q2) => q2.kelas === k);
                     const correct = qs.filter((q2) => {
-                        const globalIdx = QUESTIONS.indexOf(q2);
+                        const globalIdx = shuffledQuestions.indexOf(q2);
                         return answers[globalIdx] === q2.jawaban;
                     }).length;
                     return { kelas: k, total: qs.length, correct };
                 });
 
                 if (reviewMode) {
-                    const reviewQ = QUESTIONS[reviewIdx];
+                    const reviewQ = shuffledQuestions[reviewIdx];
                     const kinfo = KELAS_INFO[reviewQ.kelas];
                     const userAns = answers[reviewIdx];
                     const isCorrect = userAns === reviewQ.jawaban;
