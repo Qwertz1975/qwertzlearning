@@ -3,389 +3,702 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="referrer" content="no-referrer"> 
-    <title>Kuis Master Seni Budaya</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Quiz Ujian Sekolah Seni Musik - MehanGG</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
-        
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-            color: #ffffff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            margin: 0;
+            padding: 0;
             overflow-x: hidden;
+            background: #0d0d1a;
         }
-
-        /* Glassmorphism Effect */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        input[type="file"] {
-            display: none;
-        }
-
-        /* Option Styling & Animations */
-        .option-btn {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .option-btn:hover:not(:disabled) {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .correct {
-            background: rgba(16, 185, 129, 0.2) !important;
-            border-color: #10b981 !important;
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
-            color: #34d399;
-        }
-
-        .wrong {
-            background: rgba(239, 68, 68, 0.2) !important;
-            border-color: #ef4444 !important;
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
-            color: #f87171;
-            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
-        }
-
-        @keyframes shake {
-            10%, 90% { transform: translate3d(-1px, 0, 0); }
-            20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-            40%, 60% { transform: translate3d(4px, 0, 0); }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-in forwards;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .progress-bar {
-            transition: width 0.4s ease;
-        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0d0d1a; }
+        ::-webkit-scrollbar-thumb { background: #e85d26; border-radius: 4px; }
     </style>
 </head>
-<body class="p-4 sm:p-8">
+<body>
+    <div id="root"></div>
 
-    <!-- Header & Audio Player -->
-    <div class="max-w-3xl mx-auto w-full mb-8 flex flex-col sm:flex-row justify-between items-center gap-4 fade-in">
-        <div>
-            <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-                Ujian Praktik Master
-            </h1>
-            <p class="text-gray-400 text-sm mt-1">Seni Budaya - 50 Soal Analisis Lanjut</p>
-        </div>
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
 
-        <div class="glass-panel p-3 rounded-xl flex items-center gap-4">
-            <label class="cursor-pointer flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 transition px-4 py-2 rounded-lg text-sm font-semibold">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                </svg>
-                Pilih Lagu
-                <input type="file" id="audioUpload" accept="audio/*">
-            </label>
-            <audio id="audioPlayer" controls class="h-8 w-48 hidden rounded-lg"></audio>
-        </div>
-    </div>
-
-    <!-- Main Quiz Area -->
-    <div class="max-w-3xl mx-auto w-full glass-panel rounded-2xl p-6 sm:p-10 fade-in" id="quizContainer">
-        
-        <!-- Progress -->
-        <div class="mb-8">
-            <div class="flex justify-between text-sm text-gray-400 mb-2">
-                <span id="questionCount">Soal 1 dari 50</span>
-                <span id="scoreText">Skor: 0</span>
-            </div>
-            <div class="w-full bg-gray-700 rounded-full h-2">
-                <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full progress-bar" style="width: 0%"></div>
-            </div>
-        </div>
-
-        <!-- Question Text -->
-        <h2 id="questionText" class="text-xl sm:text-2xl font-semibold mb-6 leading-relaxed"></h2>
-
-        <!-- Image System (Bulletproof Fallback) -->
-        <div id="imageContainer" class="hidden mb-8 w-full flex flex-col items-center gap-4">
-            <img id="questionImage" crossorigin="anonymous" class="rounded-xl shadow-2xl border border-gray-600/50 max-h-72 object-contain bg-black/20 p-2">
-            <!-- Tombol Darurat jika gambar diblokir Vercel -->
-            <a id="imageFallbackLink" target="_blank" class="hidden bg-gray-700/50 hover:bg-gray-600 text-blue-300 font-semibold py-2 px-4 rounded-lg text-sm border border-gray-500 transition cursor-pointer">
-                🖼️ Gambar Terblokir Vercel? Klik untuk Buka Gambar
-            </a>
-        </div>
-
-        <!-- Options -->
-        <div id="optionsContainer" class="flex flex-col gap-4"></div>
-
-        <!-- Next Button -->
-        <div class="mt-8 flex justify-end">
-            <button id="nextBtn" class="hidden bg-white text-gray-900 px-8 py-3 rounded-xl font-bold hover:bg-gray-200 transition transform hover:scale-105">
-                Lanjut ke Soal Berikutnya ➔
-            </button>
-        </div>
-    </div>
-
-    <!-- Result Screen -->
-    <div id="resultScreen" class="max-w-3xl mx-auto w-full glass-panel rounded-2xl p-10 text-center hidden fade-in">
-        <h2 class="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500">Kuis Selesai!</h2>
-        <div class="text-6xl font-black mb-6" id="finalScore">100</div>
-        <p id="feedbackText" class="text-xl text-gray-300 mb-8">Luar Biasa! Pemahaman analisismu sangat tajam.</p>
-        <button onclick="location.reload()" class="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-700 transition">
-            ↻ Ulangi Kuis
-        </button>
-    </div>
-
-    <script>
-        // Audio Player
-        const audioUpload = document.getElementById('audioUpload');
-        const audioPlayer = document.getElementById('audioPlayer');
-
-        audioUpload.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const objectUrl = URL.createObjectURL(file);
-                audioPlayer.src = objectUrl;
-                audioPlayer.classList.remove('hidden');
-                audioPlayer.play();
-            }
-        });
-
-        // DATA 50 SOAL (Sesuai Kisi-kisi 100%)
-        const rawQuestions = [
-            // Penjurian (1-4)
-            { question: "Dalam kriteria penjurian Ansambel & Unisono, komponen utama penilaian terbagi menjadi 3, di antaranya adalah...", options: [{text: "Teknik Vokal, Interpretasi, Penampilan", correct: true}, {text: "Artikulasi, Birama, Kunci", correct: false}, {text: "Phrasering, Pernapasan, Tuts Piano", correct: false}, {text: "Mayor, Minor, Kromatik", correct: false}] },
-            { question: "Berikut ini yang BUKAN merupakan kriteria utama penjurian Ansambel & Unisono (melainkan sub-bagian) adalah...", options: [{text: "Artikulasi", correct: true}, {text: "Teknik Vokal", correct: false}, {text: "Interpretasi", correct: false}, {text: "Penampilan", correct: false}] },
-            { question: "Keterkaitan antara ekspresi dan penjiwaan lagu dalam kriteria penjurian masuk ke dalam kategori...", options: [{text: "Interpretasi", correct: true}, {text: "Teknik Vokal", correct: false}, {text: "Penampilan", correct: false}, {text: "Phrasering", correct: false}] },
-            { question: "Dalam penjurian, aspek pelafalan kata yang jelas saat bernyanyi secara spesifik disebut dengan...", options: [{text: "Artikulasi", correct: true}, {text: "Phrasering", correct: false}, {text: "Pernapasan", correct: false}, {text: "Birama", correct: false}] },
-            
-            // Teknik Vokal Lanjutan (5-17)
-            { question: "Pengelompokan ketukan seperti 2/4, 3/4, 4/4, dan 6/8 termasuk dalam elemen penilaian...", options: [{text: "Birama", correct: true}, {text: "Kunci", correct: false}, {text: "Tangga Nada", correct: false}, {text: "Tuts Garis Para Nada", correct: false}] },
-            { question: "Tangga nada Mayor memiliki susunan interval nada yaitu...", options: [{text: "1 - 1 - ½ - 1 - 1 - 1 - ½", correct: true}, {text: "1 - ½ - 1 - 1 - ½ - 1 - 1", correct: false}, {text: "1 - 1 - 1 - ½ - 1 - 1 - ½", correct: false}, {text: "½ - 1 - 1 - ½ - 1 - 1 - 1", correct: false}] },
-            { question: "Tangga nada mayor (dengan interval 1 - 1 - ½ ...) pada umumnya diawali dari nada...", options: [{text: "1 (Do)", correct: true}, {text: "6 (La)", correct: false}, {text: "3 (Mi)", correct: false}, {text: "5 (Sol)", correct: false}] },
-            { question: "Susunan interval 1 - ½ - 1 - 1 - ½ - 1 - 1 merupakan ciri khas dari...", options: [{text: "Tangga Nada Minor", correct: true}, {text: "Tangga Nada Mayor", correct: false}, {text: "Tangga Nada Pentatonik", correct: false}, {text: "Tangga Nada Kromatik", correct: false}] },
-            { question: "Tangga nada minor secara natural diawali dari titik nada...", options: [{text: "6 (La)", correct: true}, {text: "1 (Do)", correct: false}, {text: "5 (Sol)", correct: false}, {text: "4 (Fa)", correct: false}] },
-            { question: "Tuts piano dan Tuts Garis Para Nada dalam kriteria penjurian dikelompokkan ke dalam kategori besar...", options: [{text: "Teknik Vokal", correct: true}, {text: "Penampilan", correct: false}, {text: "Interpretasi", correct: false}, {text: "Sumber Bunyi", correct: false}] },
-            { question: "Wilayah suara paling tinggi untuk penyanyi wanita adalah...", options: [{text: "Sopran", correct: true}, {text: "Mezzo Sopran", correct: false}, {text: "Alto", correct: false}, {text: "Tenor", correct: false}] },
-            { question: "Penyanyi wanita yang memiliki jangkauan suara di tengah-tengah (tidak terlalu tinggi dan tidak terlalu rendah) disebut...", options: [{text: "Mezzo Sopran", correct: true}, {text: "Alto", correct: false}, {text: "Sopran", correct: false}, {text: "Bariton", correct: false}] },
-            { question: "Alto merupakan klasifikasi wilayah suara untuk...", options: [{text: "Wanita bersuara rendah", correct: true}, {text: "Pria bersuara rendah", correct: false}, {text: "Wanita bersuara tinggi", correct: false}, {text: "Pria bersuara tinggi", correct: false}] },
-            { question: "Wilayah suara paling tinggi untuk penyanyi laki-laki dinamakan...", options: [{text: "Tenor", correct: true}, {text: "Bariton", correct: false}, {text: "Bass", correct: false}, {text: "Sopran", correct: false}] },
-            { question: "Bariton adalah klasifikasi wilayah suara untuk penyanyi...", options: [{text: "Laki-laki bersuara sedang", correct: true}, {text: "Laki-laki bersuara rendah", correct: false}, {text: "Wanita bersuara sedang", correct: false}, {text: "Laki-laki bersuara tinggi", correct: false}] },
-            { question: "Teknik pemenggalan kalimat lagu yang baik dan benar agar pesannya tersampaikan disebut...", options: [{text: "Phrasering", correct: true}, {text: "Artikulasi", correct: false}, {text: "Pernapasan", correct: false}, {text: "Interpretasi", correct: false}] },
-            { question: "Kunci utama untuk memproduksi nada yang stabil dan panjang dalam teknik vokal adalah penguasaan...", options: [{text: "Pernapasan dalam bernyanyi", correct: true}, {text: "Phrasering", correct: false}, {text: "Tuts Garis Para Nada", correct: false}, {text: "Interpretasi", correct: false}] },
-            
-            // Sumber Bunyi (18-22)
-            { question: "Jika alat musik menghasilkan bunyi melalui hembusan udara, alat tersebut masuk dalam klasifikasi...", options: [{text: "Airofon", correct: true}, {text: "Kordofon", correct: false}, {text: "Idiofon", correct: false}, {text: "Membranofon", correct: false}] },
-            { question: "Membranofon adalah alat musik yang sumber bunyinya berasal dari...", options: [{text: "Kulit (Membran)", correct: true}, {text: "Senar", correct: false}, {text: "Udara", correct: false}, {text: "Listrik", correct: false}] },
-            { question: "Alat musik yang menggunakan senar sebagai sumber getaran utama untuk menghasilkan bunyi disebut...", options: [{text: "Kordofon", correct: true}, {text: "Airofon", correct: false}, {text: "Idiofon", correct: false}, {text: "Elektrofon", correct: false}] },
-            { question: "Idiofon merupakan kelompok alat musik yang sumber bunyinya berasal dari...", options: [{text: "Badan alat musik itu sendiri", correct: true}, {text: "Tenaga listrik", correct: false}, {text: "Tepukan pada kulit", correct: false}, {text: "Gesekan senar", correct: false}] },
-            { question: "Instrumen modern yang sumber bunyinya bergantung murni pada tenaga listrik digolongkan sebagai...", options: [{text: "Elektrofon", correct: true}, {text: "Idiofon", correct: false}, {text: "Kordofon", correct: false}, {text: "Membranofon", correct: false}] },
-            
-            // Alat Musik Daerah & Tangga Nada (23-25)
-            { question: "Sistem tangga nada alat musik daerah yang memiliki jumlah 12 nada penuh disebut...", options: [{text: "Kromatik", correct: true}, {text: "Diatonik", correct: false}, {text: "Pentatonik", correct: false}, {text: "Mayor", correct: false}] },
-            { question: "Jumlah nada pokok pada sistem tangga nada Diatonik alat musik daerah adalah sebanyak...", options: [{text: "7 nada", correct: true}, {text: "5 nada", correct: false}, {text: "12 nada", correct: false}, {text: "8 nada", correct: false}] },
-            { question: "Sistem tangga nada yang paling sering dipakai dalam alat musik tradisional daerah yang hanya terdiri dari 5 nada adalah...", options: [{text: "Pentatonik", correct: true}, {text: "Diatonik", correct: false}, {text: "Kromatik", correct: false}, {text: "Minor", correct: false}] },
-            
-            // Nusantara (26-37)
-            { question: "Gamelan merupakan instrumen tradisional Nusantara yang identik dengan pertunjukan seni...", options: [{text: "Karawitan", correct: true}, {text: "Lenong", correct: false}, {text: "Hitada", correct: false}, {text: "Rondala", correct: false}] },
-            { question: "Alat musik Sasando yang terbuat dari bahan alami merupakan instrumen tradisional asal daerah...", options: [{text: "Nusa Tenggara Timur (NTT)", correct: true}, {text: "Bali", correct: false}, {text: "Betawi", correct: false}, {text: "Halmahera", correct: false}] },
-            { question: "Berdasarkan catatan, selain Sasando, daerah NTT juga dikaitkan dengan istilah kesenian...", options: [{text: "Rindik", correct: true}, {text: "Hitada", correct: false}, {text: "Lenong", correct: false}, {text: "Karawitan", correct: false}] },
-            { question: "Gamelan Jegog memiliki ciri khas yang berbeda dari gamelan Jawa. Alat musik asal Bali ini terbuat dari...", options: [{text: "Bambu", correct: true}, {text: "Perunggu", correct: false}, {text: "Besi", correct: false}, {text: "Kayu Ukir", correct: false}] },
-            { question: "Suling adalah alat musik tradisional dari Sunda. Berdasarkan cara memainkannya, sumber bunyi suling diklasifikasikan sebagai...", options: [{text: "Airofon", correct: true}, {text: "Idiofon", correct: false}, {text: "Kordofon", correct: false}, {text: "Membranofon", correct: false}] },
-            { question: "Gambang Kromong adalah kesenian musik tradisional yang berasal dari daerah...", options: [{text: "Betawi", correct: true}, {text: "Sunda", correct: false}, {text: "Bali", correct: false}, {text: "Halmahera", correct: false}] },
-            { question: "Menurut catatan, instrumen bersenar dalam Gambang Kromong dimainkan dengan cara...", options: [{text: "Digesek", correct: true}, {text: "Ditiup", correct: false}, {text: "Dipukul", correct: false}, {text: "Ditepuk", correct: false}] },
-            { question: "Gambang Kromong sangat lekat dan sering digunakan untuk mengiringi kesenian drama khas Betawi yang disebut...", options: [{text: "Lenong", correct: true}, {text: "Karawitan", correct: false}, {text: "Hitada", correct: false}, {text: "Rindik", correct: false}] },
-            { question: "Kesenian musik tradisional 'Hitada' merupakan kesenian yang berasal dari daerah...", options: [{text: "Halmahera", correct: true}, {text: "Nusa Tenggara Timur", correct: false}, {text: "Betawi", correct: false}, {text: "Sunda", correct: false}] },
-            { question: "Jika dihitung secara matematis berdasarkan catatan, selisih jumlah nada antara Diatonik dan Pentatonik adalah...", options: [{text: "2 nada", correct: true}, {text: "7 nada", correct: false}, {text: "5 nada", correct: false}, {text: "12 nada", correct: false}] },
-            { question: "Penyanyi laki-laki dengan wilayah suara terendah dinamakan...", options: [{text: "Bass", correct: true}, {text: "Tenor", correct: false}, {text: "Bariton", correct: false}, {text: "Alto", correct: false}] },
-            { question: "Klasifikasi alat musik dengan sumber bunyi dari kulit atau membran adalah ciri dari alat yang dimainkan dengan cara...", options: [{text: "Ditepuk/Dipukul", correct: true}, {text: "Ditiup", correct: false}, {text: "Digesek", correct: false}, {text: "Dipetik", correct: false}] },
-            
-            // Negara Lain (38-45)
-            { question: "Saung Gauk adalah instrumen tradisional mancanegara yang berasal dari negara...", options: [{text: "Myanmar", correct: true}, {text: "Filipina", correct: false}, {text: "Brunei Darussalam", correct: false}, {text: "Halmahera", correct: false}] },
-            { question: "Saung Gauk dimainkan dengan cara dipetik dan memiliki bentuk yang mirip dengan alat musik...", options: [{text: "Harpa", correct: true}, {text: "Gitar", correct: false}, {text: "Gamelan", correct: false}, {text: "Piano", correct: false}] },
-            { question: "Alat musik mancanegara dari Filipina yang cara bermainnya dipetik layaknya gitar adalah...", options: [{text: "Rondala", correct: true}, {text: "Gulintangan", correct: false}, {text: "Saung Gauk", correct: false}, {text: "Hitada", correct: false}] },
-            { question: "Rondala (Filipina) dimainkan dengan cara dipetik (menggunakan senar). Maka ia tergolong instrumen...", options: [{text: "Kordofon", correct: true}, {text: "Airofon", correct: false}, {text: "Idiofon", correct: false}, {text: "Membranofon", correct: false}] },
-            { question: "Gulintangan merupakan alat musik tradisional yang berasal dari negara...", options: [{text: "Brunei Darussalam", correct: true}, {text: "Filipina", correct: false}, {text: "Myanmar", correct: false}, {text: "Malaysia", correct: false}] },
-            { question: "Gulintangan dari Brunei Darussalam memiliki kesamaan cara dimainkan (dipukul) dengan alat musik Nusantara, yaitu...", options: [{text: "Gamelan", correct: true}, {text: "Sasando", correct: false}, {text: "Suling", correct: false}, {text: "Gambang (gesek)", correct: false}] },
-            { question: "Karena Gulintangan dipukul dan menghasilkan getaran dari badannya sendiri (seperti gamelan), ia termasuk klasifikasi...", options: [{text: "Idiofon", correct: true}, {text: "Membranofon", correct: false}, {text: "Elektrofon", correct: false}, {text: "Airofon", correct: false}] },
-            { question: "Dari ketiga alat musik mancanegara di catatan (Saung Gauk, Rondala, Gulintangan), berapa alat musik yang cara mainnya dipetik?", options: [{text: "2 Alat Musik", correct: true}, {text: "1 Alat Musik", correct: false}, {text: "3 Alat Musik", correct: false}, {text: "Tidak Ada", correct: false}] },
-            
-            // Alat Tambahan (46-47)
-            { question: "Alat bantu yang digunakan musisi untuk menentukan kecepatan atau tempo lagu secara konstan adalah...", options: [{text: "Metronome", correct: true}, {text: "Pipa Nada", correct: false}, {text: "Tuts Piano", correct: false}, {text: "Birama", correct: false}] },
-            { question: "Untuk menentukan dan menyamakan 'tinggi nada' dasar bagi kelompok paduan suara, dirigen umumnya menggunakan alat...", options: [{text: "Pipa Nada", correct: true}, {text: "Metronome", correct: false}, {text: "Tuts Garis Para Nada", correct: false}, {text: "Kromatik", correct: false}] },
-
-            // Gambar (48-50)
-            { 
-                question: "Gambar di bawah ini merupakan ansambel gamelan yang unik asal Bali karena material utamanya menggunakan bambu besar. Kesenian ini dinamakan...", 
-                image: "https://upload.wikimedia.org/wikipedia/commons/2/29/Gamelan_jegog_instruments.jpg", 
-                options: [{text: "Gamelan Jegog", correct: true}, {text: "Rindik", correct: false}, {text: "Gambang Kromong", correct: false}, {text: "Gulintangan", correct: false}] 
+        const QUESTIONS = [
+            // ===== KELAS 7: TEKNIK VOKAL & DASAR MUSIK =====
+            {
+                id: 1, kelas: 7, topik: "Teknik Pernapasan",
+                soal: "Teknik pernapasan yang paling efektif digunakan saat bernyanyi karena mampu menghasilkan suara yang stabil dan bertenaga adalah...",
+                pilihan: ["Pernapasan Dada", "Pernapasan Perut", "Pernapasan Diafragma", "Pernapasan Bahu"],
+                jawaban: 2,
+                pembahasan: "Pernapasan diafragma adalah yang terbaik karena paru-paru dapat mengembang maksimal tanpa ketegangan di area dada/leher, memberikan kontrol napas yang stabil."
             },
-            { 
-                question: "Perhatikan alat musik di bawah ini yang menggunakan daun lontar. Alat musik petik asal Nusa Tenggara Timur (NTT) ini bernama...", 
-                image: "https://upload.wikimedia.org/wikipedia/commons/1/15/Sasando.jpg", 
-                options: [{text: "Sasando", correct: true}, {text: "Rondala", correct: false}, {text: "Hitada", correct: false}, {text: "Saung Gauk", correct: false}] 
+            {
+                id: 2, kelas: 7, topik: "Artikulasi",
+                soal: "Cara pengucapan kata-kata dalam bernyanyi sehingga dapat didengar dengan jelas dan dimengerti maknanya disebut...",
+                pilihan: ["Phrasering", "Artikulasi", "Intonasi", "Vibrato"],
+                jawaban: 1,
+                pembahasan: "Artikulasi berkaitan dengan kejelasan pengucapan huruf vokal dan konsonan melalui perubahan rongga mulut dan alat ucap lainnya."
             },
-            { 
-                question: "Instrumen mancanegara pada gambar di bawah ini berasal dari Myanmar, dan dimainkan dengan cara dipetik menyerupai harpa. Namanya adalah...", 
-                image: "https://upload.wikimedia.org/wikipedia/commons/9/91/Saung.jpg", 
-                options: [{text: "Saung Gauk", correct: true}, {text: "Rondala", correct: false}, {text: "Gulintangan", correct: false}, {text: "Gambang", correct: false}] 
+            {
+                id: 3, kelas: 7, topik: "Intonasi",
+                soal: "Ketepatan penyajian tinggi rendahnya nada dalam bernyanyi sangat ditentukan oleh...",
+                pilihan: ["Intonasi", "Resonansi", "Ekspresi", "Amplitudo"],
+                jawaban: 0,
+                pembahasan: "Intonasi adalah 'pitch' atau ketepatan nada. Jika intonasi buruk, penyanyi akan terdengar fals (sumbang)."
+            },
+            {
+                id: 4, kelas: 7, topik: "Phrasering",
+                soal: "Aturan pemenggalan kalimat yang baik dan benar sehingga mudah dimengerti dan sesuai dengan kaidah bahasa disebut...",
+                pilihan: ["Legato", "Staccato", "Phrasering", "Vibrasi"],
+                jawaban: 2,
+                pembahasan: "Phrasering penting agar penyanyi tidak mengambil napas di tengah kata yang dapat merusak makna kalimat lagu."
+            },
+            {
+                id: 5, kelas: 7, topik: "Jenis Suara",
+                soal: "Wilayah nada tinggi bagi seorang penyanyi wanita disebut...",
+                pilihan: ["Alto", "Mezzo-Sopran", "Sopran", "Tenor"],
+                jawaban: 2,
+                pembahasan: "Sopran adalah jenis suara tertinggi untuk wanita. Alto adalah yang terendah bagi wanita."
+            },
+            {
+                id: 6, kelas: 7, topik: "Jenis Suara",
+                soal: "Jenis suara rendah pada penyanyi pria disebut...",
+                pilihan: ["Tenor", "Bariton", "Bass", "Sopran"],
+                jawaban: 2,
+                pembahasan: "Bass adalah jenis suara pria dengan jangkauan paling rendah dan berat."
+            },
+            {
+                id: 7, kelas: 7, topik: "Unsur Musik",
+                soal: "Warna bunyi yang membedakan kualitas suara satu instrumen dengan instrumen lainnya disebut...",
+                pilihan: ["Melodi", "Timbre", "Ritme", "Harmony"],
+                jawaban: 1,
+                pembahasan: "Timbre (warna bunyi) membuat kita bisa membedakan suara gitar dan biola meskipun memainkan nada yang sama."
+            },
+            {
+                id: 8, kelas: 7, topik: "Unsur Musik",
+                soal: "Cepat atau lambatnya sebuah lagu dinyanyikan disebut...",
+                pilihan: ["Birama", "Ritme", "Tempo", "Dinamika"],
+                jawaban: 2,
+                pembahasan: "Tempo mengatur kecepatan pulsa musik, biasanya diukur dengan BPM (Beats Per Minute)."
+            },
+            {
+                id: 9, kelas: 7, topik: "Unsur Musik",
+                soal: "Keras dan lembutnya suara dalam sebuah lagu disebut...",
+                pilihan: ["Dinamika", "Tempo", "Artikulasi", "Modulasi"],
+                jawaban: 0,
+                pembahasan: "Dinamika memberikan ekspresi pada lagu melalui perubahan volume (seperti forte/keras atau piano/lembut)."
+            },
+            {
+                id: 10, kelas: 7, topik: "Tangga Nada",
+                soal: "Tangga nada yang hanya terdiri dari 5 nada pokok disebut tangga nada...",
+                pilihan: ["Diatonis", "Pentatonis", "Kromatis", "Minor"],
+                jawaban: 1,
+                pembahasan: "Penta berarti lima. Tangga nada pentatonis umum digunakan dalam musik tradisional seperti gamelan."
+            },
+            {
+                id: 11, kelas: 7, topik: "Vokal Group",
+                soal: "Bernyanyi secara berkelompok dengan satu suara disebut...",
+                pilihan: ["Paduan Suara", "Kanon", "Unisono", "Akapela"],
+                jawaban: 2,
+                pembahasan: "Unisono berarti menyanyikan melodi yang sama persis oleh banyak orang secara bersamaan."
+            },
+            {
+                id: 12, kelas: 7, topik: "Teknik Vokal",
+                soal: "Proses pemantulan suara di dalam rongga-rongga tubuh untuk memperkuat bunyi asal disebut...",
+                pilihan: ["Resonansi", "Vibrato", "Falsetto", "Distorsi"],
+                jawaban: 0,
+                pembahasan: "Resonansi memanfaatkan rongga kepala, dada, atau mulut untuk membuat suara terdengar lebih nyaring dan indah."
+            },
+            {
+                id: 13, kelas: 7, topik: "Jenis Suara",
+                soal: "Anak-anak umumnya memiliki jenis suara...",
+                pilihan: ["Hanya tinggi", "Hanya rendah", "Tinggi dan rendah saja", "Sama dengan suara orang dewasa"],
+                jawaban: 2,
+                pembahasan: "Suara anak-anak belum mengalami pubertas, sehingga hanya terbagi menjadi suara tinggi dan rendah tanpa pembagian gender yang kompleks."
+            },
+            {
+                id: 14, kelas: 7, topik: "Teori Musik",
+                soal: "Tanda yang menunjukkan jumlah ketukan dalam satu ruas garis tegak pada paranada disebut...",
+                pilihan: ["Kunci G", "Birama", "Notasi", "Akor"],
+                jawaban: 1,
+                pembahasan: "Birama (Time Signature) menentukan hitungan dasar lagu (misal 2/4, 3/4, atau 4/4)."
+            },
+            {
+                id: 15, kelas: 7, topik: "Teknik Vokal",
+                soal: "Suara 'palsu' yang tipis dan biasanya digunakan pria untuk menjangkau nada sangat tinggi disebut...",
+                pilihan: ["Head Voice", "Chest Voice", "Falsetto", "Mixed Voice"],
+                jawaban: 2,
+                pembahasan: "Falsetto adalah teknik suara di luar register alami yang terdengar tipis dan melengking."
+            },
+
+            // ===== KELAS 8: ALAT MUSIK & TRADISIONAL =====
+            {
+                id: 16, kelas: 8, topik: "Klasifikasi Alat Musik",
+                soal: "Alat musik yang sumber bunyinya berasal dari badan alat musik itu sendiri (dipukul/digoyang) disebut...",
+                pilihan: ["Chordophone", "Membranophone", "Idiophone", "Aerophone"],
+                jawaban: 2,
+                pembahasan: "Idiophone menghasilkan bunyi dari bahan dasarnya sendiri, contohnya gong, angklung, dan kolintang."
+            },
+            {
+                id: 17, kelas: 8, topik: "Klasifikasi Alat Musik",
+                soal: "Alat musik yang sumber bunyinya berasal dari getaran udara (ditiup) disebut...",
+                pilihan: ["Idiophone", "Chordophone", "Aerophone", "Electrophone"],
+                jawaban: 2,
+                pembahasan: "Aerophone menggunakan kolom udara untuk bergetar, contohnya suling, trompet, dan harmonika."
+            },
+            {
+                id: 18, kelas: 8, topik: "Alat Musik Tradisional",
+                soal: "Alat musik Sasando berasal dari daerah NTT. Berdasarkan sumber bunyinya, Sasando termasuk kelompok...",
+                pilihan: ["Chordophone", "Membranophone", "Aerophone", "Idiophone"],
+                jawaban: 0,
+                pembahasan: "Chordophone adalah alat musik dawai/senar. Sasando dimainkan dengan cara dipetik senarnya."
+            },
+            {
+                id: 19, kelas: 8, topik: "Gamelan",
+                soal: "Ensembel musik tradisional dari Jawa dan Bali yang didominasi instrumen perkusi perunggu disebut...",
+                pilihan: ["Degung", "Gamelan", "Talempong", "Tanjidor"],
+                jawaban: 1,
+                pembahasan: "Gamelan terdiri dari berbagai alat musik seperti saron, bonang, gong, dan kendang."
+            },
+            {
+                id: 20, kelas: 8, topik: "Klasifikasi Alat Musik",
+                soal: "Alat musik yang sumber bunyinya berasal dari selaput atau kulit yang diregangkan disebut...",
+                pilihan: ["Idiophone", "Membranophone", "Chordophone", "Aerophone"],
+                jawaban: 1,
+                pembahasan: "Membranophone menggunakan membran (kulit/plastik), contohnya kendang, drum, dan rebana."
+            },
+            {
+                id: 21, kelas: 8, topik: "Ansambel Musik",
+                soal: "Bermain musik secara bersama-sama menggunakan beberapa alat musik tertentu disebut...",
+                pilihan: ["Solo", "Orkestra", "Ansambel", "Opera"],
+                jawaban: 2,
+                pembahasan: "Ansambel adalah sajian musik kelompok, baik sejenis (misal ansambel rekorder) atau campuran."
+            },
+            {
+                id: 22, kelas: 8, topik: "Alat Musik Melodis",
+                soal: "Alat musik yang berfungsi untuk membawakan rangkaian nada atau melodi lagu disebut...",
+                pilihan: ["Alat musik ritmis", "Alat musik melodis", "Alat musik harmonis", "Alat musik statis"],
+                jawaban: 1,
+                pembahasan: "Alat musik melodis memiliki nada (do-re-mi), contohnya biola, pianika, dan suling."
+            },
+            {
+                id: 23, kelas: 8, topik: "Alat Musik Ritmis",
+                soal: "Alat musik yang tidak memiliki nada dan berfungsi sebagai pengatur irama disebut...",
+                pilihan: ["Alat musik ritmis", "Alat musik melodis", "Alat musik harmonis", "Alat musik kromatis"],
+                jawaban: 0,
+                pembahasan: "Alat musik ritmis contohnya adalah kendang, triangle, dan simbal."
+            },
+            {
+                id: 24, kelas: 8, topik: "Fungsi Musik Tradisional",
+                soal: "Musik yang digunakan untuk mengiringi upacara adat atau ritual keagamaan menunjukkan fungsi musik sebagai...",
+                pilihan: ["Sarana hiburan", "Sarana ekspresi diri", "Sarana upacara budaya", "Sarana ekonomi"],
+                jawaban: 2,
+                pembahasan: "Di banyak daerah Indonesia, musik sangat lekat dengan ritual adat seperti pernikahan atau syukuran panen."
+            },
+            {
+                id: 25, kelas: 8, topik: "Lagu Daerah",
+                soal: "Lagu daerah 'Apuse' berasal dari provinsi...",
+                pilihan: ["Sumatera Utara", "Papua", "Jawa Timur", "Sulawesi Selatan"],
+                jawaban: 1,
+                pembahasan: "Lagu Apuse menceritakan perpisahan kakek/nenek dengan cucunya di daerah Papua."
+            },
+            {
+                id: 26, kelas: 8, topik: "Alat Musik Tekan",
+                soal: "Instrumen musik piano dan organ dimainkan dengan cara...",
+                pilihan: ["Dipetik", "Digesek", "Ditekan tutsnya", "Dipukul"],
+                jawaban: 2,
+                pembahasan: "Piano diklasifikasikan sebagai alat musik tekan karena interaksi pemain melalui tuts (keyboard)."
+            },
+            {
+                id: 27, kelas: 8, topik: "Angklung",
+                soal: "Angklung adalah alat musik yang telah diakui UNESCO berasal dari Jawa Barat, cara memainkannya adalah dengan...",
+                pilihan: ["Ditiup", "Dipukul", "Digoyangkan", "Dipetik"],
+                jawaban: 2,
+                pembahasan: "Getaran pada bambu angklung dihasilkan dengan cara menggoyangkan badannya."
+            },
+            {
+                id: 28, kelas: 8, topik: "Musik Ensembel",
+                soal: "Kelompok musik yang terdiri dari biola, cello, dan kontra bass termasuk dalam ansambel...",
+                pilihan: ["Tiup", "Gesek", "Pukul", "Petik"],
+                jawaban: 1,
+                pembahasan: "Ketiga alat musik tersebut menggunakan busur (bow) untuk digesek senarnya."
+            },
+            {
+                id: 29, kelas: 8, topik: "Notasi Musik",
+                soal: "Sistem penulisan nada menggunakan angka (1, 2, 3, dst) disebut...",
+                pilihan: ["Notasi Balok", "Notasi Angka", "Notasi Huruf", "Tabulasi"],
+                jawaban: 1,
+                pembahasan: "Notasi angka sangat populer di Indonesia untuk pembelajaran musik dasar."
+            },
+            {
+                id: 30, kelas: 8, topik: "Keroncong",
+                soal: "Alat musik 'Ukulele' sangat identik dengan genre musik asli Indonesia yaitu...",
+                pilihan: ["Dangdut", "Pop", "Keroncong", "Rock"],
+                jawaban: 2,
+                pembahasan: "Keroncong menggunakan ukulele (cak dan cuk) sebagai penjaga ritme yang khas."
+            },
+            {
+                id: 31, kelas: 8, topik: "Aransemen",
+                soal: "Penyusunan ulang sebuah lagu agar lebih indah tanpa mengubah melodi aslinya disebut...",
+                pilihan: ["Komposisi", "Aransemen", "Improvisasi", "Transkripsi"],
+                jawaban: 1,
+                pembahasan: "Orang yang melakukan aransemen disebut aranger."
+            },
+            {
+                id: 32, kelas: 8, topik: "Dirigen",
+                soal: "Orang yang bertugas memimpin sebuah kelompok paduan suara atau orkestra disebut...",
+                pilihan: ["Vokalis", "Dirigen (Conductor)", "Komposer", "Solis"],
+                jawaban: 1,
+                pembahasan: "Dirigen mengatur tempo dan dinamika kelompok melalui gerakan tangan."
+            },
+
+            // ===== KELAS 9: GENRE, SEJARAH & MUSIK MODERN =====
+            {
+                id: 33, kelas: 9, topik: "Genre Jazz",
+                soal: "Salah satu ciri utama musik Jazz yang mengutamakan kreativitas spontan pemainnya adalah...",
+                pilihan: ["Sinkopasi", "Improvisasi", "Distorsi", "Falsetto"],
+                jawaban: 1,
+                pembahasan: "Improvisasi adalah kebebasan pemain untuk 'mengarang' melodi secara langsung saat pertunjukan."
+            },
+            {
+                id: 34, kelas: 9, topik: "Genre Dangdut",
+                soal: "Perpaduan unsur musik India dan Melayu yang sangat populer di Indonesia adalah...",
+                pilihan: ["Jazz", "Rock", "Dangdut", "Blues"],
+                jawaban: 2,
+                pembahasan: "Dangdut memiliki ciri khas bunyi 'dung' dan 'tak' dari kendang."
+            },
+            {
+                id: 35, kelas: 9, topik: "Genre Rock",
+                soal: "Alat musik yang sangat mendominasi genre musik Rock dengan suara yang terdistorsi adalah...",
+                pilihan: ["Suling", "Gitar Listrik", "Piano Akustik", "Kecapi"],
+                jawaban: 1,
+                pembahasan: "Gitar listrik dengan efek distorsi adalah identitas utama musik Rock."
+            },
+            {
+                id: 36, kelas: 9, topik: "Maestro Musik",
+                soal: "Siapakah pencipta lagu legendaris 'Bengawan Solo'?",
+                pilihan: ["Gesang", "Ismail Marzuki", "W.R. Supratman", "Kusbini"],
+                jawaban: 0,
+                pembahasan: "Gesang adalah maestro keroncong yang membawa lagu ini hingga terkenal ke mancanegara."
+            },
+            {
+                id: 37, kelas: 9, topik: "Genre Blues",
+                soal: "Genre musik yang lahir dari ungkapan penderitaan budak Afrika di Amerika adalah...",
+                pilihan: ["Pop", "Reggae", "Blues", "Techno"],
+                jawaban: 2,
+                pembahasan: "Blues identik dengan skala nada melankolis dan lirik yang emosional."
+            },
+            {
+                id: 38, kelas: 9, topik: "Musik Pop",
+                soal: "Karakteristik utama musik Pop (Populer) adalah...",
+                pilihan: ["Sangat rumit aransemennya", "Mudah diterima masyarakat luas dan liriknya sederhana", "Hanya dimainkan di lingkungan istana", "Wajib menggunakan improvisasi panjang"],
+                jawaban: 1,
+                pembahasan: "Musik Pop bersifat komersial dan mudah diingat (catchy)."
+            },
+            {
+                id: 39, kelas: 9, topik: "Paduan Suara",
+                soal: "Paduan suara yang terdiri dari suara Sopran, Alto, Tenor, dan Bass disebut paduan suara...",
+                pilihan: ["Sejenis", "Campuran", "Unisono", "Simbiosis"],
+                jawaban: 1,
+                pembahasan: "Karena menggabungkan suara wanita (SA) dan pria (TB)."
+            },
+            {
+                id: 40, kelas: 9, topik: "Akupela",
+                soal: "Bernyanyi secara berkelompok tanpa menggunakan instrumen musik pengiring disebut...",
+                pilihan: ["Akapela", "Orkestra", "Band", "Big Band"],
+                jawaban: 0,
+                pembahasan: "Dalam akapela, seluruh suara instrumen ditirukan oleh suara manusia."
+            },
+            {
+                id: 41, kelas: 9, topik: "Harmoni",
+                soal: "Keselarasan bunyi yang dihasilkan dari perpaduan dua nada atau lebih secara bersamaan disebut...",
+                pilihan: ["Ritme", "Melodi", "Harmoni", "Tekstur"],
+                jawaban: 2,
+                pembahasan: "Harmoni biasanya diwujudkan dalam bentuk akor (chord)."
+            },
+            {
+                id: 42, kelas: 9, topik: "Alat Musik Barat",
+                soal: "Alat musik tiup logam yang memiliki corong besar dan suara sangat rendah adalah...",
+                pilihan: ["Flute", "Tuba", "Klarinet", "Oboe"],
+                jawaban: 1,
+                pembahasan: "Tuba adalah instrumen paling rendah dalam keluarga alat musik tiup logam (brass)."
+            },
+            {
+                id: 43, kelas: 9, topik: "Vokal Group",
+                soal: "Pembagian suara dalam vokal group biasanya bersifat...",
+                pilihan: ["Kaku mengikuti teks", "Bebas dan kreatif sesuai improvisasi aransemen", "Hanya satu suara saja", "Tanpa dinamika"],
+                jawaban: 1,
+                pembahasan: "Vokal group lebih fleksibel dibanding paduan suara standar."
+            },
+            {
+                id: 44, kelas: 9, topik: "Musik Digital",
+                soal: "Alat musik yang sumber bunyinya dihasilkan oleh rangkaian elektronik disebut...",
+                pilihan: ["Aerophone", "Electrophone", "Idiophone", "Membranophone"],
+                jawaban: 1,
+                pembahasan: "Contohnya adalah synthesizer, keyboard listrik, dan launchpad."
+            },
+            {
+                id: 45, kelas: 9, topik: "Lagu Wajib Nasional",
+                soal: "Lagu 'Indonesia Raya' pertama kali diperdengarkan secara resmi pada peristiwa...",
+                pilihan: ["Proklamasi Kemerdekaan", "Sumpah Pemuda 1928", "Sidang BPUPKI", "Hari Kebangkitan Nasional"],
+                jawaban: 1,
+                pembahasan: "W.R. Supratman memainkan lagu ini dengan biola pada Kongres Pemuda II."
+            },
+            {
+                id: 46, kelas: 9, topik: "Kritik Musik",
+                soal: "Memberikan ulasan atau apresiasi terhadap sebuah pertunjukan musik disebut...",
+                pilihan: ["Komposisi", "Kritik Musik", "Konser Musik", "Manajemen Musik"],
+                jawaban: 1,
+                pembahasan: "Tujuannya untuk memberi masukan dan mengedukasi pendengar/pemain."
+            },
+            {
+                id: 47, kelas: 9, topik: "Modern Jazz",
+                soal: "Musik Jazz awalnya berkembang di negara...",
+                pilihan: ["Inggris", "Amerika Serikat", "Belanda", "Prancis"],
+                jawaban: 1,
+                pembahasan: "Berkembang pesat di New Orleans oleh komunitas Afrika-Amerika."
+            },
+            {
+                id: 48, kelas: 9, topik: "Musik Ansambel Campuran",
+                soal: "Dalam ansambel campuran, keseimbangan suara antar instrumen sangat penting agar tidak ada yang terlalu mendominasi. Hal ini disebut...",
+                pilihan: ["Balance", "Power", "Echo", "Tempo"],
+                jawaban: 0,
+                pembahasan: "Balance (keseimbangan) memastikan melodi utama tetap terdengar jelas di atas pengiring."
+            },
+            {
+                id: 49, kelas: 9, topik: "Industri Musik",
+                soal: "Hak eksklusif bagi pencipta lagu untuk melindungi karyanya dari pembajakan disebut...",
+                pilihan: ["Hak Guna Pakai", "Hak Cipta", "Hak Dagang", "Hak Waris"],
+                jawaban: 1,
+                pembahasan: "Copyright atau Hak Cipta melindungi karya intelektual musisi."
+            },
+            {
+                id: 50, kelas: 9, topik: "Seni Musik US",
+                soal: "Tujuan utama mempelajari seni musik di sekolah adalah...",
+                pilihan: ["Agar menjadi penyanyi terkenal", "Mengasah kepekaan rasa, kreativitas, dan menghargai budaya", "Hanya untuk mendapatkan nilai rapor", "Agar bisa merusak alat musik"],
+                jawaban: 1,
+                pembahasan: "Seni musik adalah sarana pendidikan karakter dan estetika."
             }
         ];
 
-        // LOGIKA KUIS
-        let currentQuestions = [];
-        let currentQuestionIndex = 0;
-        let score = 0;
-        let answered = false;
+        const KELAS_INFO = { 
+            7: { color: "#e85d26", label: "Kelas 7" }, 
+            8: { color: "#1a7a5e", label: "Kelas 8" }, 
+            9: { color: "#6b3fa0", label: "Kelas 9" } 
+        };
 
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
+        function QuizUjianSekolahSeniMusik() {
+            const [phase, setPhase] = useState("home"); 
+            const [current, setCurrent] = useState(0);
+            const [selected, setSelected] = useState(null);
+            const [answers, setAnswers] = useState({});
+            const [showPembahasan, setShowPembahasan] = useState(false);
+            const [music, setMusic] = useState(null);
+            const [musicName, setMusicName] = useState("");
+            const [playing, setPlaying] = useState(false);
+            const [volume, setVolume] = useState(0.5);
+            const [reviewMode, setReviewMode] = useState(false);
+            const [reviewIdx, setReviewIdx] = useState(0);
+            const audioRef = useRef(null);
+            const fileInputRef = useRef(null);
+
+            useEffect(() => {
+                if (audioRef.current) {
+                    audioRef.current.volume = volume;
+                }
+            }, [volume]);
+
+            const handleMusicUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const url = URL.createObjectURL(file);
+                setMusic(url);
+                setMusicName(file.name);
+                setPlaying(false);
+            };
+
+            const togglePlay = () => {
+                if (!audioRef.current) return;
+                if (playing) { audioRef.current.pause(); } else { audioRef.current.play(); }
+                setPlaying(!playing);
+            };
+
+            const q = QUESTIONS[current];
+
+            const handleSelect = (i) => {
+                if (selected !== null) return;
+                setSelected(i);
+                setAnswers(prev => ({ ...prev, [current]: i }));
+                setShowPembahasan(true);
+            };
+
+            const next = () => {
+                setSelected(null);
+                setShowPembahasan(false);
+                if (current < QUESTIONS.length - 1) { setCurrent(c => c + 1); }
+                else { setPhase("result"); }
+            };
+
+            const prev = () => {
+                if (current > 0) {
+                    setSelected(answers[current - 1] ?? null);
+                    setShowPembahasan(answers[current - 1] !== undefined);
+                    setCurrent(c => c - 1);
+                }
+            };
+
+            const startQuiz = () => {
+                setCurrent(0); setSelected(null); setAnswers({}); setShowPembahasan(false); setPhase("quiz");
+            };
+
+            const score = Object.entries(answers).filter(([idx, ans]) => QUESTIONS[parseInt(idx)].jawaban === ans).length;
+            const pct = Math.round((score / QUESTIONS.length) * 100);
+
+            const grade = pct >= 90 ? { label: "Maestro! 🎶", color: "#f59e0b" }
+                : pct >= 80 ? { label: "Sangat Merdu! ✨", color: "#10b981" }
+                : pct >= 70 ? { label: "Harmonis! 👍", color: "#3b82f6" }
+                : pct >= 60 ? { label: "Cukup 🎻", color: "#8b5cf6" }
+                : { label: "Perlu Latihan Lagi 🎼", color: "#ef4444" };
+
+            const MusicPlayer = () => (
+                <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "rgba(10,10,20,0.97)", backdropFilter: "blur(16px)", borderTop: "1px solid rgba(255,255,255,0.08)", padding: "10px 24px", display: "flex", alignItems: "center", gap: 16, zIndex: 100 }}>
+                    {music && <audio ref={audioRef} src={music} loop onEnded={() => setPlaying(false)} />}
+                    <button onClick={() => fileInputRef.current?.click()} style={{ background: "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 8, color: "#fff", padding: "7px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit" }}>
+                        🎵 Upload Musik
+                    </button>
+                    <input ref={fileInputRef} type="file" accept="audio/*" onChange={handleMusicUpload} style={{ display: "none" }} />
+                    {music && (
+                        <>
+                            <button onClick={togglePlay} style={{ background: playing ? "rgba(232,93,38,0.3)" : "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "50%", width: 36, height: 36, color: "#fff", cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                {playing ? "⏸" : "▶"}
+                            </button>
+                            <span style={{ color: "rgba(255,255,255,0.6)", fontSize: 12, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{musicName}</span>
+                            <input type="range" min={0} max={1} step={0.01} value={volume} onChange={e => setVolume(Number(e.target.value))} style={{ width: 80, accentColor: "#e85d26" }} />
+                            <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 11 }}>🔊</span>
+                        </>
+                    )}
+                    {!music && <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 12 }}>Upload file musik untuk menemanimu belajar ✨</span>}
+                </div>
+            );
+
+            // === HOME ===
+            if (phase === "home") return (
+                <div style={{ minHeight: "100vh", background: "linear-gradient(145deg,#0d0d1a 0%,#1a0a05 50%,#0a1a0d 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 20px 80px", fontFamily: "'Georgia', serif" }}>
+                    <style>{`
+                        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600&display=swap');
+                        * { box-sizing: border-box; }
+                        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(232,93,38,0.3) !important; }
+                        .btn-main:hover { transform: scale(1.03); filter: brightness(1.1); }
+                        .opt:hover { background: rgba(255,255,255,0.08) !important; border-color: rgba(255,255,255,0.3) !important; }
+                    `}</style>
+
+                    <div style={{ position: "fixed", top: -100, right: -100, width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(232,93,38,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
+                    <div style={{ position: "fixed", bottom: -80, left: -80, width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(26,122,94,0.1) 0%, transparent 70%)", pointerEvents: "none" }} />
+
+                    <div style={{ textAlign: "center", maxWidth: 680 }}>
+                        <div style={{ fontSize: 64, marginBottom: 8 }}>🎶</div>
+                        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(36px,6vw,64px)", fontWeight: 900, color: "#fff", margin: "0 0 8px", lineHeight: 1.1, letterSpacing: "-1px" }}>
+                            Quiz Ujian Sekolah
+                            <span style={{ display: "block", background: "linear-gradient(90deg,#e85d26,#f59e0b)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Seni Musik</span>
+                        </h1>
+                        <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 16, fontFamily: "'Source Sans 3',sans-serif", marginBottom: 40 }}>50 Soal Pilihan Ganda · Teknik Vokal · Alat Musik · Genre Musik</p>
+
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, marginBottom: 40 }}>
+                            {[
+                                { icon: "🎤", num: "7", label: "Teknik Vokal & Dasar Musik", clr: "#e85d26", sub: "15 soal" },
+                                { icon: "🎸", num: "8", label: "Alat Musik & Tradisional", clr: "#1a7a5e", sub: "17 soal" },
+                                { icon: "🎷", num: "9", label: "Genre, Sejarah & Modern", clr: "#6b3fa0", sub: "18 soal" }
+                            ].map(({ icon, num, label, clr, sub }) => (
+                                <div key={num} className="card-hover" style={{ background: "rgba(255,255,255,0.04)", border: `1px solid rgba(255,255,255,0.08)`, borderRadius: 16, padding: "20px 12px", transition: "all 0.3s", cursor: "default" }}>
+                                    <div style={{ fontSize: 28 }}>{icon}</div>
+                                    <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 28, fontWeight: 900, color: clr }}>Kelas {num}</div>
+                                    <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 12, fontFamily: "'Source Sans 3',sans-serif", marginTop: 4 }}>{label}</div>
+                                    <div style={{ color: clr, fontSize: 12, fontWeight: 700, marginTop: 4, fontFamily: "'Source Sans 3',sans-serif" }}>{sub}</div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <button className="btn-main" onClick={startQuiz} style={{ background: "linear-gradient(135deg,#e85d26 0%,#f59e0b 100%)", border: "none", borderRadius: 16, color: "#fff", padding: "18px 56px", fontSize: 20, fontWeight: 700, cursor: "pointer", transition: "all 0.25s", fontFamily: "'Playfair Display',serif", letterSpacing: "0.5px", boxShadow: "0 8px 32px rgba(232,93,38,0.4)" }}>
+                            Mulai Quiz Musik →
+                        </button>
+                    </div>
+                    <MusicPlayer />
+                </div>
+            );
+
+            // === QUIZ ===
+            if (phase === "quiz") {
+                const kinfo = KELAS_INFO[q.kelas];
+                const prog = ((current + 1) / QUESTIONS.length) * 100;
+                const answered = Object.keys(answers).length;
+
+                return (
+                    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg,#0d0d1a 0%,#1a0d08 60%,#0a100d 100%)", padding: "24px 16px 100px", fontFamily: "'Source Sans 3',Georgia,sans-serif" }}>
+                        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                    <span style={{ background: kinfo.color, color: "#fff", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>{kinfo.label}</span>
+                                    <span style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.6)", borderRadius: 8, padding: "4px 10px", fontSize: 12 }}>{q.topik}</span>
+                                </div>
+                                <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 13 }}>{answered}/{QUESTIONS.length} dijawab</span>
+                            </div>
+
+                            <div style={{ background: "rgba(255,255,255,0.07)", borderRadius: 99, height: 6, marginBottom: 24 }}>
+                                <div style={{ width: `${prog}%`, height: "100%", borderRadius: 99, background: `linear-gradient(90deg,${kinfo.color},#f59e0b)`, transition: "width 0.4s ease" }} />
+                            </div>
+
+                            <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "32px 28px", marginBottom: 16 }}>
+                                <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 13, marginBottom: 12, fontWeight: 600, letterSpacing: 1 }}>SOAL {current + 1} / 50</div>
+                                <p style={{ color: "#fff", fontSize: "clamp(15px,2.5vw,18px)", lineHeight: 1.7, margin: "0 0 28px", fontFamily: "'Playfair Display',serif" }}>{q.soal}</p>
+
+                                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                                    {q.pilihan.map((p, i) => {
+                                        const isCorrect = i === q.jawaban;
+                                        const isSelected = selected === i;
+                                        const revealed = selected !== null;
+                                        let bg = "rgba(255,255,255,0.04)";
+                                        let border = "1px solid rgba(255,255,255,0.1)";
+                                        let txtColor = "rgba(255,255,255,0.8)";
+                                        if (revealed) {
+                                            if (isCorrect) { bg = "rgba(16,185,129,0.15)"; border = "1px solid #10b981"; txtColor = "#6ee7b7"; }
+                                            else if (isSelected) { bg = "rgba(239,68,68,0.15)"; border = "1px solid #ef4444"; txtColor = "#fca5a5"; }
+                                        }
+                                        return (
+                                            <div key={i} className={revealed ? "" : "opt"} onClick={() => handleSelect(i)}
+                                                style={{ background: bg, border, borderRadius: 12, padding: "14px 18px", display: "flex", alignItems: "flex-start", gap: 12, cursor: revealed ? "default" : "pointer" }}>
+                                                <span style={{ minWidth: 28, height: 28, borderRadius: "50%", background: revealed && isCorrect ? "#10b981" : revealed && isSelected ? "#ef4444" : "rgba(255,255,255,0.1)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
+                                                    {revealed && isCorrect ? "✓" : revealed && isSelected && !isCorrect ? "✗" : String.fromCharCode(65 + i)}
+                                                </span>
+                                                <span style={{ color: txtColor, fontSize: 15, lineHeight: 1.5, paddingTop: 2 }}>{p}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {showPembahasan && (
+                                <div style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.25)", borderRadius: 16, padding: "20px 22px", marginBottom: 16 }}>
+                                    <div style={{ color: "#f59e0b", fontWeight: 700, fontSize: 13, marginBottom: 8, letterSpacing: 0.5 }}>💡 PEMBAHASAN</div>
+                                    <p style={{ color: "rgba(255,255,255,0.8)", fontSize: 14, lineHeight: 1.7, margin: 0 }}>{q.pembahasan}</p>
+                                </div>
+                            )}
+
+                            <div style={{ display: "flex", gap: 12, justifyContent: "space-between" }}>
+                                <button className="btn-nav" onClick={prev} disabled={current === 0}
+                                    style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 12, color: current === 0 ? "rgba(255,255,255,0.2)" : "#fff", padding: "13px 24px", fontSize: 15, fontWeight: 600, cursor: current === 0 ? "not-allowed" : "pointer", transition: "all 0.2s", fontFamily: "inherit" }}>
+                                    ← Sebelumnya
+                                </button>
+                                {selected !== null && (
+                                    <button className="btn-nav" onClick={next}
+                                        style={{ background: current === QUESTIONS.length - 1 ? "linear-gradient(135deg,#6b3fa0,#e85d26)" : "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: "13px 28px", fontSize: 15, fontWeight: 700, cursor: "pointer", transition: "all 0.2s", fontFamily: "inherit", boxShadow: "0 4px 20px rgba(232,93,38,0.3)" }}>
+                                        {current === QUESTIONS.length - 1 ? "🏁 Lihat Hasil" : "Selanjutnya →"}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        <MusicPlayer />
+                    </div>
+                );
             }
-            return array;
-        }
 
-        function initQuiz() {
-            currentQuestions = shuffleArray([...rawQuestions]);
-            currentQuestions.forEach(q => {
-                q.options = shuffleArray([...q.options]);
-            });
-            loadQuestion();
-        }
-
-        function loadQuestion() {
-            answered = false;
-            document.getElementById('nextBtn').classList.add('hidden');
-            
-            const q = currentQuestions[currentQuestionIndex];
-            document.getElementById('questionText').innerText = q.question;
-            
-            // --- SISTEM GAMBAR ANTI-BLOKIR (Bulletproof) ---
-            const imageContainer = document.getElementById('imageContainer');
-            const questionImage = document.getElementById('questionImage');
-            const fallbackLink = document.getElementById('imageFallbackLink');
-            
-            if (q.image) {
-                // Tampilkan container
-                imageContainer.classList.remove('hidden');
-                questionImage.classList.remove('hidden');
-                fallbackLink.classList.add('hidden'); // Sembunyikan fallback dulu
-                
-                // Set gambar
-                questionImage.src = q.image;
-                
-                // Jika Vercel tetap memblokir (CORS / 403), jangan biarkan JS error
-                questionImage.onerror = function() {
-                    this.onerror = null; // Matikan loop
-                    this.classList.add('hidden'); // Sembunyikan icon rusak
-                    
-                    // Munculkan tombol klik direct link
-                    fallbackLink.href = q.image;
-                    fallbackLink.classList.remove('hidden');
-                };
-            } else {
-                imageContainer.classList.add('hidden');
-                questionImage.removeAttribute('src'); 
-                questionImage.onerror = null;
-            }
-            // ----------------------------------------------
-            
-            // Update Progress
-            const progressPercent = ((currentQuestionIndex) / currentQuestions.length) * 100;
-            document.getElementById('progressBar').style.width = progressPercent + '%';
-            document.getElementById('questionCount').innerText = `Soal ${currentQuestionIndex + 1} dari ${currentQuestions.length}`;
-
-            // Render Tombol Opsi
-            const optionsContainer = document.getElementById('optionsContainer');
-            optionsContainer.innerHTML = '';
-            
-            q.options.forEach((opt, index) => {
-                const btn = document.createElement('button');
-                btn.className = 'option-btn w-full text-left p-4 rounded-xl text-lg font-medium bg-white/5 cursor-pointer';
-                btn.innerHTML = `<span class="inline-block w-8 font-bold opacity-50">${String.fromCharCode(65 + index)}.</span> ${opt.text}`;
-                
-                btn.onclick = () => selectAnswer(btn, opt.correct, q.options);
-                optionsContainer.appendChild(btn);
-            });
-
-            // Animasi
-            const quizContainer = document.getElementById('quizContainer');
-            quizContainer.classList.remove('fade-in');
-            void quizContainer.offsetWidth; 
-            quizContainer.classList.add('fade-in');
-        }
-
-        function selectAnswer(selectedBtn, isCorrect, options) {
-            if (answered) return;
-            answered = true;
-
-            const allBtns = document.querySelectorAll('.option-btn');
-            allBtns.forEach(btn => btn.disabled = true);
-
-            if (isCorrect) {
-                selectedBtn.classList.add('correct');
-                score += 2; // 50 Soal x 2 = 100 Poin
-                document.getElementById('scoreText').innerText = `Skor: ${score}`;
-            } else {
-                selectedBtn.classList.add('wrong');
-                options.forEach((opt, idx) => {
-                    if (opt.correct) allBtns[idx].classList.add('correct');
+            // === RESULT ===
+            if (phase === "result") {
+                const byKelas = [7, 8, 9].map(k => {
+                    const qs = QUESTIONS.filter((_, i) => QUESTIONS[i].kelas === k);
+                    const correct = qs.filter((q2) => {
+                        const globalIdx = QUESTIONS.indexOf(q2);
+                        return answers[globalIdx] === q2.jawaban;
+                    }).length;
+                    return { kelas: k, total: qs.length, correct };
                 });
+
+                if (reviewMode) {
+                    const reviewQ = QUESTIONS[reviewIdx];
+                    const kinfo = KELAS_INFO[reviewQ.kelas];
+                    const userAns = answers[reviewIdx];
+                    const isCorrect = userAns === reviewQ.jawaban;
+                    return (
+                        <div style={{ minHeight: "100vh", background: "linear-gradient(160deg,#0d0d1a,#1a0d08)", padding: "24px 16px 100px", fontFamily: "'Source Sans 3',sans-serif" }}>
+                            <div style={{ maxWidth: 720, margin: "0 auto" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+                                    <button onClick={() => setReviewMode(false)} style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, color: "#fff", padding: "8px 16px", cursor: "pointer", fontSize: 14, fontFamily: "inherit" }}>← Kembali</button>
+                                    <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 14 }}>Review Soal {reviewIdx + 1} / 50</span>
+                                </div>
+
+                                <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "28px", marginBottom: 16 }}>
+                                    <p style={{ color: "#fff", fontSize: 17, lineHeight: 1.7, fontFamily: "'Playfair Display',serif", marginBottom: 24 }}>{reviewQ.soal}</p>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                                        {reviewQ.pilihan.map((p, i) => {
+                                            const isAns = i === reviewQ.jawaban;
+                                            const isUser = userAns === i;
+                                            let bg = "rgba(255,255,255,0.03)", border = "1px solid rgba(255,255,255,0.08)", clr = "rgba(255,255,255,0.6)";
+                                            if (isAns) { bg = "rgba(16,185,129,0.12)"; border = "1px solid #10b981"; clr = "#6ee7b7"; }
+                                            else if (isUser) { bg = "rgba(239,68,68,0.12)"; border = "1px solid #ef4444"; clr = "#fca5a5"; }
+                                            return (
+                                                <div key={i} style={{ background: bg, border, borderRadius: 12, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}>
+                                                    <span style={{ minWidth: 26, height: 26, borderRadius: "50%", background: isAns ? "#10b981" : isUser ? "#ef4444" : "rgba(255,255,255,0.08)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
+                                                        {isAns ? "✓" : isUser ? "✗" : String.fromCharCode(65 + i)}
+                                                    </span>
+                                                    <span style={{ color: clr, fontSize: 14 }}>{p}</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                                <div style={{ display: "flex", gap: 12 }}>
+                                    <button onClick={() => setReviewIdx(i => Math.max(0, i - 1))} disabled={reviewIdx === 0} style={{ flex: 1, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: "#fff", padding: 13, cursor: "pointer" }}>← Prev</button>
+                                    <button onClick={() => setReviewIdx(i => Math.min(49, i + 1))} disabled={reviewIdx === 49} style={{ flex: 1, background: "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: 13, cursor: "pointer", fontWeight: 700 }}>Next →</button>
+                                </div>
+                            </div>
+                            <MusicPlayer />
+                        </div>
+                    );
+                }
+
+                return (
+                    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg,#0d0d1a,#1a0d08,#0a100d)", padding: "40px 16px 100px", fontFamily: "'Source Sans 3',sans-serif" }}>
+                        <div style={{ maxWidth: 680, margin: "0 auto", textAlign: "center" }}>
+                            <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(28px,5vw,48px)", color: "#fff", margin: "0 0 8px" }}>Hasil Quiz Seni Musik</h2>
+                            <div style={{ fontSize: "clamp(48px,10vw,80px)", fontWeight: 900, fontFamily: "'Playfair Display',serif", color: grade.color, lineHeight: 1 }}>{pct}%</div>
+                            <div style={{ color: grade.color, fontSize: 20, fontWeight: 700, margin: "8px 0 4px" }}>{grade.label}</div>
+                            <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: 36 }}>{score} dari {QUESTIONS.length} soal benar</p>
+
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 32 }}>
+                                {byKelas.map(({ kelas, total, correct }) => {
+                                    const kinfo = KELAS_INFO[kelas];
+                                    const p = Math.round((correct / total) * 100);
+                                    return (
+                                        <div key={kelas} style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${kinfo.color}33`, borderRadius: 16, padding: "18px 12px" }}>
+                                            <div style={{ color: kinfo.color, fontWeight: 900, fontFamily: "'Playfair Display',serif", fontSize: 28 }}>{p}%</div>
+                                            <div style={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>Kelas {kelas}</div>
+                                            <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>{correct}/{total} benar</div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+                                <button onClick={() => { setReviewIdx(0); setReviewMode(true); }}
+                                    style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 12, color: "#fff", padding: "13px 24px", cursor: "pointer", fontSize: 15, fontWeight: 600 }}>
+                                    📖 Review Soal
+                                </button>
+                                <button onClick={startQuiz}
+                                    style={{ background: "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: "13px 28px", cursor: "pointer", fontSize: 15, fontWeight: 700 }}>
+                                    🔄 Ulangi Quiz
+                                </button>
+                            </div>
+                        </div>
+                        <MusicPlayer />
+                    </div>
+                );
             }
-            document.getElementById('nextBtn').classList.remove('hidden');
         }
 
-        document.getElementById('nextBtn').addEventListener('click', () => {
-            currentQuestionIndex++;
-            if (currentQuestionIndex < currentQuestions.length) {
-                loadQuestion();
-            } else {
-                showResult();
-            }
-        });
-
-        function showResult() {
-            document.getElementById('quizContainer').classList.add('hidden');
-            document.getElementById('resultScreen').classList.remove('hidden');
-            
-            const finalScoreElement = document.getElementById('finalScore');
-            const feedbackText = document.getElementById('feedbackText');
-            
-            finalScoreElement.innerText = score;
-
-            if (score === 100) {
-                feedbackText.innerText = "Sempurna! Kamu pantas dapat nilai A+ di Ujian Praktik.";
-                finalScoreElement.className = "text-6xl font-black mb-6 text-green-400";
-            } else if (score >= 75) {
-                feedbackText.innerText = "Hebat! Penguasaan materi sesuai kisi-kisi sangat bagus.";
-                finalScoreElement.className = "text-6xl font-black mb-6 text-blue-400";
-            } else if (score >= 50) {
-                feedbackText.innerText = "Cukup baik, tapi pastikan membaca kisi-kisi lebih teliti lagi.";
-                finalScoreElement.className = "text-6xl font-black mb-6 text-yellow-400";
-            } else {
-                feedbackText.innerText = "Waduh, sepertinya kamu harus menghafal catatan dengan lebih detail lagi!";
-                finalScoreElement.className = "text-6xl font-black mb-6 text-red-400";
-            }
-        }
-
-        // Mulai aplikasi
-        initQuiz();
-
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<QuizUjianSekolahSeniMusik />);
     </script>
 </body>
 </html>
