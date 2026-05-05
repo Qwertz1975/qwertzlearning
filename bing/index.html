@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced English Exam - MehanGG</title>
+    <title>Quiz Ujian Sekolah Bahasa Inggris - MehanGG</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -14,10 +14,24 @@
             overflow-x: hidden;
             background: #0d0d1a;
         }
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0d0d1a; }
         ::-webkit-scrollbar-thumb { background: #e85d26; border-radius: 4px; }
-        pre { font-family: inherit; white-space: pre-wrap; margin: 0; }
+        
+        .teks-box {
+            background: rgba(0,0,0,0.4);
+            border-left: 3px solid #3b82f6;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            max-height: 220px;
+            overflow-y: auto;
+            font-size: 14px;
+            color: rgba(255,255,255,0.75);
+            line-height: 1.6;
+            font-family: 'Source Sans 3', sans-serif;
+        }
     </style>
 </head>
 <body>
@@ -26,196 +40,358 @@
     <script type="text/babel">
         const { useState, useRef, useEffect } = React;
 
-        const QUESTIONS = [
-            // ===== GRAMMAR & TENSES (ADVANCED) =====
+        // TEKS BACAAN (Diambil dari Dokumen Kisi-Kisi)
+        const TXT_EAGLE_DUCK = `In a forest, the animals lived in peace. They lived in a harmony for decades. But, lately, their life was different. They were no longer being friendly animals anymore, they hated each other. Eagle, the most intelligent bird, knew this situation. He then investigated deeper, and tried to uncover who’s the animal that should be responsible for this worse situation.
+He then visited the deer family that hates weasel family. Mr. deer replied, “Mr. Duck told us, that the weasel family stole our food, since then, we hate them.”
+... When he arrived at Mr. Duck’s home, he inadvertently heard a talking between Mr. Duck and Mr. Weasel. Apparently, Mr. Duck were vilifying the deer family. 
+Eagle got a very smart idea. Eagle said in a loud voice, “Shut up! I’m not going to kill you, keep silent!, do not cry!.” After that, Eagle flied high into the sky and plunged downward at a very high speed. He then ripped off Duck’s neck muscles quickly using his sharp beak... Apparently, Eagle ripped the cords that made Mr. Duck unable to speak again. Now, every day Mr. Duck could only emitted strange noises. He could no longer told lies.`;
+
+        const TXT_PIGS = `Once upon a time, there were three little pigs. The first little pig built his house of straw while the middle brother decided to build a house of sticks. They were done with building their houses very quickly and without much hard work. The third pig, the oldest, decided to build a house of brick. He did not mind doing some hard work because he wanted a strong house.
+The big bad wolf huffed and puffed and blew the straw and stick house down in minutes. Now, both the terrified pigs ran to their oldest brother's house. The big bad wolf tried to blow the third house down, but he could not. He kept trying for hours but the house was very strong... he tried to enter through the chimney but the third pig boiled a big pot of water. The wolf fell into it and died.`;
+
+        const TXT_DOLPHINS = `Dolphins are very intelligent animals and they are kind to humans. This water mammals are able to fascinate us in many different ways... 
+Although the dolphins have 100 teeth, they don't use their teeth to eat. They use it to get fish then they swallow the fish. They can consume fish up to 15 kg per day. They always gather in a group to hunt fish.`;
+
+        const TXT_KOMODO = `The Komodo dragon is a type of monitor lizard. Like other monitors, it has a long neck, tapered head, a heavy body, and a long tail. The skin of a Komodo dragon is scaly and dull, dark gray in color. It is believed to have possibly influenced some ancient myths of the fire-breathing dragon because of its yellowish forked tongue with foul breath. 
+These lizards feed on insects, birds, reptiles, small mammal, and carrion. They use their sharp, curved teeth and claws to bite and tear the flesh of their prey. Their mouth produces venom to help subdue prey by poisoning the blood.
+Female Komodo dragons lay eggs in deep burrows. A newly hatched Komodo dragon is about 45 centimeters long. They live in trees for several months to avoid being eaten by the adults.`;
+
+        const TXT_STARFRUIT = `A long time ago there was a rich old man living in Vietnam. He had two sons. The older brother was very greedy and the younger brother was very kind. The big brother took almost everything. He gave his younger brother only a small piece of land with a star-fruit tree.
+A big raven often came and ate all the ripe fruits. At first he was too afraid of the raven... But one day he begged to it not to eat the fruits. The raven said that he will pay the fruits with gold. The younger brother and his family lived happily in luxury.
+The greedy brother traded all their fortune for the star-fruit tree. When the raven came, the raven told him to bring a long bag. He was greedy so asked his wife to make a much longer bag. Because the load became too heavy for the raven, it swayed, and the greedy brother fell straight down to the sea with his bag and pockets full of gold. He sank very fast.`;
+
+        const TXT_BEACH = `Last Saturday, my family and I decided to take a trip to Parangtritis Beach. We had been planning this getaway for weeks because we wanted to escape the busy city life for a while. The waves were a bit strong, so we stayed close to the shore. By noon, we were starving. We found a nice spot under a shady tree and enjoyed the homemade sandwiches. As the sun began to set, the sky turned a beautiful shade of orange and purple... Even though I was physically exhausted, I felt incredibly happy.`;
+
+
+        // MASTER DATA SOAL (30 Soal HOTS & Mengecoh)
+        const MASTER_QUESTIONS = [
+            // --- GRAMMAR ADVANCED (Past/Present/Future Perfect Continuous, Direct/Indirect, Passive) ---
             {
-                id: 1, kelas: 9, topik: "Future Perfect Continuous",
-                soal: "Study the timeline and context carefully:\nThe rescue team started digging the rubble at 6:00 AM. It is now 12:00 PM, and they are still digging. If they continue without stopping until 4:00 PM tomorrow, they ______ for 34 hours straight.",
-                pilihan: [
-                    "will be digging",
-                    "will have dug",
-                    "will have been digging",
-                    "would have been digging"
-                ],
-                jawaban: 2,
-                pembahasan: "Kalimat ini mengindikasikan suatu kejadian yang akan terus berlangsung dan mencapai durasi tertentu (34 jam) di masa depan (tomorrow). Rumusnya adalah Future Perfect Continuous: S + will have + been + V-ing."
+                kelas: 9, topik: "Future Perfect Continuous",
+                soal: "Look at the time! By the time his shift ends at 10 PM tonight, he ___________ for 8 hours without any break.",
+                pilihan: ["has been working", "will have been working", "had been working", "will be working"],
+                jawaban: 1,
+                pembahasan: "Tense ini adalah Future Perfect Continuous (S + will have been + V-ing), digunakan untuk menyatakan aksi yang akan sedang berlangsung selama durasi waktu tertentu di titik tertentu pada masa depan."
             },
             {
-                id: 2, kelas: 9, topik: "Past Perfect vs Past Perfect Continuous",
-                soal: "Before the Eagle finally decided to rip the Duck's vocal cords to stop his lies, the Duck ______ the whole forest's inhabitants for several weeks.",
-                pilihan: [
-                    "had been deceiving",
-                    "has been deceiving",
-                    "had deceived",
-                    "was deceiving"
-                ],
+                kelas: 9, topik: "Present Perfect Continuous",
+                soal: "John is sweating and looks extremely exhausted. He ___________ his car around the neighborhood for two hours.",
+                pilihan: ["has been driving", "had driven", "had been driving", "will have been driving"],
                 jawaban: 0,
-                pembahasan: "Konteks kalimat adalah masa lampau ('decided to rip'). Tindakan menipu (deceive) sudah dimulai dan terus berlangsung hingga titik di masa lampau tersebut. Oleh karena itu, kita menggunakan Past Perfect Continuous (had been V-ing)."
+                pembahasan: "Present Perfect Continuous (S + have/has + been + V-ing) digunakan karena kejadian dimulai di masa lampau dan MASIH berlanjut sampai sekarang (atau efeknya baru saja selesai, terlihat dari keringatnya)."
             },
             {
-                id: 3, kelas: 8, topik: "Present Perfect Continuous",
-                soal: "A zoologist is observing a Komodo dragon. He notes:\n'Look! The dragon's mouth is dripping with venom. It ______ its prey for the last two hours, and it is still waiting for the prey to die.'",
-                pilihan: [
-                    "has been tracking",
-                    "had been tracking",
-                    "is tracking",
-                    "tracks"
-                ],
-                jawaban: 0,
-                pembahasan: "Karena zoologist masih mengobservasi di masa sekarang ('is dripping', 'is still waiting') dan kejadian tersebut dimulai dari masa lalu hingga saat ini (for the last two hours), tense yang tepat adalah Present Perfect Continuous (has been tracking)."
+                kelas: 9, topik: "Past Perfect Continuous",
+                soal: "By the time the third little pig finally boiled the big pot of water, the big bad wolf ___________ to blow the brick house down for several hours.",
+                pilihan: ["was trying", "has been trying", "had tried", "had been trying"],
+                jawaban: 3,
+                pembahasan: "Past Perfect Continuous (S + had + been + V-ing). Digunakan untuk kejadian yang sudah berlangsung dan berlanjut hingga suatu titik spesifik di masa lalu (sebelum babi ketiga merebus air)."
             },
             {
-                id: 4, kelas: 9, topik: "Passive Voice (Tricky)",
-                [span_2](start_span)soal: "Change this active sentence into the correct passive voice:\n'The raven told the older brother to bring a long bag.'[span_2](end_span)",
+                kelas: 9, topik: "Past Perfect",
+                soal: "The animals realized they were deceived. Mr. Duck ___________ to them long before the Eagle discovered the truth.",
+                pilihan: ["has lied", "had lied", "lied", "was lying"],
+                jawaban: 1,
+                pembahasan: "Past Perfect (S + had + V3) digunakan untuk aksi yang sudah selesai terjadi SEBELUM aksi lain di masa lampau."
+            },
+            {
+                kelas: 9, topik: "Reported / Indirect Speech",
+                teks: `Eagle said in a loud voice, “Shut up! I’m not going to kill you, keep silent!”`,
+                soal: "Which of the following is the correct Indirect Speech of the sentence above?",
                 pilihan: [
-                    "A long bag was told to bring by the raven.",
-                    "The older brother was told to bring a long bag by the raven.",
-                    "The older brother had been told by the raven to bring a long bag.",
-                    "The raven was told by the older brother to bring a long bag."
+                    "Eagle told Duck to shut up and said that he is not going to kill him, and keep silent.",
+                    "Eagle commanded him to shut up, stated that he was not going to kill him, and ordered him to keep silent.",
+                    "Eagle angrily said to shut up, that he was not going to kill you, and ordered to keep silent.",
+                    "Eagle ordered in a loud voice that he shut up and he will not kill him, and keeping silent."
                 ],
                 jawaban: 1,
-                pembahasan: "Objek dari kalimat aktif adalah 'the older brother'. Maka objek tersebut maju menjadi subjek di kalimat pasif. Tense aktifnya adalah Simple Past ('told'), maka pasifnya menjadi 'was told'."
+                pembahasan: "Reported speech mengubah kalimat perintah menjadi 'to + infinitive' (to shut up, to keep silent) dan tense mundur ke belakang (am not -> was not). Pilihan B paling tepat dan gramatikal."
             },
             {
-                id: 5, kelas: 9, topik: "Direct to Indirect Speech",
-                soal: "Read the excerpt from the fable:\nMr. [span_3](start_span)Duck then cried, “Forgive me, please forgive me. Eagle, you are an intelligent and good animal, please do not let them kill me…”[span_3](end_span)\n\nWhich of the following is the most accurate indirect speech conversion?",
+                kelas: 9, topik: "Passive Voice",
+                soal: "Change this active sentence into Passive Voice: 'The eagle ripped the cords that made Mr. Duck unable to speak.'",
                 pilihan: [
-                    "Mr. Duck cried and begged the Eagle to forgive him, complimenting his intelligence, and pleaded not to let them kill him.",
-                    "Mr. Duck cried and said to the Eagle that he is intelligent and please do not kill me.",
-                    "Mr. Duck begged the Eagle that he was forgiven and not let them kill him.",
-                    "Mr. Duck told the Eagle to forgive him and said that he had been an intelligent animal."
+                    "The cords that made Mr. Duck unable to speak were ripped by the eagle.",
+                    "The cords was ripped by the eagle to make Mr. Duck unable to speak.",
+                    "Mr. Duck was unable to speak because the cords are ripped by the eagle.",
+                    "The cords that made Mr. Duck unable to speak had been ripped by the eagle."
                 ],
                 jawaban: 0,
-                pembahasan: "Perubahan kalimat imperatif ('Forgive me', 'please do not let') dalam reported speech menggunakan 'to infinitive' (to forgive) dan 'not to infinitive' (not to let). Jawaban A adalah parafrase yang paling akurat secara gramatikal."
+                pembahasan: "Simple Past (ripped) dipasifkan menjadi 'was/were + V3'. Karena subjek barunya jamak ('The cords'), maka menggunakan 'were ripped'."
             },
 
-            // ===== READING COMPREHENSION (HOTS) =====
+            // --- NARRATIVE COMPREHENSION (Eagle & Duck) ---
             {
-                id: 6, kelas: 7, topik: "Text Analysis - Dolphins",
-                soal: "Read the excerpt:\n'Although the dolphins have 100 teeth, they don't use their teeth to eat. They use it to get fish then they swallow the fish. [span_4](start_span)They can consume fish up to 15 kg per day.'[span_4](end_span)\n\nBased on the excerpt, what is the exact biological function of the dolphins' dentition?",
+                kelas: 8, topik: "Reading Comprehension (Inference)",
+                teks: TXT_EAGLE_DUCK,
+                soal: "Based on the text, what was the primary root cause of the hostility among the forest animals?",
                 pilihan: [
-                    "To thoroughly masticate their prey to aid their sensitive digestive system.",
-                    "To actively filter water and extract small aquatic organisms.",
-                    "To grip, capture, and secure the fish before ingesting them whole.",
-                    "To defend their pods against larger predatory species."
-                ],
-                jawaban: 2,
-                [span_5](start_span)pembahasan: "Kata kunci 'use it to get fish then they swallow'[span_5](end_span) berarti gigi tidak dipakai mengunyah (masticate), melainkan hanya untuk menangkap (capture) dan menahan (secure) ikan sebelum ditelan bulat-bulat."
-            },
-            {
-                id: 7, kelas: 8, topik: "Inference - The Three Little Pigs",
-                soal: "Read the excerpt:\n'Now, the two pigs felt sorry for being so lazy while building the houses. [span_6](start_span)They also built their houses with bricks and all the three little pigs lived happily ever after.'[span_6](end_span)\n\nWhat is the underlying motivation for the two younger pigs to finally reconstruct their homes using bricks?",
-                pilihan: [
-                    "Because they wanted to emulate the aesthetic of their older brother's house.",
-                    "Because a profound realization of their lethal laziness prompted a change in their work ethic.",
-                    "Because the wolf explicitly ordered them to do so before he perished.",
-                    "Because straw and sticks were no longer available in the woods."
-                ],
-                jawaban: 1,
-                [span_7](start_span)pembahasan: "Frasa 'felt sorry for being so lazy'[span_7](end_span) membuktikan bahwa penyesalan terdalam atas kemalasan mereka (yang hampir membunuh mereka) adalah motivasi utama untuk berubah dan bekerja keras menggunakan bata."
-            },
-            {
-                id: 8, kelas: 9, topik: "Vocabulary & Inference - Cats",
-                [span_8](start_span)soal: "Read the excerpt:\n'The domestication of cats is believed to have started since ancient Egypt 9,500 years ago... They are a good solitary hunters who have a really good sense of smell... They are a social species...'[span_8](end_span)\n\nWhich statement is NOT a valid conclusion drawn from the text?",
-                pilihan: [
-                    "Felines have been living alongside humans for nearly a millennium.",
-                    "Despite hunting independently, cats are fundamentally capable of social interactions.",
-                    "Their olfactory senses are highly developed.",
-                    "The integration of cats into human society dates back to antiquity."
-                ],
-                jawaban: 0,
-                pembahasan: "Opsi A salah (sehingga menjadi jawaban yang benar untuk 'NOT'). [span_9](start_span)9.500 tahun[span_9](end_span) hampir mencapai satu dekade milenium (1 milenium = 1.000 tahun), bukan 'nearly a millennium' (hampir 1.000 tahun). Ini adalah pengecoh numerik yang sangat menjebak."
-            },
-            {
-                id: 9, kelas: 9, topik: "Cause and Effect - Eagle & Duck",
-                [span_10](start_span)[span_11](start_span)[span_12](start_span)soal: "Read the text excerpt:\n'Because of this, Mr. Duck felt anxious, he then shouted and re-appealed to Eagle... Eagle then ripped off Duck’s neck muscles quickly using his sharp beak... He cannot speak and only had a sound, “quack, quack, quack!”'[span_10](end_span)[span_11](end_span)[span_12](end_span)\n\nWhy did the Eagle specifically target the Duck's neck muscles/cords instead of executing him as the other animals agreed?",
-                pilihan: [
-                    "To demonstrate his dominance and physical superiority over the deer and weasel.",
-                    "To neutralize the Duck's ability to propagate deceit without committing the ultimate sin of murder.",
-                    "Because the Eagle missed his attack when plunging from the sky.",
-                    "Because the Duck requested a lighter punishment rather than death."
-                ],
-                jawaban: 1,
-                [span_13](start_span)pembahasan: "Elang menyuruh hewan bersabar dan tidak mengambil jalan pembunuhan (do not take murder as the solution)[span_13](end_span). [span_14](start_span)Dia merobek pita suara bebek agar bebek tidak bisa bicara/berbohong lagi (He could no longer told lies)[span_14](end_span), menghilangkan akar masalah tanpa membunuh."
-            },
-            {
-                id: 10, kelas: 8, topik: "Detailed Inference - Star Fruit Tale",
-                soal: "Read the excerpt:\n'He was greedy so asked his wife to make a much longer bag. [span_15](start_span)Because the load became too heavy for the raven, it swayed, and the greedy brother fell straight down to the sea with his bag and pockets full of gold.'[span_15](end_span)\n\nWhat was the ultimate catalyst for the older brother's demise?",
-                pilihan: [
-                    "The raven's malicious intent to drop him over the ocean.",
-                    "The sudden change of weather that made the raven sway.",
-                    "His inherent avarice which resulted in a critical aerodynamic failure for the bird.",
-                    "His wife's inability to sew a bag with strong enough material."
-                ],
-                jawaban: 2,
-                [span_16](start_span)pembahasan: "Kematian sang kakak mutlak disebabkan oleh keserakahannya ('avarice/greediness') yang membuatnya membawa beban terlalu berat, sehingga gagak kehilangan keseimbangan ('swayed')[span_16](end_span)."
-            },
-            {
-                id: 11, kelas: 7, topik: "Reading Comprehension - Parangtritis",
-                soal: "Read the excerpt:\n'We packed up our belongings as the sky grew dark. [span_17](start_span)Even though I was physically exhausted, I felt incredibly happy.'[span_17](end_span)\n\nWhat does the writer imply about the trip?",
-                pilihan: [
-                    "The physical toll significantly ruined the overall experience of the sunset.",
-                    "The emotional gratification entirely compensated for the physical fatigue.",
-                    "They had to leave early because building the moat consumed too much energy.",
-                    "The writer regretted not bringing more homemade sandwiches."
-                ],
-                jawaban: 1,
-                [span_18](start_span)pembahasan: "Kata 'Even though... I felt incredibly happy'[span_18](end_span) bermakna bahwa rasa lelah fisik tidak seberapa dibandingkan dengan kebahagiaan emosional yang ia dapatkan (emotional gratification compensated the fatigue)."
-            },
-            {
-                id: 12, kelas: 9, topik: "Fact Checking - Komodo Dragon",
-                [span_19](start_span)soal: "Based on the text about the Komodo dragon, identify the statement that contradicts the provided facts:\n[Text Fact: 'Female Komodo dragons lay eggs in deep burrows... They live in trees for several months to avoid being eaten by the adults.'][span_19](end_span)",
-                pilihan: [
-                    "The Komodo dragon's saliva contains venom to weaken its prey.",
-                    "Juvenile dragons exhibit arboreal behavior primarily as a survival mechanism against cannibalism.",
-                    "They possess a yellowish forked tongue which they use to interpret their surroundings.",
-                    "Adult Komodo dragons incubate their eggs in tree hollows to protect them from terrestrial predators."
+                    "The Weasel family stealing food from the Deer family.",
+                    "The Eagle secretly manipulating the animals to establish dominance.",
+                    "Mr. Deer misunderstanding Mr. Weasel's actions.",
+                    "Mr. Duck deliberately fabricating false information to vilify others."
                 ],
                 jawaban: 3,
-                pembahasan: "Pernyataan D salah total. [span_20](start_span)Teks menyatakan betina bertelur di lubang yang dalam di tanah ('deep burrows')[span_20](end_span), bukan di rongga pohon. Anak komodo-lah yang tinggal di pohon untuk menghindari dimakan komodo dewasa."
+                pembahasan: "Sangat mengecoh! Teks menyebut Weasel mencuri makanan, tetapi itu HANYA kebohongan yang disebarkan Mr. Duck. Akar masalah sebenarnya (root cause) adalah kebohongan (fabrikasi) dari Mr. Duck."
             },
             {
-                id: 13, kelas: 9, topik: "Vocabulary in Context",
-                [span_21](start_span)soal: "In the Kisi-kisi, there is a vocabulary list including 'perseverance', 'paid off', and 'accomplishment'.[span_21](end_span) \nWhich of the following sentences utilizes the phrase 'paid off' accurately in a grammatical and contextual sense?",
+                kelas: 8, topik: "Reading Comprehension (Character Motive)",
+                teks: TXT_EAGLE_DUCK,
+                soal: "Why did the Eagle specifically choose to rip Mr. Duck's neck cords instead of fulfilling the animals' agreement to kill him?",
                 pilihan: [
-                    "He paid off the cashier with accomplishment after buying the groceries.",
-                    "Her years of extreme perseverance and sleepless nights finally paid off when she won the international championship.",
-                    "The intention was to paid off the debt, but he failed.",
-                    "They paid off the goal pursuing to achieve success."
-                ],
-                jawaban: 1,
-                pembahasan: "'Paid off' dalam konteks ini adalah idiom yang berarti membuahkan hasil (yielded good results). Opsi B menggunakan idiom tersebut dengan sempurna."
-            },
-            {
-                id: 14, kelas: 9, topik: "Mixed Grammar - Passive & Past Perfect",
-                [span_22](start_span)[span_23](start_span)soal: "Combine the ideas using Passive Voice and Past Perfect:\nBefore the Eagle arrived, Mr. Duck had deceived the Deer family.[span_22](end_span)[span_23](end_span)",
-                pilihan: [
-                    "Before the Eagle arrived, the Deer family had been deceived by Mr. Duck.",
-                    "Before the Eagle arrived, the Deer family was deceived by Mr. Duck.",
-                    "Before the Eagle arrived, the Deer family has been deceived by Mr. Duck.",
-                    "Before the Eagle arrived, Mr. Duck had been deceived by the Deer family."
-                ],
-                jawaban: 0,
-                pembahasan: "Past perfect pasif memiliki rumus: S (Object) + had + been + V3. Karena Deer family adalah korban penipuan, mereka menjadi subjek dalam kalimat pasif (had been deceived)."
-            },
-            {
-                id: 15, kelas: 8, topik: "Analytical Thinking - Eagle & Duck",
-                soal: "Read the excerpt:\n'After chatting for a long time, he then asked, “Sir, why do you hate weasel?” Mr. deer replied, “Mr. Duck told us, that the weasel family stole our food...” Eagle then asked again, “Have you checked out more about the news?” [span_24](start_span)Mr. Duck replied, “I did not do it, I believed him, because he is my good friend.”'[span_24](end_span)\n\nNOTE: The original text contains an error in attributing dialogue. Who actually said 'I did not do it, I believed him...'?",
-                pilihan: [
-                    "Mr. Weasel",
-                    "Mr. Duck",
-                    "Mr. Deer",
-                    "The Eagle"
+                    "He wanted to humiliate Mr. Duck by making him sound like 'quack' forever.",
+                    "He believed physical torture was far more painful than taking a life.",
+                    "He preferred a punishment that directly neutralized the sin (lying) without resorting to murder.",
+                    "He was afraid the other animals would turn against him if he committed murder."
                 ],
                 jawaban: 2,
-                pembahasan: "Ini adalah soal mengecoh yang membutuhkan nalar tingkat tinggi. Teks asli menulis 'Mr. [span_25](start_span)Duck replied'[span_25](end_span), tetapi secara logika cerita, yang menjawab pertanyaan elang 'Have you checked out...?' adalah Bapak Rusa (Mr. Deer) yang ditipu oleh bebek. Rusa percaya karena bebek temannya."
+                pembahasan: "Elang mengatakan 'do not take murder as the solution'. Ia merobek pita suara bebek agar bebek tersebut 'could no longer told lies', yang berarti dia menghukum tepat pada sumber dosanya (mulut yang berbohong) tanpa membunuh."
+            },
+            {
+                kelas: 8, topik: "Vocabulary in Context",
+                teks: TXT_EAGLE_DUCK,
+                soal: "“Apparently, Mr. Duck were vilifying the deer family...” The word 'vilifying' in this context is closest in meaning to...",
+                pilihan: ["Praising", "Defaming / Slandering", "Protecting", "Investigating"],
+                jawaban: 1,
+                pembahasan: "Vilifying artinya menjelek-jelekkan atau memfitnah (Defaming / Slandering)."
+            },
+
+            // --- NARRATIVE COMPREHENSION (The Three Little Pigs) ---
+            {
+                kelas: 8, topik: "Reading Comprehension (Logic)",
+                teks: TXT_PIGS,
+                soal: "Why did the first two pigs' houses fail structurally against the wolf, whereas the third pig's house succeeded?",
+                pilihan: [
+                    "The wolf was already physically exhausted when he reached the third house.",
+                    "Straw and sticks are inherently defective materials, even if built with a lot of hard work.",
+                    "The first two pigs prioritized speed and minimal effort over structural integrity.",
+                    "The third pig utilized a magical pot of water to reinforce his bricks."
+                ],
+                jawaban: 2,
+                pembahasan: "Teks menyebutkan babi pertama & kedua selesai 'very quickly and without much hard work' (mengutamakan kecepatan/kemalasan), sedangkan babi ketiga 'did not mind doing some hard work because he wanted a strong house'."
+            },
+
+            // --- REPORT TEXT (Dolphins) ---
+            {
+                kelas: 9, topik: "Detail Information",
+                teks: TXT_DOLPHINS,
+                soal: "Which statement is structurally and factually TRUE according to the text regarding the dolphin's diet?",
+                pilihan: [
+                    "They utilize their teeth strictly for gripping the fish, not for mastication, before swallowing them whole.",
+                    "They swallow fish whole because their 100 teeth are purely decorative.",
+                    "They consume exactly 15 kg of fish per day by hunting individually.",
+                    "They use their teeth to chew the fish until it is soft enough to swallow."
+                ],
+                jawaban: 0,
+                pembahasan: "Teks menyatakan: 'they don't use their teeth to eat. They use it to get fish then they swallow...'. Artinya gigi hanya untuk menangkap (gripping), bukan mengunyah (mastication)."
+            },
+            {
+                kelas: 9, topik: "Grammar Error Analysis",
+                teks: TXT_DOLPHINS,
+                soal: "“This water mammals are able to fascinate us in many different ways.” Identify the grammatical error in this original sentence.",
+                pilihan: [
+                    "‘water mammals’ should be written as ‘water’s mammals’.",
+                    "‘are able to’ should be replaced with ‘can able to’.",
+                    "‘fascinate’ must be in the progressive form ‘fascinating’.",
+                    "‘This’ should be ‘These’ to agree with the plural noun ‘mammals’."
+                ],
+                jawaban: 3,
+                pembahasan: "Soal HOTS analisis teks. Karena 'mammals' berbentuk jamak (plural), penunjuknya harus 'These', bukan 'This'."
+            },
+
+            // --- REPORT TEXT (Komodo Dragon) ---
+            {
+                kelas: 9, topik: "Reading Comprehension",
+                teks: TXT_KOMODO,
+                soal: "How do Komodo dragons predominantly subdue their prey according to the provided text?",
+                pilihan: [
+                    "By breathing fire to blind the prey before consuming it.",
+                    "By injecting venom that poisons the prey's blood after tearing its flesh.",
+                    "By constricting the prey like a snake using its heavy body and long tail.",
+                    "By chasing them at high speeds until the prey collapses from exhaustion."
+                ],
+                jawaban: 1,
+                pembahasan: "Teks secara eksplisit menyebutkan: 'Their mouth produces venom to help subdue prey by poisoning the blood'."
+            },
+            {
+                kelas: 9, topik: "Inference",
+                teks: TXT_KOMODO,
+                soal: "What is the primary evolutionary reason baby Komodo dragons spend their first few months living in trees?",
+                pilihan: [
+                    "To practice their climbing skills which are essential for adult hunting.",
+                    "Because the ground temperature in the savanna is too extreme for hatchlings.",
+                    "To effectively hunt small birds and insects.",
+                    "To prevent cannibalism by avoiding the adult Komodo dragons."
+                ],
+                jawaban: 3,
+                pembahasan: "Teks menyatakan: 'They live in trees for several months to avoid being eaten by the adults.' (Cannibalism)."
+            },
+
+            // --- NARRATIVE TEXT (Star Fruit Tree) ---
+            {
+                kelas: 8, topik: "Reading Comprehension",
+                teks: TXT_STARFRUIT,
+                soal: "What fundamentally caused the fatal accident of the greedy older brother?",
+                pilihan: [
+                    "His inability to swim when the raven intentionally dropped him.",
+                    "His refusal to attend his father's death commemoration.",
+                    "The extreme weight of his oversized bag destabilized the raven's flight over the sea.",
+                    "The raven pushed him off the back because it felt cheated."
+                ],
+                jawaban: 2,
+                pembahasan: "Teks: 'Because the load became too heavy for the raven, it swayed, and the greedy brother fell straight down...'. Berat beban yang berlebihan mengganggu kestabilan (destabilized) terbang gagak."
+            },
+            {
+                kelas: 8, topik: "Vocabulary in Context",
+                teks: TXT_STARFRUIT,
+                soal: "What was the younger brother's initial reaction when he discovered the raven eating his star fruits?",
+                pilihan: [
+                    "He immediately demanded payment in gold.",
+                    "He politely begged it to stop on the very first day.",
+                    "He experienced fear and was paralyzed by indecision.",
+                    "He aggressively chased the raven away with a stick."
+                ],
+                jawaban: 2,
+                pembahasan: "Teks: 'At first he was too afraid of the raven, and did not know what to do.' (paralyzed by indecision / takut dan bingung)."
+            },
+
+            // --- RECOUNT TEXT (Parangtritis Beach) ---
+            {
+                kelas: 8, topik: "Grammar Analysis in Text",
+                teks: TXT_BEACH,
+                soal: "“We had been planning this getaway for weeks...” What tense is used in this sentence to emphasize the duration of a past action before another past event?",
+                pilihan: ["Present Perfect Continuous", "Past Continuous", "Past Perfect", "Past Perfect Continuous"],
+                jawaban: 3,
+                pembahasan: "'Had been planning' adalah bentuk Past Perfect Continuous."
+            },
+            {
+                kelas: 8, topik: "Author's Tone",
+                teks: TXT_BEACH,
+                soal: "Even though the writer was physically exhausted at the end of the day, how did they evaluate the overall trip?",
+                pilihan: [
+                    "They regretted going because the waves were too dangerous.",
+                    "They found it deeply satisfying and eagerly anticipated a future visit.",
+                    "They wished they had stayed in the busy city instead.",
+                    "They were disappointed because they only ate simple homemade sandwiches."
+                ],
+                jawaban: 1,
+                pembahasan: "Kalimat terakhir: 'Even though I was physically exhausted, I felt incredibly happy... cannot wait until we can visit the beach again.' (Sangat puas dan menantikan kunjungan berikutnya)."
+            },
+
+            // --- MIXED GRAMMAR & VOCABULARY ---
+            {
+                kelas: 9, topik: "Vocabulary Meaning",
+                soal: "Based on the syllabus vocabulary list, the word 'Perseverance' is closest in meaning to...",
+                pilihan: [
+                    "A sudden, unexpected accomplishment.",
+                    "The intention to pursue an unreachable goal.",
+                    "Persistence and determination in doing something despite difficulty (Gigih).",
+                    "A state of harmony among forest animals."
+                ],
+                jawaban: 2,
+                pembahasan: "Sesuai kisi-kisi: perseverance = gigih (kegigihan meski sulit)."
+            },
+            {
+                kelas: 9, topik: "Conditional Sentences (Type 3)",
+                soal: "If Mr. Duck had not lied to the deer family, the forest animals _________ in harmony for many more years.",
+                pilihan: ["will live", "would live", "would have continued to live", "had lived"],
+                jawaban: 2,
+                pembahasan: "Mengecoh! Conditional Type 3 (If + Past Perfect, Subject + would have + V3). Karena syaratnya fiktif di masa lalu (had not lied), maka hasilnya 'would have continued'."
+            },
+            {
+                kelas: 9, topik: "Passive Voice",
+                soal: "Change to Passive Voice: 'The intelligent eagle will solve the mysterious problem.'",
+                pilihan: [
+                    "The mysterious problem is solved by the intelligent eagle.",
+                    "The mysterious problem would be solved by the intelligent eagle.",
+                    "The mysterious problem will be solved by the intelligent eagle.",
+                    "The mysterious problem will have solved by the intelligent eagle."
+                ],
+                jawaban: 2,
+                pembahasan: "Future Passive: will + V1 diubah menjadi will + be + V3 (will be solved)."
+            },
+            {
+                kelas: 7, topik: "Prepositional Phrase",
+                teks: TXT_EAGLE_DUCK,
+                soal: "“After chatting for a long time, he then asked...” Who does the pronoun 'he' refer to in this specific context?",
+                pilihan: ["Mr. Weasel", "Mr. Deer", "Mr. Duck", "The Eagle"],
+                jawaban: 3,
+                pembahasan: "Berdasarkan alur teks, 'he' merujuk kepada Elang (Eagle) yang sedang menginterogasi keluarga Rusa (Mr. Deer)."
+            },
+            {
+                kelas: 9, topik: "Past Perfect",
+                soal: "When I arrived at the station, the train _________. I was so disappointed because I missed it.",
+                pilihan: ["has left", "was leaving", "had left", "had been leaving"],
+                jawaban: 2,
+                pembahasan: "Past Perfect (had left). Kereta sudah pergi (aksi 1 selesai) sebelum saya tiba di stasiun (aksi 2)."
+            },
+            {
+                kelas: 9, topik: "Passive Voice in Perfect Tense",
+                soal: "Active: 'Someone has stolen my new bicycle.' -> Passive: 'My new bicycle _________.'",
+                pilihan: ["was stolen", "has been stolen", "had stolen", "is being stolen"],
+                jawaban: 1,
+                pembahasan: "Present Perfect (has stolen) dipasifkan menjadi 'has been + V3' (has been stolen)."
+            },
+            {
+                kelas: 8, topik: "Reported Speech",
+                soal: "Direct: The teacher said, “Don't open your books!” -> Indirect: The teacher _________.",
+                pilihan: [
+                    "said not open our books.",
+                    "ordered us not to open our books.",
+                    "told us to don't open our books.",
+                    "asked us not opening our books."
+                ],
+                jawaban: 1,
+                pembahasan: "Kalimat larangan (Don't V1) diubah menjadi 'not to V1' dalam indirect speech."
+            },
+            {
+                kelas: 9, topik: "Vocabulary Synonyms",
+                soal: "“Her perseverance finally paid off when she got the accomplishment.” The synonym of the word 'accomplishment' is...",
+                pilihan: ["Intention", "Achievement", "Pursuing", "Goal"],
+                jawaban: 1,
+                pembahasan: "Sesuai kisi-kisi, accomplishment = prestasi = achievement."
+            },
+            {
+                kelas: 9, topik: "Future Perfect Continuous",
+                soal: "They are currently building a bridge. By December next year, they _________ it for exactly three years.",
+                pilihan: ["had been building", "will be building", "have been building", "will have been building"],
+                jawaban: 3,
+                pembahasan: "Aksi yang sudah akan berlangsung selama waktu tertentu di masa depan (By December next year)."
+            },
+            {
+                kelas: 9, topik: "Present Perfect Continuous vs Past Perfect",
+                soal: "My eyes are very red and tired. I _________ essays on my computer since 7 AM this morning.",
+                pilihan: ["have been typing", "had typed", "had been typing", "will have been typing"],
+                jawaban: 0,
+                pembahasan: "Efeknya terasa sekarang (My eyes ARE red), aksi dimulai di masa lalu dan masih berlangsung (since 7 AM), maka menggunakan Present Perfect Continuous."
+            },
+            {
+                kelas: 8, topik: "Conjunction Logic",
+                soal: "The raven swayed in the sky _________ the bag carried by the greedy brother was extremely heavy.",
+                pilihan: ["therefore", "because", "although", "so that"],
+                jawaban: 1,
+                pembahasan: "Menggunakan 'because' karena menjelaskan alasan/sebab mengapa burung gagak itu goyah."
+            },
+            {
+                kelas: 9, topik: "Inference Check",
+                teks: TXT_KOMODO,
+                soal: "Based on the text, what might happen if a baby Komodo dragon fails to live in a tree for the first few months?",
+                pilihan: [
+                    "It will not learn how to breathe fire properly.",
+                    "It might be hunted and eaten by adult Komodo dragons.",
+                    "It will starve because insects only live in trees.",
+                    "Its skin will not become scaly and dull."
+                ],
+                jawaban: 1,
+                pembahasan: "Teks eksplisit menyebutkan 'live in trees... to avoid being eaten by the adults'. Jika tidak di pohon, maka kemungkinan besar dimakan oleh Komodo dewasa."
             }
         ];
 
+        // KONFIGURASI WARNA KELAS
         const KELAS_INFO = { 
-            7: { color: "#e85d26", label: "Grade 7" }, 
-            8: { color: "#1a7a5e", label: "Grade 8" }, 
-            9: { color: "#6b3fa0", label: "Grade 9" } 
+            7: { color: "#e85d26", label: "Kelas 7" }, 
+            8: { color: "#1a7a5e", label: "Kelas 8" }, 
+            9: { color: "#6b3fa0", label: "Kelas 9" } 
         };
 
         function QuizUjianSekolahEnglish() {
@@ -225,19 +401,22 @@
             const [selected, setSelected] = useState(null);
             const [answers, setAnswers] = useState({});
             const [showPembahasan, setShowPembahasan] = useState(false);
+            
+            // Audio State
             const [music, setMusic] = useState(null);
             const [musicName, setMusicName] = useState("");
             const [playing, setPlaying] = useState(false);
             const [volume, setVolume] = useState(0.5);
+            
+            // Review State
             const [reviewMode, setReviewMode] = useState(false);
             const [reviewIdx, setReviewIdx] = useState(0);
+            
             const audioRef = useRef(null);
             const fileInputRef = useRef(null);
 
             useEffect(() => {
-                if (audioRef.current) {
-                    audioRef.current.volume = volume;
-                }
+                if (audioRef.current) audioRef.current.volume = volume;
             }, [volume]);
 
             const handleMusicUpload = (e) => {
@@ -251,19 +430,19 @@
 
             const togglePlay = () => {
                 if (!audioRef.current) return;
-                if (playing) { audioRef.current.pause(); } else { audioRef.current.play(); }
+                if (playing) audioRef.current.pause(); 
+                else audioRef.current.play();
                 setPlaying(!playing);
             };
 
+            // ACAK SOAL (Shuffle array)
             const startQuiz = () => {
-                // Suffle Questions Logic
-                const shuffled = [...QUESTIONS].sort(() => Math.random() - 0.5);
+                const shuffled = [...MASTER_QUESTIONS].sort(() => Math.random() - 0.5);
                 setQuizQuestions(shuffled);
                 setCurrent(0); 
                 setSelected(null); 
                 setAnswers({}); 
                 setShowPembahasan(false); 
-                setReviewMode(false);
                 setPhase("quiz");
             };
 
@@ -277,8 +456,8 @@
             const next = () => {
                 setSelected(null);
                 setShowPembahasan(false);
-                if (current < quizQuestions.length - 1) { setCurrent(c => c + 1); }
-                else { setPhase("result"); }
+                if (current < quizQuestions.length - 1) setCurrent(c => c + 1); 
+                else setPhase("result");
             };
 
             const prev = () => {
@@ -289,6 +468,7 @@
                 }
             };
 
+            // Music Player UI
             const MusicPlayer = () => (
                 <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "rgba(10,10,20,0.97)", backdropFilter: "blur(16px)", borderTop: "1px solid rgba(255,255,255,0.08)", padding: "10px 24px", display: "flex", alignItems: "center", gap: 16, zIndex: 100 }}>
                     {music && <audio ref={audioRef} src={music} loop onEnded={() => setPlaying(false)} />}
@@ -310,7 +490,7 @@
                 </div>
             );
 
-            // === HOME ===
+            // === HOME PHASE ===
             if (phase === "home") return (
                 <div style={{ minHeight: "100vh", background: "linear-gradient(145deg,#0d0d1a 0%,#050a1a 50%,#0a1a1a 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 20px 80px", fontFamily: "'Georgia', serif" }}>
                     <style>{`
@@ -325,11 +505,26 @@
                         <div style={{ fontSize: 64, marginBottom: 8 }}>🇬🇧</div>
                         <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(36px,6vw,64px)", fontWeight: 900, color: "#fff", margin: "0 0 8px", lineHeight: 1.1, letterSpacing: "-1px" }}>
                             Quiz Ujian Sekolah
-                            <span style={{ display: "block", background: "linear-gradient(90deg,#e85d26,#f59e0b)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Advanced Mode (HOTS)</span>
+                            <span style={{ display: "block", background: "linear-gradient(90deg,#ef4444,#f59e0b)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>English HOTS Edition</span>
                         </h1>
-                        <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 16, fontFamily: "'Source Sans 3',sans-serif", marginBottom: 40 }}>Sangat Susah & Mengecoh · Randomized Questions</p>
+                        <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 16, fontFamily: "'Source Sans 3',sans-serif", marginBottom: 40 }}>{MASTER_QUESTIONS.length} Tricky Questions · Advanced Grammar · Deep Comprehension</p>
 
-                        <button className="btn-main" onClick={startQuiz} style={{ background: "linear-gradient(135deg,#e85d26 0%,#f59e0b 100%)", border: "none", borderRadius: 16, color: "#fff", padding: "18px 56px", fontSize: 20, fontWeight: 700, cursor: "pointer", transition: "all 0.25s", fontFamily: "'Playfair Display',serif", letterSpacing: "0.5px", boxShadow: "0 8px 32px rgba(232,93,38,0.4)" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, marginBottom: 40 }}>
+                            {[
+                                { icon: "🔥", num: "7", label: "Logic & Pronoun", clr: "#e85d26", sub: "Mixed" },
+                                { icon: "📖", num: "8", label: "Narrative & Recount", clr: "#1a7a5e", sub: "Mixed" },
+                                { icon: "🎓", num: "9", label: "Perfect Tenses & Passive", clr: "#6b3fa0", sub: "Mixed" }
+                            ].map(({ icon, num, label, clr, sub }) => (
+                                <div key={num} className="card-hover" style={{ background: "rgba(255,255,255,0.04)", border: `1px solid rgba(255,255,255,0.08)`, borderRadius: 16, padding: "20px 12px", transition: "all 0.3s", cursor: "default" }}>
+                                    <div style={{ fontSize: 28 }}>{icon}</div>
+                                    <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 28, fontWeight: 900, color: clr }}>Grade {num}</div>
+                                    <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 12, fontFamily: "'Source Sans 3',sans-serif", marginTop: 4 }}>{label}</div>
+                                    <div style={{ color: clr, fontSize: 12, fontWeight: 700, marginTop: 4, fontFamily: "'Source Sans 3',sans-serif" }}>{sub}</div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <button className="btn-main" onClick={startQuiz} style={{ background: "linear-gradient(135deg,#ef4444 0%,#b91c1c 100%)", border: "none", borderRadius: 16, color: "#fff", padding: "18px 56px", fontSize: 20, fontWeight: 700, cursor: "pointer", transition: "all 0.25s", fontFamily: "'Playfair Display',serif", letterSpacing: "0.5px", boxShadow: "0 8px 32px rgba(239,68,68,0.4)" }}>
                             Start Hard Quiz →
                         </button>
                     </div>
@@ -337,10 +532,10 @@
                 </div>
             );
 
-            // === QUIZ ===
-            if (phase === "quiz") {
+            // === QUIZ PHASE ===
+            if (phase === "quiz" && quizQuestions.length > 0) {
                 const q = quizQuestions[current];
-                const kinfo = KELAS_INFO[q.kelas];
+                const kinfo = KELAS_INFO[q.kelas] || KELAS_INFO[9];
                 const prog = ((current + 1) / quizQuestions.length) * 100;
                 const answered = Object.keys(answers).length;
 
@@ -356,12 +551,21 @@
                             </div>
 
                             <div style={{ background: "rgba(255,255,255,0.07)", borderRadius: 99, height: 6, marginBottom: 24 }}>
-                                <div style={{ width: `${prog}%`, height: "100%", borderRadius: 99, background: `linear-gradient(90deg,${kinfo.color},#60a5fa)`, transition: "width 0.4s ease" }} />
+                                <div style={{ width: `${prog}%`, height: "100%", borderRadius: 99, background: `linear-gradient(90deg,${kinfo.color},#ef4444)`, transition: "width 0.4s ease" }} />
                             </div>
 
                             <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "32px 28px", marginBottom: 16 }}>
                                 <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 13, marginBottom: 12, fontWeight: 600, letterSpacing: 1 }}>QUESTION {current + 1} / {quizQuestions.length}</div>
-                                <pre style={{ color: "#fff", fontSize: "clamp(15px,2.5vw,17px)", lineHeight: 1.7, margin: "0 0 28px", fontFamily: "'Source Sans 3',serif", whiteSpace: "pre-wrap" }}>{q.soal}</pre>
+                                
+                                {q.teks && (
+                                    <div className="teks-box">
+                                        {q.teks.split('\n').map((line, idx) => (
+                                            <p key={idx} style={{ margin: "0 0 8px" }}>{line}</p>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <p style={{ color: "#fff", fontSize: "clamp(15px,2.5vw,18px)", lineHeight: 1.7, margin: "0 0 28px", fontFamily: "'Playfair Display',serif" }}>{q.soal}</p>
 
                                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                                     {q.pilihan.map((p, i) => {
@@ -371,6 +575,7 @@
                                         let bg = "rgba(255,255,255,0.04)";
                                         let border = "1px solid rgba(255,255,255,0.1)";
                                         let txtColor = "rgba(255,255,255,0.8)";
+                                        
                                         if (revealed) {
                                             if (isCorrect) { bg = "rgba(16,185,129,0.15)"; border = "1px solid #10b981"; txtColor = "#6ee7b7"; }
                                             else if (isSelected) { bg = "rgba(239,68,68,0.15)"; border = "1px solid #ef4444"; txtColor = "#fca5a5"; }
@@ -389,8 +594,8 @@
                             </div>
 
                             {showPembahasan && (
-                                <div style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.25)", borderRadius: 16, padding: "20px 22px", marginBottom: 16 }}>
-                                    <div style={{ color: "#60a5fa", fontWeight: 700, fontSize: 13, marginBottom: 8, letterSpacing: 0.5 }}>💡 EXPLANATION</div>
+                                <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 16, padding: "20px 22px", marginBottom: 16 }}>
+                                    <div style={{ color: "#ef4444", fontWeight: 700, fontSize: 13, marginBottom: 8, letterSpacing: 0.5 }}>💡 EXPLANATION</div>
                                     <p style={{ color: "rgba(255,255,255,0.8)", fontSize: 14, lineHeight: 1.7, margin: 0 }}>{q.pembahasan}</p>
                                 </div>
                             )}
@@ -402,7 +607,7 @@
                                 </button>
                                 {selected !== null && (
                                     <button className="btn-nav" onClick={next}
-                                        style={{ background: current === quizQuestions.length - 1 ? "linear-gradient(135deg,#6b3fa0,#3b82f6)" : "linear-gradient(135deg,#3b82f6,#60a5fa)", border: "none", borderRadius: 12, color: "#fff", padding: "13px 28px", fontSize: 15, fontWeight: 700, cursor: "pointer", transition: "all 0.2s", fontFamily: "inherit", boxShadow: "0 4px 20px rgba(59,130,246,0.3)" }}>
+                                        style={{ background: current === quizQuestions.length - 1 ? "linear-gradient(135deg,#6b3fa0,#ef4444)" : "linear-gradient(135deg,#ef4444,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: "13px 28px", fontSize: 15, fontWeight: 700, cursor: "pointer", transition: "all 0.2s", fontFamily: "inherit", boxShadow: "0 4px 20px rgba(239,68,68,0.3)" }}>
                                         {current === quizQuestions.length - 1 ? "🏁 Show Results" : "Next →"}
                                     </button>
                                 )}
@@ -413,21 +618,36 @@
                 );
             }
 
-            // === RESULT ===
+            // === RESULT PHASE ===
             if (phase === "result") {
-                const score = Object.entries(answers).filter(([idx, ans]) => quizQuestions[parseInt(idx)].jawaban === ans).length;
+                const byKelas = [7, 8, 9].map(k => {
+                    const qs = quizQuestions.filter(q => q.kelas === k);
+                    const correct = qs.filter(q2 => {
+                        const localIdx = quizQuestions.indexOf(q2);
+                        return answers[localIdx] === q2.jawaban;
+                    }).length;
+                    return { kelas: k, total: qs.length, correct };
+                }).filter(x => x.total > 0);
+
+                let score = 0;
+                Object.entries(answers).forEach(([idx, ans]) => {
+                    if (quizQuestions[parseInt(idx)].jawaban === ans) score++;
+                });
+                
                 const pct = Math.round((score / quizQuestions.length) * 100);
 
-                const grade = pct >= 90 ? { label: "Exceptional 🏆", color: "#f59e0b" }
-                    : pct >= 80 ? { label: "Excellent ✨", color: "#10b981" }
-                    : pct >= 60 ? { label: "Good 👍", color: "#3b82f6" }
-                    : { label: "Needs Review ✍️", color: "#ef4444" };
+                const grade = pct >= 90 ? { label: "Exceptional! 🏆", color: "#f59e0b" }
+                    : pct >= 80 ? { label: "Brilliant! ✨", color: "#10b981" }
+                    : pct >= 65 ? { label: "Good Effort 👍", color: "#3b82f6" }
+                    : pct >= 50 ? { label: "Needs Practice 📖", color: "#8b5cf6" }
+                    : { label: "Study Harder! ✍️", color: "#ef4444" };
 
                 if (reviewMode) {
                     const reviewQ = quizQuestions[reviewIdx];
-                    const kinfo = KELAS_INFO[reviewQ.kelas];
+                    const kinfo = KELAS_INFO[reviewQ.kelas] || KELAS_INFO[9];
                     const userAns = answers[reviewIdx];
                     const isCorrect = userAns === reviewQ.jawaban;
+                    
                     return (
                         <div style={{ minHeight: "100vh", background: "linear-gradient(160deg,#0d0d1a,#0d081a)", padding: "24px 16px 100px", fontFamily: "'Source Sans 3',sans-serif" }}>
                             <div style={{ maxWidth: 720, margin: "0 auto" }}>
@@ -437,7 +657,17 @@
                                 </div>
 
                                 <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "28px", marginBottom: 16 }}>
-                                    <pre style={{ color: "#fff", fontSize: 17, lineHeight: 1.7, fontFamily: "'Source Sans 3',serif", marginBottom: 24, whiteSpace: "pre-wrap" }}>{reviewQ.soal}</pre>
+                                    
+                                    {reviewQ.teks && (
+                                        <div className="teks-box">
+                                            {reviewQ.teks.split('\n').map((line, idx) => (
+                                                <p key={idx} style={{ margin: "0 0 8px" }}>{line}</p>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    <p style={{ color: "#fff", fontSize: 17, lineHeight: 1.7, fontFamily: "'Playfair Display',serif", marginBottom: 24 }}>{reviewQ.soal}</p>
+                                    
                                     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                                         {reviewQ.pilihan.map((p, i) => {
                                             const isAns = i === reviewQ.jawaban;
@@ -455,14 +685,14 @@
                                             );
                                         })}
                                     </div>
-                                    <div style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.25)", borderRadius: 16, padding: "20px 22px", marginTop: 20 }}>
-                                        <div style={{ color: "#60a5fa", fontWeight: 700, fontSize: 13, marginBottom: 8, letterSpacing: 0.5 }}>💡 EXPLANATION</div>
-                                        <p style={{ color: "rgba(255,255,255,0.8)", fontSize: 14, lineHeight: 1.7, margin: 0 }}>{reviewQ.pembahasan}</p>
+                                    <div style={{ marginTop: 20, background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 12, padding: "16px" }}>
+                                        <div style={{ color: "#ef4444", fontWeight: 700, fontSize: 12, marginBottom: 6 }}>💡 EXPLANATION</div>
+                                        <p style={{ color: "rgba(255,255,255,0.8)", fontSize: 13, margin: 0 }}>{reviewQ.pembahasan}</p>
                                     </div>
                                 </div>
                                 <div style={{ display: "flex", gap: 12 }}>
-                                    <button onClick={() => setReviewIdx(i => Math.max(0, i - 1))} disabled={reviewIdx === 0} style={{ flex: 1, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: "#fff", padding: 13, cursor: "pointer" }}>← Prev</button>
-                                    <button onClick={() => setReviewIdx(i => Math.min(quizQuestions.length - 1, i + 1))} disabled={reviewIdx === quizQuestions.length - 1} style={{ flex: 1, background: "linear-gradient(135deg,#3b82f6,#60a5fa)", border: "none", borderRadius: 12, color: "#fff", padding: 13, cursor: "pointer", fontWeight: 700 }}>Next →</button>
+                                    <button onClick={() => setReviewIdx(i => Math.max(0, i - 1))} disabled={reviewIdx === 0} style={{ flex: 1, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: "#fff", padding: 13, cursor: reviewIdx === 0 ? "not-allowed" : "pointer" }}>← Prev</button>
+                                    <button onClick={() => setReviewIdx(i => Math.min(quizQuestions.length - 1, i + 1))} disabled={reviewIdx === quizQuestions.length - 1} style={{ flex: 1, background: "linear-gradient(135deg,#ef4444,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: 13, cursor: reviewIdx === quizQuestions.length - 1 ? "not-allowed" : "pointer", fontWeight: 700 }}>Next →</button>
                                 </div>
                             </div>
                             <MusicPlayer />
@@ -473,19 +703,33 @@
                 return (
                     <div style={{ minHeight: "100vh", background: "linear-gradient(160deg,#0d0d1a,#080a1a,#0d100a)", padding: "40px 16px 100px", fontFamily: "'Source Sans 3',sans-serif" }}>
                         <div style={{ maxWidth: 680, margin: "0 auto", textAlign: "center" }}>
-                            <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(28px,5vw,48px)", color: "#fff", margin: "0 0 8px" }}>Quiz Score Result</h2>
+                            <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(28px,5vw,48px)", color: "#fff", margin: "0 0 8px" }}>Final Score</h2>
                             <div style={{ fontSize: "clamp(48px,10vw,80px)", fontWeight: 900, fontFamily: "'Playfair Display',serif", color: grade.color, lineHeight: 1 }}>{pct}%</div>
                             <div style={{ color: grade.color, fontSize: 20, fontWeight: 700, margin: "8px 0 4px" }}>{grade.label}</div>
                             <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: 36 }}>{score} out of {quizQuestions.length} correct</p>
 
+                            <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 12, marginBottom: 32 }}>
+                                {byKelas.map(({ kelas, total, correct }) => {
+                                    const kinfo = KELAS_INFO[kelas];
+                                    const p = Math.round((correct / total) * 100);
+                                    return (
+                                        <div key={kelas} style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${kinfo.color}33`, borderRadius: 16, padding: "18px 24px", minWidth: 120 }}>
+                                            <div style={{ color: kinfo.color, fontWeight: 900, fontFamily: "'Playfair Display',serif", fontSize: 28 }}>{p}%</div>
+                                            <div style={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>Grade {kelas}</div>
+                                            <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>{correct}/{total}</div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
                             <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
                                 <button onClick={() => { setReviewIdx(0); setReviewMode(true); }}
                                     style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 12, color: "#fff", padding: "13px 24px", cursor: "pointer", fontSize: 15, fontWeight: 600 }}>
-                                    📖 Review Questions
+                                    📖 Review Errors
                                 </button>
                                 <button onClick={startQuiz}
-                                    style={{ background: "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: "13px 28px", cursor: "pointer", fontSize: 15, fontWeight: 700 }}>
-                                    🔄 Retake Quiz (Shuffle)
+                                    style={{ background: "linear-gradient(135deg,#ef4444,#b91c1c)", border: "none", borderRadius: 12, color: "#fff", padding: "13px 28px", cursor: "pointer", fontSize: 15, fontWeight: 700 }}>
+                                    🔄 Retake Quiz
                                 </button>
                             </div>
                         </div>
@@ -493,6 +737,7 @@
                     </div>
                 );
             }
+            return null;
         }
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
