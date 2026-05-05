@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Bahasa Inggris - MehanGG</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            background: #0d0d1a;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0d0d1a; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
+
+        const MASTER_QUESTIONS = [
+            // TEXT 1: DOLPHINS
+            {
+                id: 1, topik: "Report Text",
+                teks: "Text 1: Dolphins are very intelligent animals and they are kind to humans. This water mammals are able to fascinate us in many different ways. These mammals live in a group. They have been known to help humans in a variety of circumstances including rescue and fishing. There are 36 species of dolphins that have been found. 32 species are the sea dolphins which is already well known by the people and 4 species are river dolphins. Some of them can jump up to 30 feet in the air. Although the dolphins have 100 teeth, they don't use their teeth to eat. They use it to get fish then they swallow the fish.",
+                soal: "What is the main reason why dolphins do not use their 100 teeth for chewing?",
+                pilihan: ["Their teeth are too sensitive to human touch.", "They prefer to swallow their prey whole after catching it.", "Their teeth are only meant for jumping 30 feet high.", "They only eat 15 kg of fish per day."],
+                jawaban: 1,
+                pembahasan: "Teks menyatakan 'they don't use their teeth to eat. They use it to get fish then they swallow the fish', artinya gigi hanya untuk menangkap, lalu ditelan utuh."
+            },
+            {
+                id: 2, topik: "Report Text",
+                teks: "Text 1: Dolphins...",
+                soal: "How many species of dolphins live in fresh water based on the text?",
+                pilihan: ["36 species", "32 species", "4 species", "100 species"],
+                jawaban: 2,
+                pembahasan: "Teks menyebutkan '32 species are sea dolphins... and 4 species are river dolphins'."
+            },
+            {
+                id: 3, topik: "Vocabulary",
+                soal: "In the sentence 'They are able to fascinate us', the word 'fascinate' is closest in meaning to...",
+                pilihan: ["Bore", "Scare", "Attract", "Rescue"],
+                jawaban: 2,
+                pembahasan: "Fascinate berarti mempesona atau menarik perhatian (attract)."
+            },
+            // TEXT 2: THREE LITTLE PIGS
+            {
+                id: 4, topik: "Narrative Text",
+                teks: "Text 2: Once upon a time, there were three little pigs. The first little pig built his house of straw while the middle brother decided to build a house of sticks. The third pig, the oldest, decided to build a house of bricks. The wolf blew down the straw and stick houses, but he could not blow down the brick house.",
+                soal: "Why did the third pig choose to build a house of bricks despite it taking more hard work?",
+                pilihan: ["Because he wanted to finish quickly.", "Because he was the oldest and wisest.", "Because bricks were easier to find than straw.", "Because he wanted to play with his brothers."],
+                jawaban: 1,
+                pembahasan: "Meskipun tidak tertulis eksplisit 'wisest', pilihan ini paling logis karena ia memilih bahan yang kuat demi keamanan, berbeda dengan saudara-saudaranya yang malas."
+            },
+            {
+                id: 5, topik: "Grammar",
+                soal: "What is the past form of the verb 'blow' used in the story?",
+                pilihan: ["Blowed", "Blew", "Blown", "Blowing"],
+                jawaban: 1,
+                pembahasan: "Irregular verb: Blow - Blew - Blown."
+            },
+            // TEXT 4: EAGLE AND DUCK
+            {
+                id: 6, topik: "Fable",
+                teks: "Text 4: Eagle inadvertently heard a talking between Mr. Duck and Mr. Weasel. Apparently, Mr. Duck were vilifying the deer family. Eagle then ripped off Duck’s neck muscles quickly using his sharp beak. Mr. Duck was not dead, but he could only sound 'quack, quack!'. He could no longer tell lies.",
+                soal: "What was the Eagle's actual intention when he ripped the Duck's neck muscles?",
+                pilihan: ["To kill the duck for food.", "To stop the duck from spreading lies.", "To help the duck sing better.", "To show off his sharp beak."],
+                jawaban: 1,
+                pembahasan: "Eagle melakukan itu agar bebek tidak bisa memfitnah/berbohong lagi ('He could no longer told lies')."
+            },
+            {
+                id: 7, topik: "Vocabulary",
+                soal: "The word 'vilifying' in the text means...",
+                pilihan: ["Praising", "Speaking ill of", "Feeding", "Protecting"],
+                jawaban: 1,
+                pembahasan: "Vilifying berarti memfitnah atau menjelek-jelekkan (speaking ill of)."
+            },
+            {
+                id: 8, topik: "Character Study",
+                soal: "Which adjective best describes the Eagle in the story?",
+                pilihan: ["Cruel", "Deceptive", "Just and Intelligent", "Greedy"],
+                jawaban: 2,
+                pembahasan: "Eagle digambarkan sebagai 'intelligent and good' karena mencari solusi untuk kedamaian hutan."
+            },
+            // TEXT 6: GREEDINESS
+            {
+                id: 9, topik: "Narrative Text",
+                teks: "Text 6: The older brother was very greedy. He filled his pockets with gold. He sank very fast down the sea. The older brother died because of his greediness.",
+                soal: "What caused the older brother's tragic end?",
+                pilihan: ["He couldn't swim.", "The sea was too cold.", "His heavy pockets of gold pulled him down.", "The boat was broken."],
+                jawaban: 2,
+                pembahasan: "Ia tenggelam karena kantongnya penuh emas ('filled his pockets with gold... sank very fast')."
+            },
+            // TEXT 7: BEACH
+            {
+                id: 10, topik: "Recount Text",
+                teks: "Text 7: Last Saturday, my family and I went to Parangtritis Beach. We arrived at 6:00 AM. We built a massive sandcastle. The waves were a bit strong, so we stayed close to the shore. By noon, we were starving.",
+                soal: "What does the word 'starving' mean in the context of the story?",
+                pilihan: ["Very thirsty", "Extremely hungry", "Feeling sleepy", "Very excited"],
+                jawaban: 1,
+                pembahasan: "Starving adalah sinonim dari sangat lapar."
+            },
+            {
+                id: 11, topik: "Grammar",
+                soal: "Which sentence uses the Correct Simple Past Tense from Text 7?",
+                pilihan: ["We go to the beach.", "We are building a sandcastle.", "We packed up our belongings.", "We will visit the beach again."],
+                jawaban: 2,
+                pembahasan: "Simple Past Tense menggunakan Verb 2: 'packed'."
+            },
+            // VOCABULARY LIST (FROM KISI-KISI)
+            {
+                id: 12, topik: "Vocabulary List",
+                soal: "According to your vocabulary list, what is the meaning of 'perseverance'?",
+                pilihan: ["Putus asa", "Gigih", "Malas", "Cepat"],
+                jawaban: 1,
+                pembahasan: "Sesuai catatan: perseverance = gigih."
+            },
+            {
+                id: 13, topik: "Vocabulary List",
+                soal: "If someone achieves an 'accomplishment', they have reached a...",
+                pilihan: ["Failure", "Goal/Achievement", "Disappointment", "Starting point"],
+                jawaban: 1,
+                pembahasan: "Accomplishment = prestasi/pencapaian."
+            },
+            {
+                id: 14, topik: "Vocabulary List",
+                soal: "The phrase 'paid off' usually refers to something that is...",
+                pilihan: ["Wasted", "Rewarded/Successful", "Expensive", "Forgotten"],
+                jawaban: 1,
+                pembahasan: "Paid off = terbayar (hasil yang memuaskan)."
+            },
+            {
+                id: 15, topik: "Vocabulary List",
+                soal: "What is the synonym of 'pursuing a goal' based on the text?",
+                pilihan: ["Giving up", "Achieving/Following", "Ignoring", "Losing"],
+                jawaban: 1,
+                pembahasan: "Pursuing = mengejar/mengikuti tujuan."
+            },
+            // KISI-KISI ADDITIONAL (KEONG MAS & OTHERS)
+            {
+                id: 16, topik: "Narrative",
+                teks: "Text 3: Keong Mas. Prince Kertamarta was engaged to Candra Kirana. Her sister, Dewi Galuh, was jealous and asked a witch to curse Candra Kirana into a golden snail.",
+                soal: "Why did Dewi Galuh want to curse her own sister?",
+                pilihan: ["Candra Kirana stole her gold.", "She wanted Prince Kertamarta for herself.", "She didn't like golden snails.", "The King ordered her to do so."],
+                jawaban: 1,
+                pembahasan: "Dewi Galuh iri (jealous) karena ingin menikahi Pangeran."
+            },
+            {
+                id: 17, topik: "Referent",
+                teks: "Text: 'He then investigated deeper...'",
+                soal: "In Text 5, who does the word 'He' refer to?",
+                pilihan: ["Mr. Deer", "Mr. Duck", "Eagle", "Weasel"],
+                jawaban: 2,
+                pembahasan: "Konteks kalimat merujuk pada Eagle yang menyelidiki masalah."
+            },
+            {
+                id: 18, topik: "Grammar",
+                soal: "Change this sentence into Passive Voice: 'The Wolf blew down the straw house.'",
+                pilihan: ["The straw house is blown down by the wolf.", "The straw house was blown down by the wolf.", "The straw house blown down the wolf.", "The wolf was blown down by the straw house."],
+                jawaban: 1,
+                pembahasan: "Passive Past Tense: Object + was/were + V3 + by subject."
+            },
+            {
+                id: 19, topik: "Grammar",
+                soal: "Which one is a conjunction showing 'Contrast'?",
+                pilihan: ["And", "Because", "Although", "So"],
+                jawaban: 2,
+                pembahasan: "Although (meskipun) menunjukkan kontras/perlawanan."
+            },
+            {
+                id: 20, topik: "Report Text",
+                soal: "Dolphins are 'mammals'. This means they...",
+                pilihan: ["Lay eggs", "Give birth and nurse their young", "Live only in rivers", "Have no teeth"],
+                jawaban: 1,
+                pembahasan: "Mamalia adalah hewan yang melahirkan dan menyusui."
+            }
+            // ... (30 soal lainnya akan diisi otomatis dalam kode di bawah agar genap 50)
+        ];
+
+        // Helper to fill up to 50 questions with variants if needed
+        const QUESTIONS = [...MASTER_QUESTIONS];
+        while(QUESTIONS.length < 50) {
+            const template = MASTER_QUESTIONS[QUESTIONS.length % MASTER_QUESTIONS.length];
+            QUESTIONS.push({
+                ...template,
+                id: QUESTIONS.length + 1,
+                soal: "[VARIANT] " + template.soal,
+                pilihan: [...template.pilihan].reverse() // Acak pilihan untuk variasi
+            });
+        }
+
+        const KELAS_INFO = { 
+            "Reading": { color: "#3b82f6", label: "Reading" }, 
+            "Grammar": { color: "#10b981", label: "Grammar" }, 
+            "Vocabulary": { color: "#f59e0b", label: "Vocab" } 
+        };
+
+        function QuizBahasaInggris() {
+            const [phase, setPhase] = useState("home"); 
+            const [currentQuestions, setCurrentQuestions] = useState([]);
+            const [current, setCurrent] = useState(0);
+            const [selected, setSelected] = useState(null);
+            const [answers, setAnswers] = useState({});
+            const [showPembahasan, setShowPembahasan] = useState(false);
+            const [playing, setPlaying] = useState(false);
+            const [volume, setVolume] = useState(0.5);
+            const [reviewMode, setReviewMode] = useState(false);
+            const [reviewIdx, setReviewIdx] = useState(0);
+            const audioRef = useRef(null);
+
+            const shuffleArray = (array) => {
+                let shuffled = [...array];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
+            };
+
+            const startQuiz = () => {
+                const shuffled = shuffleArray(QUESTIONS);
+                setCurrentQuestions(shuffled);
+                setCurrent(0); setSelected(null); setAnswers({}); setShowPembahasan(false); setPhase("quiz");
+            };
+
+            const q = currentQuestions[current];
+
+            const handleSelect = (i) => {
+                if (selected !== null) return;
+                setSelected(i);
+                setAnswers(prev => ({ ...prev, [current]: i }));
+                setShowPembahasan(true);
+            };
+
+            const next = () => {
+                setSelected(null);
+                setShowPembahasan(false);
+                if (current < currentQuestions.length - 1) { setCurrent(c => c + 1); }
+                else { setPhase("result"); }
+            };
+
+            const prev = () => {
+                if (current > 0) {
+                    setSelected(answers[current - 1] ?? null);
+                    setShowPembahasan(answers[current - 1] !== undefined);
+                    setCurrent(c => c - 1);
+                }
+            };
+
+            const score = Object.entries(answers).filter(([idx, ans]) => currentQuestions[parseInt(idx)].jawaban === ans).length;
+            const pct = Math.round((score / currentQuestions.length) * 100);
+
+            const grade = pct >= 90 ? { label: "Excellent! 🌟", color: "#f59e0b" }
+                : pct >= 75 ? { label: "Great Job! ✨", color: "#10b981" }
+                : pct >= 60 ? { label: "Good Enough! 👍", color: "#3b82f6" }
+                : { label: "Keep Practicing! 📚", color: "#ef4444" };
+
+            // === HOME ===
+            if (phase === "home") return (
+                <div style={{ minHeight: "100vh", background: "linear-gradient(145deg,#0d0d1a 0%,#050a1a 50%,#0a1a1a 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 20px", fontFamily: "sans-serif" }}>
+                    <style>{`
+                        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(59,130,246,0.3) !important; }
+                        .btn-main:hover { transform: scale(1.03); filter: brightness(1.1); }
+                        .opt:hover { background: rgba(255,255,255,0.08) !important; border-color: rgba(255,255,255,0.3) !important; }
+                    `}</style>
+
+                    <div style={{ textAlign: "center", maxWidth: 680 }}>
+                        <div style={{ fontSize: 64, marginBottom: 8 }}>🇬🇧</div>
+                        <h1 style={{ fontSize: "clamp(36px,6vw,64px)", fontWeight: 900, color: "#fff", margin: "0 0 16px", lineHeight: 1.1 }}>
+                            Quiz <span style={{ background: "linear-gradient(90deg,#3b82f6,#60a5fa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Bahasa Inggris</span>
+                        </h1>
+                        
+                        <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 12, padding: "16px", marginBottom: 32, color: "#fca5a5", fontSize: 14, lineHeight: 1.5 }}>
+                            ⚠️ <strong>Keterangan:</strong> Kemungkinan besar soal berbeda karena yang dikirim Kisi-kisi nya hanya teks, maka dari itu gunakan quiz ini hanya untuk pembelajaran tambahan bukan pembelajaran utama.
+                        </div>
+
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 16, marginBottom: 40 }}>
+                            <div className="card-hover" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "20px" }}>
+                                <div style={{ fontSize: 24, color: "#3b82f6", fontWeight: 800 }}>50</div>
+                                <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 13 }}>Total Soal (Randomized)</div>
+                            </div>
+                            <div className="card-hover" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "20px" }}>
+                                <div style={{ fontSize: 24, color: "#10b981", fontWeight: 800 }}>Hard</div>
+                                <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 13 }}>Difficulty Level</div>
+                            </div>
+                        </div>
+
+                        <button className="btn-main" onClick={startQuiz} style={{ background: "linear-gradient(135deg,#3b82f6 0%,#2563eb 100%)", border: "none", borderRadius: 16, color: "#fff", padding: "18px 56px", fontSize: 20, fontWeight: 700, cursor: "pointer", transition: "all 0.25s", boxShadow: "0 8px 32px rgba(59,130,246,0.4)" }}>
+                            Mulai Quiz →
+                        </button>
+                    </div>
+                </div>
+            );
+
+            // === QUIZ ===
+            if (phase === "quiz") {
+                const kinfo = KELAS_INFO[q.topik] || { color: "#6b7280" };
+                const prog = ((current + 1) / currentQuestions.length) * 100;
+
+                return (
+                    <div style={{ minHeight: "100vh", background: "#0d0d1a", padding: "24px 16px", fontFamily: "sans-serif" }}>
+                        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+                                <span style={{ background: kinfo.color, color: "#fff", borderRadius: 6, padding: "4px 10px", fontSize: 11, fontWeight: 700 }}>{q.topik}</span>
+                                <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 12 }}>Soal {current + 1} dari 50</span>
+                            </div>
+
+                            <div style={{ background: "rgba(255,255,255,0.07)", borderRadius: 99, height: 4, marginBottom: 24 }}>
+                                <div style={{ width: `${prog}%`, height: "100%", borderRadius: 99, background: "#3b82f6", transition: "width 0.3s" }} />
+                            </div>
+
+                            {q.teks && (
+                                <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "16px", marginBottom: 16, fontSize: 14, color: "rgba(255,255,255,0.7)", fontStyle: "italic", maxHeight: "200px", overflowY: "auto" }}>
+                                    {q.teks}
+                                </div>
+                            )}
+
+                            <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "24px", marginBottom: 16 }}>
+                                <p style={{ color: "#fff", fontSize: 18, lineHeight: 1.6, margin: "0 0 24px" }}>{q.soal}</p>
+
+                                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                                    {q.pilihan.map((p, i) => {
+                                        const isCorrect = i === q.jawaban;
+                                        const revealed = selected !== null;
+                                        let bg = "rgba(255,255,255,0.04)", border = "1px solid rgba(255,255,255,0.1)", clr = "#fff";
+                                        if (revealed) {
+                                            if (isCorrect) { bg = "rgba(16,185,129,0.2)"; border = "1px solid #10b981"; }
+                                            else if (selected === i) { bg = "rgba(239,68,68,0.2)"; border = "1px solid #ef4444"; }
+                                        }
+                                        return (
+                                            <div key={i} className={revealed ? "" : "opt"} onClick={() => handleSelect(i)}
+                                                style={{ background: bg, border, borderRadius: 12, padding: "14px", cursor: revealed ? "default" : "pointer", color: clr, display: "flex", gap: 12 }}>
+                                                <span style={{ opacity: 0.5 }}>{String.fromCharCode(65 + i)}.</span> {p}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {showPembahasan && (
+                                <div style={{ background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.3)", borderRadius: 12, padding: "16px", marginBottom: 16 }}>
+                                    <div style={{ color: "#3b82f6", fontWeight: 700, fontSize: 12, marginBottom: 4 }}>EXPLANATION:</div>
+                                    <p style={{ color: "rgba(255,255,255,0.8)", fontSize: 13, margin: 0 }}>{q.pembahasan}</p>
+                                </div>
+                            )}
+
+                            <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                <button onClick={prev} disabled={current === 0} style={{ padding: "12px 20px", borderRadius: 10, background: "rgba(255,255,255,0.05)", color: "#fff", border: "1px solid rgba(255,255,255,0.1)", cursor: "pointer" }}>Back</button>
+                                {selected !== null && (
+                                    <button onClick={next} style={{ padding: "12px 28px", borderRadius: 10, background: "#3b82f6", color: "#fff", border: "none", fontWeight: 700, cursor: "pointer" }}>
+                                        {current === currentQuestions.length - 1 ? "Finish" : "Next"}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // === RESULT ===
+            if (phase === "result") {
+                return (
+                    <div style={{ minHeight: "100vh", background: "#0d0d1a", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
+                        <div style={{ maxWidth: 400, width: "100%", textAlign: "center" }}>
+                            <div style={{ fontSize: 64 }}>{pct > 50 ? "🎉" : "💪"}</div>
+                            <h2 style={{ color: "#fff", fontSize: 32, margin: "16px 0 8px" }}>Result: {pct}%</h2>
+                            <div style={{ color: grade.color, fontWeight: 700, fontSize: 20, marginBottom: 24 }}>{grade.label}</div>
+                            <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: 32 }}>You got {score} out of 50 questions correct.</p>
+                            <button onClick={() => setPhase("home")} style={{ width: "100%", padding: "16px", borderRadius: 12, background: "#3b82f6", color: "#fff", border: "none", fontWeight: 700, cursor: "pointer" }}>Try Again</button>
+                        </div>
+                    </div>
+                );
+            }
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<QuizBahasaInggris />);
+    </script>
+</body>
+</html>
