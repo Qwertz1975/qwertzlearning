@@ -224,7 +224,7 @@
                 soal: "Jepang membentuk gerakan 3A (Cahaya, Pelindung, dan Pemimpin Asia). Namun, propaganda ini gagal menarik simpati rakyat karena...",
                 pilihan: ["Gerakan ini terlalu banyak memberi fasilitas bagi kaum terpelajar", "Gerakan ini dipimpin oleh tokoh nasionalis radikal", "Rakyat menyadari itu hanya strategi untuk mengeksploitasi sumber daya", "Tokoh gerakan secara terang-terangan memberontak kepada Jepang"],
                 jawaban: 2,
-                pembahasan: "Rakyat dan tokoh nasionalis tidak simpati karena gerakan 3A jelas hanya alat propaganda Jepang demi kepentingan perang mereka, bukan untuk kemerdekaan."
+                pembahasan: "Rakyat and tokoh nasionalis tidak simpati karena gerakan 3A jelas hanya alat propaganda Jepang demi kepentingan perang mereka, bukan untuk kemerdekaan."
             },
             {
                 id: 29, kelas: 8, topik: "Kolonialisme Belanda",
@@ -286,7 +286,7 @@
             },
             {
                 id: 37, kelas: 9, topik: "Dinamika Penduduk Asia",
-                soal: "Tiongkok, Indonesia, dan India menyumbang jumlah populasi terbesar di Asia. Dampak kepadatan penduduk yang tinggi di negara-negara tersebut adalah...",
+                soal: "Tiongkok, Indonesia, and India menyumbang jumlah populasi terbesar di Asia. Dampak kepadatan penduduk yang tinggi di negara-negara tersebut adalah...",
                 pilihan: ["Harga properti dan perumahan menjadi sangat murah", "Angka harapan hidup otomatis menjadi paling tinggi", "Tingginya alih fungsi lahan pertanian menjadi pemukiman", "Tidak terjadi masalah pencemaran lingkungan"],
                 jawaban: 2,
                 pembahasan: "Kepadatan penduduk yang tinggi membutuhkan ruang tinggal. Akibatnya, lahan pertanian hijau banyak diubah (alih fungsi) menjadi lahan perumahan dan industri."
@@ -402,6 +402,7 @@
             const [volume, setVolume] = useState(0.5);
             const [reviewMode, setReviewMode] = useState(false);
             const [reviewIdx, setReviewIdx] = useState(0);
+            const [activeQuestions, setActiveQuestions] = useState(QUESTIONS); // State untuk menyimpan soal yang sudah diacak
             const audioRef = useRef(null);
             const fileInputRef = useRef(null);
 
@@ -426,7 +427,8 @@
                 setPlaying(!playing);
             };
 
-            const q = QUESTIONS[current];
+            // Mengambil soal dari activeQuestions bukan QUESTIONS global
+            const q = activeQuestions[current];
 
             const handleSelect = (i) => {
                 if (selected !== null) return;
@@ -438,7 +440,7 @@
             const next = () => {
                 setSelected(null);
                 setShowPembahasan(false);
-                if (current < QUESTIONS.length - 1) { setCurrent(c => c + 1); }
+                if (current < activeQuestions.length - 1) { setCurrent(c => c + 1); }
                 else { setPhase("result"); }
             };
 
@@ -451,11 +453,20 @@
             };
 
             const startQuiz = () => {
-                setCurrent(0); setSelected(null); setAnswers({}); setShowPembahasan(false); setPhase("quiz");
+                // FITUR ACAK SOAL: Mengacak array QUESTIONS sebelum masuk ke fase quiz
+                const shuffled = [...QUESTIONS].sort(() => Math.random() - 0.5);
+                setActiveQuestions(shuffled);
+                
+                setCurrent(0); 
+                setSelected(null); 
+                setAnswers({}); 
+                setShowPembahasan(false); 
+                setPhase("quiz");
             };
 
-            const score = Object.entries(answers).filter(([idx, ans]) => QUESTIONS[parseInt(idx)].jawaban === ans).length;
-            const pct = Math.round((score / QUESTIONS.length) * 100);
+            // Kalkulasi skor menggunakan activeQuestions
+            const score = Object.entries(answers).filter(([idx, ans]) => activeQuestions[parseInt(idx)].jawaban === ans).length;
+            const pct = Math.round((score / activeQuestions.length) * 100);
 
             const grade = pct >= 90 ? { label: "Sempurna! 🏆", color: "#f59e0b" }
                 : pct >= 80 ? { label: "Sangat Baik! 🌟", color: "#10b981" }
@@ -532,7 +543,7 @@
             // === QUIZ ===
             if (phase === "quiz") {
                 const kinfo = KELAS_INFO[q.kelas];
-                const prog = ((current + 1) / QUESTIONS.length) * 100;
+                const prog = ((current + 1) / activeQuestions.length) * 100;
                 const answered = Object.keys(answers).length;
 
                 return (
@@ -543,7 +554,7 @@
                                     <span style={{ background: kinfo.color, color: "#fff", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>{kinfo.label}</span>
                                     <span style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.6)", borderRadius: 8, padding: "4px 10px", fontSize: 12 }}>{q.topik}</span>
                                 </div>
-                                <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 13 }}>{answered}/{QUESTIONS.length} dijawab</span>
+                                <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 13 }}>{answered}/{activeQuestions.length} dijawab</span>
                             </div>
 
                             <div style={{ background: "rgba(255,255,255,0.07)", borderRadius: 99, height: 6, marginBottom: 24 }}>
@@ -593,8 +604,8 @@
                                 </button>
                                 {selected !== null && (
                                     <button className="btn-nav" onClick={next}
-                                        style={{ background: current === QUESTIONS.length - 1 ? "linear-gradient(135deg,#6b3fa0,#e85d26)" : "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: "13px 28px", fontSize: 15, fontWeight: 700, cursor: "pointer", transition: "all 0.2s", fontFamily: "inherit", boxShadow: "0 4px 20px rgba(232,93,38,0.3)" }}>
-                                        {current === QUESTIONS.length - 1 ? "🏁 Lihat Hasil" : "Selanjutnya →"}
+                                        style={{ background: current === activeQuestions.length - 1 ? "linear-gradient(135deg,#6b3fa0,#e85d26)" : "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: "13px 28px", fontSize: 15, fontWeight: 700, cursor: "pointer", transition: "all 0.2s", fontFamily: "inherit", boxShadow: "0 4px 20px rgba(232,93,38,0.3)" }}>
+                                        {current === activeQuestions.length - 1 ? "🏁 Lihat Hasil" : "Selanjutnya →"}
                                     </button>
                                 )}
                             </div>
@@ -607,16 +618,16 @@
             // === RESULT ===
             if (phase === "result") {
                 const byKelas = [7, 8, 9].map(k => {
-                    const qs = QUESTIONS.filter((_, i) => QUESTIONS[i].kelas === k);
+                    const qs = activeQuestions.filter((qItem) => qItem.kelas === k);
                     const correct = qs.filter((q2) => {
-                        const globalIdx = QUESTIONS.indexOf(q2);
+                        const globalIdx = activeQuestions.indexOf(q2);
                         return answers[globalIdx] === q2.jawaban;
                     }).length;
                     return { kelas: k, total: qs.length, correct };
                 });
 
                 if (reviewMode) {
-                    const reviewQ = QUESTIONS[reviewIdx];
+                    const reviewQ = activeQuestions[reviewIdx];
                     const kinfo = KELAS_INFO[reviewQ.kelas];
                     const userAns = answers[reviewIdx];
                     const isCorrect = userAns === reviewQ.jawaban;
@@ -650,7 +661,7 @@
                                 </div>
                                 <div style={{ display: "flex", gap: 12 }}>
                                     <button onClick={() => setReviewIdx(i => Math.max(0, i - 1))} disabled={reviewIdx === 0} style={{ flex: 1, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: "#fff", padding: 13, cursor: "pointer" }}>← Prev</button>
-                                    <button onClick={() => setReviewIdx(i => Math.min(49, i + 1))} disabled={reviewIdx === 49} style={{ flex: 1, background: "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: 13, cursor: "pointer", fontWeight: 700 }}>Next →</button>
+                                    <button onClick={() => setReviewIdx(i => Math.min(activeQuestions.length - 1, i + 1))} disabled={reviewIdx === activeQuestions.length - 1} style={{ flex: 1, background: "linear-gradient(135deg,#e85d26,#f59e0b)", border: "none", borderRadius: 12, color: "#fff", padding: 13, cursor: "pointer", fontWeight: 700 }}>Next →</button>
                                 </div>
                             </div>
                             <MusicPlayer />
@@ -664,12 +675,12 @@
                             <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(28px,5vw,48px)", color: "#fff", margin: "0 0 8px" }}>Hasil Quiz IPS</h2>
                             <div style={{ fontSize: "clamp(48px,10vw,80px)", fontWeight: 900, fontFamily: "'Playfair Display',serif", color: grade.color, lineHeight: 1 }}>{pct}%</div>
                             <div style={{ color: grade.color, fontSize: 20, fontWeight: 700, margin: "8px 0 4px" }}>{grade.label}</div>
-                            <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: 36 }}>{score} dari {QUESTIONS.length} soal benar</p>
+                            <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: 36 }}>{score} dari {activeQuestions.length} soal benar</p>
 
                             <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 32 }}>
                                 {byKelas.map(({ kelas, total, correct }) => {
                                     const kinfo = KELAS_INFO[kelas];
-                                    const p = Math.round((correct / total) * 100);
+                                    const p = total > 0 ? Math.round((correct / total) * 100) : 0;
                                     return (
                                         <div key={kelas} style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${kinfo.color}33`, borderRadius: 16, padding: "18px 12px" }}>
                                             <div style={{ color: kinfo.color, fontWeight: 900, fontFamily: "'Playfair Display',serif", fontSize: 28 }}>{p}%</div>
